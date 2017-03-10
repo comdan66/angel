@@ -58,30 +58,17 @@ class LogText extends OaLineModel {
     }
     $conditions = array ('type IN (?)', $type);
 
-    write_file (FCPATH . 'temp/input.json', "0 " . $type . "\n----------------------\n", FOPEN_READ_WRITE_CREATE);
-
     $limit = 10;
     $total = Keyword::count (array ('conditions' => $conditions));
-    write_file (FCPATH . 'temp/input.json', "1 " . $total . "\n----------------------\n", FOPEN_READ_WRITE_CREATE);
-    
-    for ($offset = 0; $offset < $total; $offset += $limit) {
-      write_file (FCPATH . 'temp/input.json', "2 " . $offset . ", " . $limit . " \n----------------------\n", FOPEN_READ_WRITE_CREATE);
-      $keywords = Keyword::find ('all', array ('select' => 'id,pattern, method', 'order' => 'weight DESC', 'include' => array ('contents'), 'limit' => $limit, 'offset' => $offset, 'conditions' => $conditions));
-      write_file (FCPATH . 'temp/input.json', "4 " . count($keywords) . " \n----------------------\n", FOPEN_READ_WRITE_CREATE);
 
-      foreach ($keywords as $keyword) {
-        write_file (FCPATH . 'temp/input.json', "4 " . $keyword->pattern . " \n----------------------\n", FOPEN_READ_WRITE_CREATE);
-
-        if ($keys = LogText::regex ('/' . $keyword->pattern . '/', $this->text)) {
-        write_file (FCPATH . 'temp/input.json', "5 " . count($keys) . " \n----------------------\n", FOPEN_READ_WRITE_CREATE);
-
+    for ($offset = 0; $offset < $total; $offset += $limit)
+      foreach (Keyword::find ('all', array ('select' => 'id,pattern, method', 'order' => 'weight DESC', 'include' => array ('contents'), 'limit' => $limit, 'offset' => $offset, 'conditions' => $conditions)) as $keyword)
+        if ($keys = LogText::regex ('/' . $keyword->pattern . '/', $this->text))
           return array (
               'keys' => $keys,
               'keyword' => $keyword,
             );
-        }
-      }
-    }
+        
     return array ();
   }
   private function replyFlickr ($keys) {
@@ -129,6 +116,7 @@ class LogText extends OaLineModel {
     if (!isset ($this->text)) return false;
     if (!$match = $this->match ()) return false;
     $this->log->setStatus (Log::STATUS_MATCH);
+    write_file (FCPATH . 'temp/input.json', "0 " . count($match) . "\n----------------------\n", FOPEN_READ_WRITE_CREATE);
 
     switch ($match['keyword']->method) {
       case Keyword::METHOD_ALLEY_KEYWORD:

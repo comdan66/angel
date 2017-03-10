@@ -68,11 +68,15 @@ class LogText extends OaLineModel {
 
     for ($offset = 0; $offset < $total; $offset += $limit)
       foreach (Keyword::find ('all', array ('select' => 'id,pattern, method, weight', 'order' => 'weight DESC', 'include' => array ('contents'), 'limit' => $limit, 'offset' => $offset, 'conditions' => $conditions)) as $keyword)
-        if (($keys = LogText::regex ($keyword->pattern, $this->text)) && ($keyword->weight = $keyword->weight + 1) && ($keyword->save ()))
+        if ($keys = LogText::regex ($keyword->pattern, $this->text)) {
+          $keyword->weight = $keyword->weight + 1;
+          $keyword->save ();
           return array (
               'keys' => $keys,
               'keyword' => $keyword,
             );
+        }
+          
         
     return array ();
   }

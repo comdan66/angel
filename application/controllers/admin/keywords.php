@@ -38,7 +38,7 @@ class Keywords extends Admin_controller {
 
     $limit = 25;
     $total = Keyword::count (array ('conditions' => $conditions));
-    $objs = Keyword::find ('all', array ('include' => array ('contents'), 'offset' => $offset < $total ? $offset : 0, 'limit' => $limit, 'order' => 'id DESC', 'conditions' => $conditions));
+    $objs = Keyword::find ('all', array ('include' => array ('contents'), 'offset' => $offset < $total ? $offset : 0, 'limit' => $limit, 'order' => 'weight DESC', 'conditions' => $conditions));
 
     return $this->load_view (array (
         'objs' => $objs,

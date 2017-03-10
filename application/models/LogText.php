@@ -72,10 +72,8 @@ class LogText extends OaLineModel {
     return array ();
   }
   private function replyFlickr ($keys) {
-        write_file (FCPATH . 'temp/input.json', "~ 1 \n----------------------\n", FOPEN_READ_WRITE_CREATE);
     $this->CI->load->library ('CreateDemo');
     if (!$datas = CreateDemo::pics (4, 5, $keys)) return new TextMessageBuilder ('哭哭，找不到你想要的 ' . implode (' ', $keys) . ' 耶..');
-        write_file (FCPATH . 'temp/input.json', "~ 2 \n----------------------\n", FOPEN_READ_WRITE_CREATE);
 
     return new TemplateMessageBuilder (mb_strimwidth (implode (',', $keys) . ' 來囉！', 0, 198 * 2, '…','UTF-8'), new CarouselTemplateBuilder (array_map (function ($data) {
         return new CarouselColumnTemplateBuilder (
@@ -100,7 +98,20 @@ class LogText extends OaLineModel {
   }
   private function replyAlleyKeyword ($keys) {
     $this->CI->load->library ('AlleyGet');
-    if (!$datas = AlleyGet::search (implode (' ', $keys))) return new TextMessageBuilder ('哭哭，找不到你想要的 ' . implode (' ', $keys) . ' 耶..');
+    if (!$datas = AlleyGet::search (implode (' ', $keys))) return null;
+
+    return new TemplateMessageBuilder (mb_strimwidth (implode (',', $keys) . ' 來囉！', 0, 198 * 2, '…','UTF-8'), new CarouselTemplateBuilder (array_map (function ($data) {
+      return new CarouselColumnTemplateBuilder (
+        mb_strimwidth ($data['title'], 0, 18 * 2, '…','UTF-8'),
+        mb_strimwidth ($data['desc'], 0, 28 * 2, '…','UTF-8'),
+        $data['img'],
+        array (new UriTemplateActionBuilder (mb_strimwidth ('我要吃 ' . $data['title'], 0, 8 * 2, '…','UTF-8'), $data['url']))
+      );
+    }, $datas)));
+  }
+  private function replyAlleyReCommend ($keys) {
+    $this->CI->load->library ('AlleyGet');
+    if (!$datas = AlleyGet::recommend ()) return null;
 
     return new TemplateMessageBuilder (mb_strimwidth (implode (',', $keys) . ' 來囉！', 0, 198 * 2, '…','UTF-8'), new CarouselTemplateBuilder (array_map (function ($data) {
       return new CarouselColumnTemplateBuilder (
@@ -121,21 +132,24 @@ class LogText extends OaLineModel {
     
 
     switch ($match['keyword']->method) {
+      
+      case Keyword::METHOD_TEXT:
+        return ($builder = $this->replyText ($match['keyword']->contents) && $this->reply ($bot, $builder));
+        break;
       case Keyword::METHOD_ALLEY_KEYWORD:
-        return $this->reply ($bot, $this->replyAlleyKeyword ($match['keys']));
+        return ($builder = $this->replyAlleyKeyword ($match['keys']) && $this->reply ($bot, $builder));
         break;
       
       case Keyword::METHOD_YOUTUBE:
-        return $this->reply ($bot, $this->replyYoutube ($match['keys']));
+        return ($builder = $this->replyYoutube ($match['keys']) && $this->reply ($bot, $builder));
         break;
       
       case Keyword::METHOD_FLICKR:
-        write_file (FCPATH . 'temp/input.json', "~ 0 \n----------------------\n", FOPEN_READ_WRITE_CREATE);
-        return $this->reply ($bot, $this->replyFlickr ($match['keys']));
+        return ($builder = $this->replyFlickr ($match['keys']) && $this->reply ($bot, $builder));
         break;
       
-      case Keyword::METHOD_TEXT:
-        return $this->reply ($bot, $this->replyText ($match['keyword']->contents));
+      case Keyword::METHOD_ALLEY_RECOMMEND:
+        return ($builder = $this->replyAlleyReCommend ($match['keys']) && $this->reply ($bot, $builder));
         break;
       
       default:

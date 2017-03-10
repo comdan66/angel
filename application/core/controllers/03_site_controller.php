@@ -1,8 +1,9 @@
-<?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+<?php defined ('BASEPATH') OR exit ('No direct script access allowed');
 
 /**
  * @author      OA Wu <comdan66@gmail.com>
  * @copyright   Copyright (c) 2016 OA Wu Design
+ * @link        http://www.ioa.tw/
  */
 
 class Site_controller extends Oa_controller {
@@ -16,7 +17,7 @@ class Site_controller extends Oa_controller {
          ->set_content_path ('content', 'site')
          ->set_public_path ('public')
 
-         ->set_title ("OA's CI")
+         ->set_title ("小添屎")
 
          ->_add_meta ()
          ->_add_css ()
@@ -33,8 +34,6 @@ class Site_controller extends Oa_controller {
   }
 
   private function _add_js () {
-    return $this->add_js (base_url ('resource', 'javascript', 'jquery_v1.10.2', 'jquery-1.10.2.min.js'))
-                ->add_js (base_url ('resource', 'javascript', 'jquery-rails_d2015_03_09', 'jquery_ujs.js'))
-                ;
+    return $this->add_js (res_url ('res', 'js', 'site.js'));
   }
 }

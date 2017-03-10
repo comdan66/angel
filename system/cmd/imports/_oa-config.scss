@@ -10,7 +10,7 @@ $mediaMobileWidth: 640px !global;
 $mediaTabletWidth: 960px !global;
 
 $mainBackgroundColor: rgba(255, 255, 255, 1) !global;
-$mainBackgroundImage: image-url('bg/grunge.png', false, false) !global;
+$mainBackgroundImage: image-url('bg/background.jpg', false, false) !global;
 
 $btns: (
   'red':  (244, 67, 54),
@@ -32,5 +32,8 @@ $btns: (
   'brown': (121, 85, 72),
   'gray': (158, 158, 158),
   'blue-gray': (96, 125, 139),
-  'white': (200, 200, 200)
+  'white': (200, 200, 200),
+  'mazu': (174, 48, 41),
+  'mazu2': (206, 83, 65),
+  'zeus': (38, 185, 154),
 ) !global;

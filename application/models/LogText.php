@@ -43,6 +43,8 @@ class LogText extends OaLineModel {
   }
 
   public static function regex ($pattern, $str) {
+        write_file (FCPATH . 'temp/input.json', "4.1 " . $pattern . " \n----------------------\n", FOPEN_READ_WRITE_CREATE);
+
     preg_match_all ($pattern, $str, $result);
     if (!(isset ($result['c']) && $result['c'])) return array ();
     return preg_split ('/[\s,]+/', $result['c'][0]);

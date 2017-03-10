@@ -46,7 +46,7 @@ class LogText extends OaLineModel {
 
   public static function regex ($pattern, $str) {
     
-    $pattern = !preg_match ('/\(\?P<keyword>.+\)/', $pattern) ? '/(?P<keyword>(' . $pattern . '))/i' : ('/' . $pattern . '/i');
+    $pattern = !preg_match ('/\(\?P<keyword>.+\)/', $pattern) ? '/(?P<keyword>(' . $pattern . '))/i' : ('/(' . $pattern . ')/i');
 
     preg_match_all ($pattern, $str, $result);
     if (!(isset ($result['keyword']) && $result['keyword'])) return array ();

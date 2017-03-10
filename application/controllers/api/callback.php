@@ -89,11 +89,13 @@ class Callback extends Api_controller {
           if (!LogText::transaction (function () use (&$logText, $params) { return verifyCreateOrm ($logText = LogText::create ( array_intersect_key ($params, LogText::table ()->columns))); })) return false;
           $log->setStatus (Log::STATUS_CONTENT);
 
-          // if ($logText->searchLocation ($bot) ||
-          //     $logText->searchWeather ($bot) ||
-          //     $logText->compare ($bot) ||
-          //     false)
-          //   echo 'Succeeded!';
+          if ($this->log->source_id != 'U4a37e32a1d11b3995d2bf299597e432f') return false;
+
+          if ($logText->searchLocation ($bot) ||
+              $logText->searchWeather ($bot) ||
+              $logText->compare ($bot) ||
+              false)
+            echo 'Succeeded!';
 
           // if ($logText->searchIWantLook ($bot) ||
           //     $logText->searchIWantListen ($bot) ||

@@ -33,6 +33,7 @@
           </div>
 
           <ul id='main_menu'>
+      <?php if (Admin::current ()->in_roles (array ('keyword'))) { ?>
             <li>
               <label>
                 <input type='checkbox' />
@@ -42,6 +43,18 @@
                 </ul>
               </label>
             </li>
+      <?php }
+            if (Admin::current ()->in_roles (array ('admin'))) { ?>
+              <li>
+                <label>
+                  <input type='checkbox' />
+                  <span class='icon-u'>權限系統</span>
+                  <ul>
+                    <li><a href="<?php echo $url = base_url ('admin', 'admins');?>" class='icon-u<?php echo $now_url == $url ? ' active' : '';?>'>管理員列表</a></li>
+                  </ul>
+                </label>
+              </li>
+      <?php } ?>
           </ul>
 
         </div>

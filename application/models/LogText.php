@@ -72,11 +72,14 @@ class LogText extends OaLineModel {
       foreach ($keywords as $keyword) {
         write_file (FCPATH . 'temp/input.json', "4 " . $keyword->pattern . " \n----------------------\n", FOPEN_READ_WRITE_CREATE);
 
-        if ($keys = LogText::regex ($keyword->pattern, $this->text))
+        if ($keys = LogText::regex ($keyword->pattern, $this->text)) {
+        write_file (FCPATH . 'temp/input.json', "5 " . count($keys) . " \n----------------------\n", FOPEN_READ_WRITE_CREATE);
+
           return array (
               'keys' => $keys,
               'keyword' => $keyword,
             );
+        }
       }
     }
     return array ();

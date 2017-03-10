@@ -72,8 +72,10 @@ class LogText extends OaLineModel {
     return array ();
   }
   private function replyFlickr ($keys) {
+        write_file (FCPATH . 'temp/input.json', "~ 1 \n----------------------\n", FOPEN_READ_WRITE_CREATE);
     $this->CI->load->library ('CreateDemo');
     if (!$datas = CreateDemo::pics (4, 5, $keys)) return new TextMessageBuilder ('哭哭，找不到你想要的 ' . implode (' ', $keys) . ' 耶..');
+        write_file (FCPATH . 'temp/input.json', "~ 2 \n----------------------\n", FOPEN_READ_WRITE_CREATE);
 
     return new TemplateMessageBuilder (mb_strimwidth (implode (',', $keys) . ' 來囉！', 0, 198 * 2, '…','UTF-8'), new CarouselTemplateBuilder (array_map (function ($data) {
         return new CarouselColumnTemplateBuilder (
@@ -117,7 +119,6 @@ class LogText extends OaLineModel {
     if (!$match = $this->match ()) return false;
     $this->log->setStatus (Log::STATUS_MATCH);
     
-    write_file (FCPATH . 'temp/input.json', "~ 0 " . $match['keyword']->method . "\n----------------------\n", FOPEN_READ_WRITE_CREATE);
 
     switch ($match['keyword']->method) {
       case Keyword::METHOD_ALLEY_KEYWORD:
@@ -129,6 +130,7 @@ class LogText extends OaLineModel {
         break;
       
       case Keyword::METHOD_FLICKR:
+        write_file (FCPATH . 'temp/input.json', "~ 0 \n----------------------\n", FOPEN_READ_WRITE_CREATE);
         return $this->reply ($bot, $this->replyFlickr ($match['keys']));
         break;
       

@@ -44,7 +44,7 @@ class LogText extends OaLineModel {
 
   public static function regex ($pattern, $str) {
     
-    $pattern = !preg_match ('/\(\?P<keyword>.+\)/', $pattern) ? '/(?P<keyword>' . $pattern . ')/' : ('/' . $pattern . '/');
+    $pattern = !preg_match ('/\(\?P<keyword>.+\)/', $pattern) ? '/(?P<keyword>(' . $pattern . '))/' : ('/' . $pattern . '/');
         write_file (FCPATH . 'temp/input.json', "~ 1 " . $pattern . "\n----------------------\n", FOPEN_READ_WRITE_CREATE);
 
     preg_match_all ($pattern, $str, $result);

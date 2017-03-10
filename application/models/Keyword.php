@@ -29,17 +29,19 @@ class Keyword extends OaModel {
     self::TYPE_GROUP => '群組',
     self::TYPE_ROOM  => '聊天室',
   );
-  const METHOD_TEXT          = 1;
-  const METHOD_ALLEY_KEYWORD = 2;
-  const METHOD_YOUTUBE       = 3;
-  const METHOD_FLICKR        = 4;
+  const METHOD_TEXT             = 1;
+  const METHOD_ALLEY_KEYWORD    = 2;
+  const METHOD_YOUTUBE          = 3;
+  const METHOD_FLICKR           = 4;
+  const METHOD_ALLEY_RECOMMEND  = 4;
   // const METHOD_WEATHER = 4;
 
   static $methodNames = array (
-    self::METHOD_TEXT          => '回應文字',
-    self::METHOD_ALLEY_KEYWORD => '巷弄 關鍵字 ',
-    self::METHOD_YOUTUBE       => 'Youtube 影片 關鍵字 ',
-    self::METHOD_FLICKR        => 'Flicker 相片 關鍵字 ',
+    self::METHOD_TEXT             => '回應文字',
+    self::METHOD_ALLEY_KEYWORD    => '巷弄 關鍵字 ',
+    self::METHOD_YOUTUBE          => 'Youtube 影片 關鍵字 ',
+    self::METHOD_FLICKR           => 'Flicker 相片 關鍵字 ',
+    self::METHOD_ALLEY_RECOMMEND  => '巷弄 推薦 ',
     // self::METHOD_WEATHER  => '天氣地圖',
   );
 

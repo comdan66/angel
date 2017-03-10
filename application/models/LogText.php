@@ -56,7 +56,7 @@ class LogText extends OaLineModel {
       case 'room': $type = Keyword::TYPE_ROOM; break;
       default: $type = Keyword::TYPE_ALL; break;
     }
-    $conditions = $type == Keyword::TYPE_ALL ? array () : array ('type' => $type);
+    $conditions = $type == Keyword::TYPE_ALL ? array () : array ('type = ?' => $type);
 
 
     $limit = 10;

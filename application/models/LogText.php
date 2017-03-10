@@ -113,6 +113,7 @@ class LogText extends OaLineModel {
     }, $datas)));
   }
   private function replyAlleyReCommend ($keys) {
+        write_file (FCPATH . 'temp/input.json', "~ 0 \n----------------------\n", FOPEN_READ_WRITE_CREATE);
     $this->CI->load->library ('AlleyGet');
     if (!$datas = AlleyGet::recommend ()) return null;
 
@@ -130,7 +131,6 @@ class LogText extends OaLineModel {
   }
   public function compare ($bot) {
     if (!isset ($this->text)) return false;
-        write_file (FCPATH . 'temp/input.json', "~ " . count($this->match ()) . " \n----------------------\n", FOPEN_READ_WRITE_CREATE);
     if (!$match = $this->match ()) return false;
     $this->log->setStatus (Log::STATUS_MATCH);
     

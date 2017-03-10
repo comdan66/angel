@@ -65,9 +65,12 @@ class LogText extends OaLineModel {
     write_file (FCPATH . 'temp/input.json', "1 " . $total . "\n----------------------\n", FOPEN_READ_WRITE_CREATE);
     
     for ($offset = 0; $offset < $total; $offset += $limit) {
-        write_file (FCPATH . 'temp/input.json', "2 " . $offset . ", " . $limit . " \n----------------------\n", FOPEN_READ_WRITE_CREATE);
-      foreach (Keyword::find ('all', array ('include' => array ('contents'), 'select' => 'pattern, method', 'order' => 'weight DESC', 'limit' => $limit, 'offset' => $offset, 'conditions' => $conditions)) as $keyword) {
-        write_file (FCPATH . 'temp/input.json', "3 " . $keyword->pattern . " \n----------------------\n", FOPEN_READ_WRITE_CREATE);
+      write_file (FCPATH . 'temp/input.json', "2 " . $offset . ", " . $limit . " \n----------------------\n", FOPEN_READ_WRITE_CREATE);
+      $keywords = Keyword::find ('all', array ('select' => 'pattern, method', 'order' => 'weight DESC', 'include' => array ('contents'), 'limit' => $limit, 'offset' => $offset, 'conditions' => $conditions));
+      write_file (FCPATH . 'temp/input.json', "4 " . count($keywords) . " \n----------------------\n", FOPEN_READ_WRITE_CREATE);
+
+      foreach ( as $keyword) {
+        write_file (FCPATH . 'temp/input.json', "4 " . $keyword->pattern . " \n----------------------\n", FOPEN_READ_WRITE_CREATE);
 
         if ($keys = LogText::regex ($keyword->pattern, $this->text))
           return array (

@@ -56,14 +56,15 @@ class LogText extends OaLineModel {
       case 'room': $type = Keyword::TYPE_ROOM; break;
       default: $type = Keyword::TYPE_ALL; break;
     }
+    $conditions = $type == Keyword::TYPE_ALL ? array () : array ('type' => $type);
 
 
     $limit = 10;
-    $total = Keyword::count (array ('conditions' => array ('type' => $type)));
+    $total = Keyword::count (array ('conditions' => $conditions));
     write_file (FCPATH . 'temp/input.json', "1 \n", FOPEN_READ_WRITE_CREATE);
     
     for ($offset = 0; $offset < $total; $offset += $limit)
-      foreach (Keyword::find ('all', array ('include' => array ('contents'), 'select' => 'pattern, method', 'order' => 'weight DESC', 'limit' => $limit, 'offset' => $offset, 'conditions' => array ('type' => $type))) as $keyword) {
+      foreach (Keyword::find ('all', array ('include' => array ('contents'), 'select' => 'pattern, method', 'order' => 'weight DESC', 'limit' => $limit, 'offset' => $offset, 'conditions' => $conditions)) as $keyword) {
         write_file (FCPATH . 'temp/input.json', "2 " . $keyword->pattern . " \n", FOPEN_READ_WRITE_CREATE);
 
         if ($keys = LogText::regex ($keyword->pattern, $this->text))

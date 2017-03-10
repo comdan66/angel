@@ -29,7 +29,7 @@ class Keywords extends Admin_controller {
     $columns = array ( 
         array ('key' => 'pattern', 'title' => '模式', 'sql' => 'pattern LIKE ?'), 
         array ('key' => 'content', 'title' => '回覆內容', 'sql' => 'content LIKE ?'), 
-        array ('key' => 'type', 'title' => '針對類型', 'sql' => 'type = ?', 'select' => array_map (function ($key) { return array ('value' => '' . $key, 'text' => Keyword::$typeNames[$key]);}, array_keys (Keyword::$typeNames))),
+        array ('key' => 'type',    'title' => '針對類型', 'sql' => 'type = ?', 'select' => array_map (function ($key) { return array ('value' => '' . $key, 'text' => Keyword::$typeNames[$key]);}, array_keys (Keyword::$typeNames))),
         array ('key' => 'method', 'title' => '回應類型', 'sql' => 'method = ?', 'select' => array_map (function ($key) { return array ('value' => '' . $key, 'text' => Keyword::$methodNames[$key]);}, array_keys (Keyword::$methodNames))),
       );
 
@@ -38,7 +38,7 @@ class Keywords extends Admin_controller {
 
     $limit = 25;
     $total = Keyword::count (array ('conditions' => $conditions));
-    $objs = Keyword::find ('all', array ('include' => array ('contents'), 'offset' => $offset < $total ? $offset : 0, 'limit' => $limit, 'order' => 'weight DESC', 'conditions' => $conditions));
+    $objs = Keyword::find ('all', array ('include' => array ('contents'), 'offset' => $offset < $total ? $offset : 0, 'limit' => $limit, 'order' => 'weight DESC,id DESC', 'conditions' => $conditions));
 
     return $this->load_view (array (
         'objs' => $objs,

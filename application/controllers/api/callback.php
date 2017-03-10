@@ -97,24 +97,6 @@ class Callback extends Api_controller {
               false)
             echo 'Succeeded!';
 
-          // if ($logText->searchIWantLook ($bot) ||
-          //     $logText->searchIWantListen ($bot) ||
-          //     $logText->searchIWantEat ($bot) ||
-          //     $logText->searchRecommend ($bot) ||
-          //     $logText->searchDont ($bot) ||
-          //     $logText->search3Q ($bot) ||
-          //     $logText->searchSpeechles ($bot) ||
-          //     $logText->searchNotThing ($bot) ||
-          //     $logText->searchHaha ($bot) ||
-          //     $logText->searchBot ($bot) ||
-          //     $logText->searchHello ($bot) ||
-          //     $logText->searchName ($bot) ||
-          //     $logText->searchCallMe ($bot) ||
-          //     
-          //     $logText->searchTest ($bot) ||
-          //     false)
-          //   echo 'Succeeded!';
-
           break;
         case 'LocationMessage':
           $params = array (

@@ -33,7 +33,7 @@ class Keyword extends OaModel {
   const METHOD_ALLEY_KEYWORD    = 2;
   const METHOD_YOUTUBE          = 3;
   const METHOD_FLICKR           = 4;
-  const METHOD_ALLEY_RECOMMEND  = 4;
+  const METHOD_ALLEY_RECOMMEND  = 5;
   // const METHOD_WEATHER = 4;
 
   static $methodNames = array (

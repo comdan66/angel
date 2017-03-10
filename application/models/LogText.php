@@ -29,6 +29,7 @@ class LogText extends OaLineModel {
   static $belongs_to = array (
     array ('log', 'class_name' => 'Log'),
   );
+  const KEYWORD = 'k';
 
   public function __construct ($attributes = array (), $guard_attributes = true, $instantiating_via_find = false, $new_record = true) {
     parent::__construct ($attributes, $guard_attributes, $instantiating_via_find, $new_record);
@@ -46,11 +47,11 @@ class LogText extends OaLineModel {
 
   public static function regex ($pattern, $str) {
     
-    $pattern = !preg_match ('/\(\?P<keyword>.+\)/', $pattern) ? '/(?P<keyword>(' . $pattern . '))/i' : ('/(' . $pattern . ')/i');
+    $pattern = !preg_match ('/\(\?P<' . LogText::KEYWORD . '>.+\)/', $pattern) ? '/(?P<' . LogText::KEYWORD . '>(' . $pattern . '))/i' : ('/(' . $pattern . ')/i');
 
     preg_match_all ($pattern, $str, $result);
-    if (!(isset ($result['keyword']) && $result['keyword'])) return array ();
-    return array_filter (preg_split ('/[\s,]+/', $result['keyword'][0]), function ($t) { return $t; });
+    if (!(isset ($result[LogText::KEYWORD]) && $result[LogText::KEYWORD])) return array ();
+    return array_filter (preg_split ('/[\s,]+/', $result[LogText::KEYWORD][0]), function ($t) { return $t; });
   }
 
   private function match () {

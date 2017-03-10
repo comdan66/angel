@@ -139,8 +139,8 @@ class Keywords extends Admin_controller {
     if ($posts['method'] != Keyword::METHOD_TEXT) {
       // $posts['content'] = ;
 
-      if (in_array ($posts['method'], array (Keyword::METHOD_ALLEY_KEYWORD, Keyword::METHOD_YOUTUBE, Keyword::METHOD_FLICKR)) && !preg_match ('/\(\?P<keyword>.+\)/', $posts['pattern']))
-        return '沒找到要搜尋的關鍵字 Pattern 規則有誤，Sub Pattern 前加 ?P&lt;keyword&gt;！';
+      if (in_array ($posts['method'], array (Keyword::METHOD_ALLEY_KEYWORD, Keyword::METHOD_YOUTUBE, Keyword::METHOD_FLICKR)) && !preg_match ('/\(\?P<' . LogText::KEYWORD . '>.+\)/', $posts['pattern']))
+        return '沒找到要搜尋的關鍵字 Pattern 規則有誤，Sub Pattern 前加 ?P&lt;' . LogText::KEYWORD . '&gt;！';
       else
         return '';
     }

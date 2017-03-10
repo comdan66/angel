@@ -22,7 +22,7 @@
       <?php }
           }?>
         </select>
-        <span id='tip'>範例：我想找\s*<span>(</span><i>?P<?php echo htmlentities ('<keyword>');?></i>哈哈*<span>)</span><br/>Sub Pattern 前加 <b>?P<?php echo htmlentities ('<keyword>');?></b> 系統會把 Sub Pattern 當關鍵字<br/>如此一來 我想找哈哈*，<b>哈哈*</b>就會是關鍵字</span>
+        <span id='tip'>範例：我想找\s*<span>(</span><i>?P<?php echo htmlentities ('<' . LogText::KEYWORD . '>');?></i>哈哈*<span>)</span><br/>Sub Pattern 前加 <b>?P<?php echo htmlentities ('<' . LogText::KEYWORD . '>');?></b> 系統會把 Sub Pattern 當關鍵字<br/>如此一來 我想找哈哈*，<b>哈哈*</b>就會是關鍵字</span>
       </div>
     </div>
     <div class='row n2' id='keyowrd_content'>

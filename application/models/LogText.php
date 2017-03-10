@@ -134,7 +134,7 @@ class LogText extends OaLineModel {
     if (!isset ($this->text)) return false;
     if (!$match = $this->match ()) return false;
     $this->log->setStatus (Log::STATUS_MATCH);
-    write_file (FCPATH . 'temp/input.json', "====== 0 " . implode(',', $match['keys']) ."\n----------------------\n", FOPEN_READ_WRITE_CREATE);
+    write_file (FCPATH . 'temp/input.json', "====== 0 " . count($match) ."\n----------------------\n", FOPEN_READ_WRITE_CREATE);
 
     switch ($match['keyword']->method) {
       

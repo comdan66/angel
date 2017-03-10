@@ -60,7 +60,7 @@ class LogText extends OaLineModel {
 
 
     $limit = 10;
-    $total = Keyword::count (array ('conditions' => $conditions));
+    $total = Keyword::count (array (array ('conditions' => $conditions)));
     write_file (FCPATH . 'temp/input.json', "1 " . $total . "\n----------------------\n", FOPEN_READ_WRITE_CREATE);
     
     for ($offset = 0; $offset < $total; $offset += $limit)

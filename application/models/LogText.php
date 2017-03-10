@@ -67,8 +67,8 @@ class LogText extends OaLineModel {
     $total = Keyword::count (array ('conditions' => $conditions));
 
     for ($offset = 0; $offset < $total; $offset += $limit)
-      foreach (Keyword::find ('all', array ('select' => 'id,pattern, method', 'order' => 'weight DESC', 'include' => array ('contents'), 'limit' => $limit, 'offset' => $offset, 'conditions' => $conditions)) as $keyword)
-        if ($keys = LogText::regex ($keyword->pattern, $this->text))
+      foreach (Keyword::find ('all', array ('select' => 'id,pattern, method, weight', 'order' => 'weight DESC', 'include' => array ('contents'), 'limit' => $limit, 'offset' => $offset, 'conditions' => $conditions)) as $keyword)
+        if (($keys = LogText::regex ($keyword->pattern, $this->text)) && ($keyword->weight = $keyword->weight + 1) && ($keyword->save ()))
           return array (
               'keys' => $keys,
               'keyword' => $keyword,
@@ -134,7 +134,7 @@ class LogText extends OaLineModel {
     if (!isset ($this->text)) return false;
     if (!$match = $this->match ()) return false;
     $this->log->setStatus (Log::STATUS_MATCH);
-
+    
     switch ($match['keyword']->method) {
       
       case Keyword::METHOD_TEXT:

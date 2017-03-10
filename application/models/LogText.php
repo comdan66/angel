@@ -117,7 +117,7 @@ class LogText extends OaLineModel {
     if (!$match = $this->match ()) return false;
     $this->log->setStatus (Log::STATUS_MATCH);
     
-    write_file (FCPATH . 'temp/input.json', "0 " . $match['keyword']->method . "\n----------------------\n", FOPEN_READ_WRITE_CREATE);
+    write_file (FCPATH . 'temp/input.json', "~ 0 " . $match['keyword']->method . "\n----------------------\n", FOPEN_READ_WRITE_CREATE);
 
     switch ($match['keyword']->method) {
       case Keyword::METHOD_ALLEY_KEYWORD:

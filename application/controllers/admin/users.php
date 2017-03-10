@@ -16,7 +16,7 @@ class Users extends Admin_controller {
     if (!User::current ()->in_roles (array ('admin')))
       return redirect_message (array ('admin'), array ('_flash_danger' => '您的權限不足，或者頁面不存在。'));
     
-    $this->uri_1 = 'admin/admins';
+    $this->uri_1 = 'admin/users';
 
     if (in_array ($this->uri->rsegments (2, 0), array ('edit', 'update')))
       if (!(($id = $this->uri->rsegments (3, 0)) && ($this->obj = User::find ('one', array ('conditions' => array ('id = ?', $id))))))
@@ -66,13 +66,13 @@ class Users extends Admin_controller {
     if ($msg = $this->_validation_update ($posts, $cover, $obj))
       return redirect_message (array ($this->uri_1, $obj->id, 'edit'), array ('_flash_danger' => $msg, 'posts' => $posts));
 
-    if ($roles = UserRole::find ('all', array ('select' => 'id', 'conditions' => array ('admin_id = ?', $this->obj->id))))
+    if ($roles = UserRole::find ('all', array ('select' => 'id', 'conditions' => array ('user_id = ?', $this->obj->id))))
       foreach ($roles as $role)
         UserRole::transaction (function () use ($role) { return $role->destroy (); });
 
     if ($posts['roles'])
       foreach ($posts['roles'] as $role)
-        UserRole::transaction (function () use ($role, $obj) { return verifyCreateOrm (UserRole::create (array_intersect_key (array ('admin_id' => $obj->id, 'name' => $role), UserRole::table ()->columns))); });
+        UserRole::transaction (function () use ($role, $obj) { return verifyCreateOrm (UserRole::create (array_intersect_key (array ('user_id' => $obj->id, 'name' => $role), UserRole::table ()->columns))); });
 
     return redirect_message (array ($this->uri_1), array ('_flash_info' => '更新成功！'));
   }

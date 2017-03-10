@@ -33,7 +33,7 @@
           </div>
 
           <ul id='main_menu'>
-      <?php if (Admin::current ()->in_roles (array ('keyword'))) { ?>
+      <?php if (User::current ()->in_roles (array ('keyword'))) { ?>
             <li>
               <label>
                 <input type='checkbox' />
@@ -44,7 +44,7 @@
               </label>
             </li>
       <?php }
-            if (Admin::current ()->in_roles (array ('admin'))) { ?>
+            if (User::current ()->in_roles (array ('admin'))) { ?>
               <li>
                 <label>
                   <input type='checkbox' />

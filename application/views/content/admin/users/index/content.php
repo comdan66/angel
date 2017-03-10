@@ -43,11 +43,11 @@
         <tr>
           <th width='50' class='center'>#</th>
           <th width='130'>名稱</th>
-          <th >信箱</th>
-          <th width='90' class='right'>發言次數</th>
-          <th width='90' class='right'>檢舉次數</th>
-          <th width='90' class='right'>最後更新</th>
+          <th width='170'>信箱</th>
+          <th >權限</th>
+          <th width='90' class='right'>登入次數</th>
           <th width='90' class='right'>加入時間</th>
+          <th width='50' class='right'>修改</th>
         </tr>
       </thead>
       <tbody>
@@ -55,17 +55,19 @@
           foreach ($objs as $obj) { ?>
             <tr>
               <td class='center'><?php echo $obj->id;?></td>
-              <td><?php echo anchor ('https://www.facebook.com/' . $obj->fid, $obj->name, 'target="_blank"');?></td>
+              <td><?php echo anchor ('https://www.facebook.com/' . $obj->uid, $obj->name, 'target="_blank"');?></td>
               <td><?php echo $obj->email;?></td>
-              <td class='right'><?php echo Message::count (array ('conditions' => array ('fid = ?', $obj->fid)));?></td>
-              <td class='right'><?php echo $obj->ban;?></td>
-              <td class='right'><?php echo $obj->updated_at->format ('Y-m-d H:i:s');?></td>
+              <td><?php echo implode (',', $obj->role_names ());?></td>
+              <td class='right'><?php echo $obj->login_count;?></td>
               <td class='right'><?php echo $obj->created_at->format ('Y-m-d H:i:s');?></td>
+              <td class='right'>
+                <a class='icon-e' href="<?php echo base_url ($uri_1, $obj->id, 'edit');?>"></a>
+              </td>
             </tr>
     <?php }
         } else { ?>
           <tr>
-            <td colspan='7' class='no_data'>沒有任何資料。</td>
+            <td colspan='5' class='no_data'>沒有任何資料。</td>
           </tr>
   <?php } ?>
       </tbody>

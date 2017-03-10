@@ -50,7 +50,7 @@ class LogText extends OaLineModel {
 
     preg_match_all ($pattern, $str, $result);
     if (!(isset ($result['keyword']) && $result['keyword'])) return array ();
-    return preg_split ('/[\s,]+/', $result['keyword'][0]);
+    return array_filter (preg_split ('/[\s,]+/', $result['keyword'][0]), function ($t) { return $t; });
   }
 
   private function match () {

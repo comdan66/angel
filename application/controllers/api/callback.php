@@ -25,10 +25,10 @@ class Callback extends Api_controller {
     
   }
   public function test () {
-    $limit = 10;
-    $offset = 0;
-    $conditions = array ('type IN (?)', array (1, 2));
-    Keyword::find ('all', array ('select' => 'pattern, method', 'order' => 'weight DESC', 'include' => array ('contents'), 'limit' => $limit, 'offset' => $offset, 'conditions' => $conditions));
+    $p = '機器人|(Bot)*';
+    echo '<meta http-equiv="Content-type" content="text/html; charset=utf-8" /><pre>';
+    var_dump (LogText::regex ($p, '哈'));
+    exit ();;
   }
   public function index () {
     $path = FCPATH . 'temp/input.json';

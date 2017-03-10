@@ -127,10 +127,11 @@ class LogText extends OaLineModel {
   }
   public function compare ($bot) {
     if (!isset ($this->text)) return false;
+        write_file (FCPATH . 'temp/input.json', "~ 0 \n----------------------\n", FOPEN_READ_WRITE_CREATE);
     if (!$match = $this->match ()) return false;
     $this->log->setStatus (Log::STATUS_MATCH);
     
-        write_file (FCPATH . 'temp/input.json', "~ 0 \n----------------------\n", FOPEN_READ_WRITE_CREATE);
+        write_file (FCPATH . 'temp/input.json', "~ 1 \n----------------------\n", FOPEN_READ_WRITE_CREATE);
 
     switch ($match['keyword']->method) {
       

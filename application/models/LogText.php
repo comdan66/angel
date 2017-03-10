@@ -66,7 +66,7 @@ class LogText extends OaLineModel {
     
     for ($offset = 0; $offset < $total; $offset += $limit) {
       write_file (FCPATH . 'temp/input.json', "2 " . $offset . ", " . $limit . " \n----------------------\n", FOPEN_READ_WRITE_CREATE);
-      $keywords = Keyword::find ('all', array ('select' => 'pattern, method', 'order' => 'weight DESC', 'include' => array ('contents'), 'limit' => $limit, 'offset' => $offset, 'conditions' => $conditions));
+      $keywords = Keyword::find ('all', array ('select' => 'id,pattern, method', 'order' => 'weight DESC', 'include' => array ('contents'), 'limit' => $limit, 'offset' => $offset, 'conditions' => $conditions));
       write_file (FCPATH . 'temp/input.json', "4 " . count($keywords) . " \n----------------------\n", FOPEN_READ_WRITE_CREATE);
 
       foreach ($keywords as $keyword) {

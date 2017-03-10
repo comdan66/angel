@@ -49,14 +49,14 @@ class LogText extends OaLineModel {
   }
 
   private function match () {
-    $type = Keyword::TYPE_ALL;
+    $type = array (Keyword::TYPE_ALL);
     switch ($this->log->source_type) {
-      case 'user': $type = Keyword::TYPE_USER; break;
-      case 'group': $type = Keyword::TYPE_GROUP; break;
-      case 'room': $type = Keyword::TYPE_ROOM; break;
-      default: $type = Keyword::TYPE_ALL; break;
+      case 'user': $type = array_merge ($type, Keyword::TYPE_USER); break;
+      case 'group': $type = array_merge ($type, Keyword::TYPE_GROUP); break;
+      case 'room': $type = array_merge ($type, Keyword::TYPE_ROOM); break;
+      default: $type = array (Keyword::TYPE_ALL); break;
     }
-    $conditions = $type != Keyword::TYPE_ALL ? array ('type = ? AND type = ?', $type, Keyword::TYPE_ALL) : array ('type = ?', $type);
+    $conditions = array ('type IN (?)', $type);
 
 
     $limit = 10;

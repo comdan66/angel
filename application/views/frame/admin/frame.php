@@ -38,7 +38,7 @@
                 <input type='checkbox' />
                 <span class='icon-f'>添屎關鍵字</span>
                 <ul>
-                  <li><a href="<?php echo $url = base_url ('admin', 'articles');?>" class='icon-fa<?php echo $now_url == $url ? ' active' : '';?>'>關鍵字管理</a></li>
+                  <li><a href="<?php echo $url = base_url ('admin', 'keywords');?>" class='icon-fa<?php echo $now_url == $url ? ' active' : '';?>'>關鍵字管理</a></li>
                 </ul>
               </label>
             </li>

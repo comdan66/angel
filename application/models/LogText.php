@@ -33,11 +33,6 @@ class LogText extends OaLineModel {
   public function __construct ($attributes = array (), $guard_attributes = true, $instantiating_via_find = false, $new_record = true) {
     parent::__construct ($attributes, $guard_attributes, $instantiating_via_find, $new_record);
   }
-  public static function regex ($pattern, $str) {
-    preg_match_all ($pattern, $str, $result);
-    if (!(isset ($result['c']) && $result['c'])) return array ();
-    return preg_split ('/[\s,]+/', $result['c'][0]);
-  }
   public function reply ($bot, MessageBuilder $build) {
     $this->log->setStatus (Log::STATUS_RESPONSE);
     $response = $bot->replyMessage ($this->log->reply_token, $build);
@@ -46,6 +41,144 @@ class LogText extends OaLineModel {
     $this->log->setStatus (Log::STATUS_SUCCESS);
     return true;
   }
+
+  public static function regex ($pattern, $str) {
+    preg_match_all ($pattern, $str, $result);
+    if (!(isset ($result['c']) && $result['c'])) return array ();
+    return preg_split ('/[\s,]+/', $result['c'][0]);
+  }
+
+  private function match () {
+    $type = Keyword::TYPE_ALL;
+    switch ($this->log->source_type) {
+      case 'user': $type = Keyword::TYPE_USER; break;
+      case 'group': $type = Keyword::TYPE_GROUP; break;
+      case 'room': $type = Keyword::TYPE_ROOM; break;
+      default: $type = Keyword::TYPE_ALL; break;
+    }
+
+
+    $limit = 10;
+    $total = Keyword::count (array ('conditions' => array ('type' => $type)));
+    
+    for ($offset = 0; $offset < $total; $offset += $limit)
+      foreach (Keyword::find ('all', array ('include' => array ('contents'), 'select' => 'pattern, method', 'order' => 'weight DESC', 'limit' => $limit, 'offset' => $offset, 'conditions' => array ('type' => $type))) as $keyword)
+        if ($keys = LogText::regex ($keyword->pattern, $this->text))
+          return array (
+              'keys' => $keys,
+              'keyword' => $keyword,
+            );
+    return array ();
+  }
+  private function replyFlickr ($keys) {
+    $this->CI->load->library ('CreateDemo');
+    if (!$datas = CreateDemo::pics (4, 5, $keys)) return new TextMessageBuilder ('哭哭，找不到你想要的 ' . implode (' ', $keys) . ' 耶..');
+
+    return new TemplateMessageBuilder (mb_strimwidth (implode (',', $keys) . ' 來囉！', 0, 198 * 2, '…','UTF-8'), new CarouselTemplateBuilder (array_map (function ($data) {
+        return new CarouselColumnTemplateBuilder (
+          mb_strimwidth ($data['title'], 0, 18 * 2, '…','UTF-8'),
+          mb_strimwidth ($data['title'], 0, 28 * 2, '…','UTF-8'),
+          $data['url'],
+          array (new UriTemplateActionBuilder (mb_strimwidth ('我要看 ' . $data['title'], 0, 8 * 2, '…','UTF-8'), $data['page']))
+      ); }, $datas)));
+  }
+  private function replyYoutube ($keys) {
+    $this->CI->load->library ('YoutubeGet');
+    if (!$datas = YoutubeGet::search (array ('q' => implode (' ', $keys), 'maxResults' => rand (3, 5)))) return new TextMessageBuilder ('哭哭，找不到你想要的 ' . implode (' ', $keys) . ' 耶..');
+
+    return new TemplateMessageBuilder (mb_strimwidth (implode (',', $keys) . ' 來囉！', 0, 198 * 2, '…','UTF-8'), new CarouselTemplateBuilder (array_map (function ($data) {
+      return new CarouselColumnTemplateBuilder (
+        mb_strimwidth ($data['title'], 0, 18 * 2, '…','UTF-8'),
+        mb_strimwidth ($data['title'], 0, 28 * 2, '…','UTF-8'),
+        $data['thumbnails'][count ($data['thumbnails']) - 1]['url'],
+        array (new UriTemplateActionBuilder (mb_strimwidth ('我要聽 ' . $data['title'], 0, 8 * 2, '…','UTF-8'), 'https://www.youtube.com/watch?v=' . $data['id']))
+      );
+    }, $datas)));
+  }
+  private function replyAlleyKeyword ($keys) {
+    $this->CI->load->library ('AlleyGet');
+    if (!$datas = AlleyGet::search (implode (' ', $keys))) return new TextMessageBuilder ('哭哭，找不到你想要的 ' . implode (' ', $keys) . ' 耶..');
+
+    return new TemplateMessageBuilder (mb_strimwidth (implode (',', $keys) . ' 來囉！', 0, 198 * 2, '…','UTF-8'), new CarouselTemplateBuilder (array_map (function ($data) {
+      return new CarouselColumnTemplateBuilder (
+        mb_strimwidth ($data['title'], 0, 18 * 2, '…','UTF-8'),
+        mb_strimwidth ($data['desc'], 0, 28 * 2, '…','UTF-8'),
+        $data['img'],
+        array (new UriTemplateActionBuilder (mb_strimwidth ('我要吃 ' . $data['title'], 0, 8 * 2, '…','UTF-8'), $data['url']))
+      );
+    }, $datas)));
+  }
+  private function replyText ($contents) {
+    return new TextMessageBuilder ($contents[array_rand ($contents)]->text);
+  }
+  public function compare ($bot) {
+    if (!isset ($this->text)) return false;
+    if (!$match = $this->match ()) return false;
+    $this->log->setStatus (Log::STATUS_MATCH);
+
+    switch ($match['keyword']->method) {
+      case Keyword::METHOD_ALLEY_KEYWORD:
+        return $this->reply ($bot, $this->replyAlleyKeyword ($match['keys']));
+        break;
+      
+      case Keyword::METHOD_YOUTUBE:
+        return $this->reply ($bot, $this->replyYoutube ($match['keys']));
+        break;
+      
+      case Keyword::METHOD_FLICKR:
+        return $this->reply ($bot, $this->replyFlickr ($match['keys']));
+        break;
+      
+      case Keyword::METHOD_TEXT:
+        return $this->reply ($bot, $this->replyText ($match['keyword']->contents));
+        break;
+      
+      default:
+        return false;
+        break;
+    }
+    return false;
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   public function searchIWantLook ($bot) {
     $pattern = '/我{0,1}(想|要)*找\s*(?P<c>.*)/';
 
@@ -66,6 +199,8 @@ class LogText extends OaLineModel {
 
     return $this->reply ($bot, $builder);
   }
+
+
   public function searchIWantListen ($bot) {
     $pattern = '/我{0,1}(想|要)*(聽|看)\s*(?P<c>.*)/';
     

@@ -12,4 +12,5 @@ Route::get ('/platform', 'platform@login');
 
 
 Route::group ('admin', function () {
+  Route::resourcePagination (array ('keywords'), 'keywords');
 });

@@ -88,24 +88,27 @@ class Callback extends Api_controller {
           if (!LogText::transaction (function () use (&$logText, $params) { return verifyCreateOrm ($logText = LogText::create ( array_intersect_key ($params, LogText::table ()->columns))); })) return false;
           $log->setStatus (Log::STATUS_CONTENT);
 
-          if ($logText->searchIWantLook ($bot) ||
-              $logText->searchIWantListen ($bot) ||
-              $logText->searchIWantEat ($bot) ||
-              $logText->searchRecommend ($bot) ||
-              $logText->searchDont ($bot) ||
-              $logText->search3Q ($bot) ||
-              $logText->searchSpeechles ($bot) ||
-              $logText->searchNotThing ($bot) ||
-              $logText->searchHaha ($bot) ||
-              $logText->searchBot ($bot) ||
-              $logText->searchHello ($bot) ||
-              $logText->searchName ($bot) ||
-              $logText->searchCallMe ($bot) ||
-              $logText->searchLocation ($bot) ||
-              $logText->searchWeather ($bot) ||
-              $logText->searchTest ($bot) ||
-              false)
+          if ($logText->compare ($bot))
             echo 'Succeeded!';
+
+          // if ($logText->searchIWantLook ($bot) ||
+          //     $logText->searchIWantListen ($bot) ||
+          //     $logText->searchIWantEat ($bot) ||
+          //     $logText->searchRecommend ($bot) ||
+          //     $logText->searchDont ($bot) ||
+          //     $logText->search3Q ($bot) ||
+          //     $logText->searchSpeechles ($bot) ||
+          //     $logText->searchNotThing ($bot) ||
+          //     $logText->searchHaha ($bot) ||
+          //     $logText->searchBot ($bot) ||
+          //     $logText->searchHello ($bot) ||
+          //     $logText->searchName ($bot) ||
+          //     $logText->searchCallMe ($bot) ||
+          //     $logText->searchLocation ($bot) ||
+          //     $logText->searchWeather ($bot) ||
+          //     $logText->searchTest ($bot) ||
+          //     false)
+          //   echo 'Succeeded!';
 
           break;
         case 'LocationMessage':

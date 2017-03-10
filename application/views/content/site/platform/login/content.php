@@ -14,5 +14,5 @@
     <div class='r'>添屎管理後台系統是使用 Facebook 登入！<br/>如有任何問題歡迎洽詢工程人員或<a href='mailto:teresa@zeusdesign.com.tw?subject=[添屎後台] 關於登入問題&body=Hi 管理員,%0D%0A%0D%0A 關於後台登入，我有些問題..'>來信</a>告知。</div>
 <?php 
   }?>
-  <a id='fb-login' href='<?php echo Fb::loginUrl ('platform', 'fb_sign_in', 'admin');?>'>facebook 登入</a>
+  <a id='fb-login' href='<?php echo Fb::loginUrl ('platform', 'fb_sign_in', 'admin', 'keywords');?>'>facebook 登入</a>
 </div>

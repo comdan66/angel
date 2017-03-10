@@ -62,12 +62,12 @@ class Keywords extends Admin_controller {
     $posts = OAInput::post ();
     $posts['pattern'] = OAInput::post ('pattern', true);
     $posts['contents'] = OAInput::post ('contents', true);
-    
+
     if ($msg = $this->_validation_create ($posts))
-      return redirect_message (array ($this->uri_1, 'add'), array ('_flash_danger' => $msg, 'posts' => $posts));
+      return !($posts['pattern'] = $posts['contents'] = '') && redirect_message (array ($this->uri_1, 'add'), array ('_flash_danger' => $msg, 'posts' => $posts));
 
     if (!Keyword::transaction (function () use (&$obj, $posts) { return verifyCreateOrm ($obj = Keyword::create (array_intersect_key ($posts, Keyword::table ()->columns))); }))
-      return redirect_message (array ($this->uri_1, 'add'), array ('_flash_danger' => '新增失敗！', 'posts' => $posts));
+      return !($posts['pattern'] = $posts['contents'] = '') && redirect_message (array ($this->uri_1, 'add'), array ('_flash_danger' => '新增失敗！', 'posts' => $posts));
 
     if ($posts['contents'])
       foreach ($posts['contents'] as $i => $content)
@@ -95,14 +95,14 @@ class Keywords extends Admin_controller {
     $posts['content'] = OAInput::post ('content');
 
     if ($msg = $this->_validation_update ($posts))
-      return redirect_message (array ($this->uri_1, $obj->id, 'edit'), array ('_flash_danger' => $msg, 'posts' => $posts));
+      return !($posts['pattern'] = $posts['contents'] = '') && redirect_message (array ($this->uri_1, $obj->id, 'edit'), array ('_flash_danger' => $msg, 'posts' => $posts));
 
     if ($columns = array_intersect_key ($posts, $obj->table ()->columns))
       foreach ($columns as $column => $value)
         $obj->$column = $value;
     
     if (!Keyword::transaction (function () use ($obj, $posts) { return $obj->save (); }))
-      return redirect_message (array ($this->uri_1, $obj->id, 'edit'), array ('_flash_danger' => '更新失敗！', 'posts' => $posts));
+      return !($posts['pattern'] = $posts['contents'] = '') && redirect_message (array ($this->uri_1, $obj->id, 'edit'), array ('_flash_danger' => '更新失敗！', 'posts' => $posts));
 
     if ($obj->contents)
       foreach ($obj->contents as $content)

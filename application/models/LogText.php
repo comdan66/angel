@@ -43,7 +43,7 @@ class LogText extends OaLineModel {
   }
 
   public static function regex ($pattern, $str) {
-        write_file (FCPATH . 'temp/input.json', "~ 1 " . $pattern . "\n----------------------\n", FOPEN_READ_WRITE_CREATE);
+    $pattern = !preg_match ('/\(\?P<keyword>.+\)/', $pattern) ? '/(?P<keyword>' . $pattern . ')/' : ('/' . $pattern . '/');
 
     preg_match_all ($pattern, $str, $result);
     if (!(isset ($result['keyword']) && $result['keyword'])) return array ();
@@ -65,7 +65,7 @@ class LogText extends OaLineModel {
 
     for ($offset = 0; $offset < $total; $offset += $limit)
       foreach (Keyword::find ('all', array ('select' => 'id,pattern, method', 'order' => 'weight DESC', 'include' => array ('contents'), 'limit' => $limit, 'offset' => $offset, 'conditions' => $conditions)) as $keyword)
-        if ($keys = LogText::regex ('/' . $keyword->pattern . '/', $this->text))
+        if ($keys = LogText::regex ($keyword->pattern, $this->text))
           return array (
               'keys' => $keys,
               'keyword' => $keyword,
@@ -129,7 +129,6 @@ class LogText extends OaLineModel {
   }
   public function compare ($bot) {
     if (!isset ($this->text)) return false;
-        write_file (FCPATH . 'temp/input.json', "~ 0 \n----------------------\n", FOPEN_READ_WRITE_CREATE);
     if (!$match = $this->match ()) return false;
     $this->log->setStatus (Log::STATUS_MATCH);
     

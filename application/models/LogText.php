@@ -34,6 +34,8 @@ class LogText extends OaLineModel {
     parent::__construct ($attributes, $guard_attributes, $instantiating_via_find, $new_record);
   }
   public function reply ($bot, MessageBuilder $build) {
+    if (!$build) return false;
+
     $this->log->setStatus (Log::STATUS_RESPONSE);
     $response = $bot->replyMessage ($this->log->reply_token, $build);
 
@@ -138,22 +140,22 @@ class LogText extends OaLineModel {
     switch ($match['keyword']->method) {
       
       case Keyword::METHOD_TEXT:
-        return ($builder = $this->replyText ($match['keyword']->contents) && $this->reply ($bot, $builder));
+        return $this->reply ($bot, $this->replyText ($match['keyword']->contents));
         break;
       case Keyword::METHOD_ALLEY_KEYWORD:
-        return ($builder = $this->replyAlleyKeyword ($match['keys']) && $this->reply ($bot, $builder));
+        return $this->reply ($bot, $this->replyAlleyKeyword ($match['keys']));
         break;
       
       case Keyword::METHOD_YOUTUBE:
-        return ($builder = $this->replyYoutube ($match['keys']) && $this->reply ($bot, $builder));
+        return $this->reply ($bot, $this->replyYoutube ($match['keys']));
         break;
       
       case Keyword::METHOD_FLICKR:
-        return ($builder = $this->replyFlickr ($match['keys']) && $this->reply ($bot, $builder));
+        return $this->reply ($bot, $this->replyFlickr ($match['keys']));
         break;
       
       case Keyword::METHOD_ALLEY_RECOMMEND:
-        return ($builder = $this->replyAlleyReCommend ($match['keys']) && $this->reply ($bot, $builder));
+        return $this->reply ($bot, $this->replyAlleyReCommend ($match['keys']));
         break;
       
       default:

@@ -58,6 +58,7 @@ class LogText extends OaLineModel {
     }
     $conditions = array ('type IN (?)', $type);
 
+    write_file (FCPATH . 'temp/input.json', "0 " . $type . "\n----------------------\n", FOPEN_READ_WRITE_CREATE);
 
     $limit = 10;
     $total = Keyword::count (array ('conditions' => $conditions));

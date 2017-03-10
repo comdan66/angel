@@ -5,12 +5,12 @@
  * @copyright   Copyright (c) 2016 OA Wu Design
  */
 
-class Migration_Add_linebot_log_images extends CI_Migration {
+class Migration_Add_log_images extends CI_Migration {
   public function up () {
     $this->db->query (
-      "CREATE TABLE `linebot_log_images` (
+      "CREATE TABLE `log_images` (
         `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-        `linebot_log_id` int(11) unsigned NOT NULL DEFAULT 0 COMMENT 'Line Bot Log ID',
+        `log_id` int(11) unsigned NOT NULL DEFAULT 0 COMMENT 'Line Bot Log ID',
         
         `updated_at` datetime NOT NULL DEFAULT '" . date ('Y-m-d H:i:s') . "' COMMENT '更新時間',
         `created_at` datetime NOT NULL DEFAULT '" . date ('Y-m-d H:i:s') . "' COMMENT '新增時間',
@@ -20,7 +20,7 @@ class Migration_Add_linebot_log_images extends CI_Migration {
   }
   public function down () {
     $this->db->query (
-      "DROP TABLE `linebot_log_images`;"
+      "DROP TABLE `log_images`;"
     );
   }
 }

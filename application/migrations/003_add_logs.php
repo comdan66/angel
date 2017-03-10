@@ -5,10 +5,10 @@
  * @copyright   Copyright (c) 2016 OA Wu Design
  */
 
-class Migration_Add_linebot_logs extends CI_Migration {
+class Migration_Add_logs extends CI_Migration {
   public function up () {
     $this->db->query (
-      "CREATE TABLE `linebot_logs` (
+      "CREATE TABLE `logs` (
         `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
         `type` varchar(20) COLLATE utf8_unicode_ci NOT NULL DEFAULT '' COMMENT '類型',
         `reply_token` varchar(50) COLLATE utf8_unicode_ci NOT NULL DEFAULT '' COMMENT '回覆 Token',
@@ -30,7 +30,7 @@ class Migration_Add_linebot_logs extends CI_Migration {
   }
   public function down () {
     $this->db->query (
-      "DROP TABLE `linebot_logs`;"
+      "DROP TABLE `logs`;"
     );
   }
 }

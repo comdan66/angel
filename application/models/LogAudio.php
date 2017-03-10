@@ -6,9 +6,9 @@
  * @link        http://www.ioa.tw/
  */
 
-class LinebotLogVideo extends OaLineModel {
+class LogAudio extends OaLineModel {
 
-  static $table_name = 'linebot_log_videos';
+  static $table_name = 'log_audios';
 
   static $has_one = array (
   );

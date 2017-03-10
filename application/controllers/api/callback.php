@@ -25,6 +25,9 @@ class Callback extends Api_controller {
     
   }
   public function test () {
+    echo '<meta http-equiv="Content-type" content="text/html; charset=utf-8" /><pre>';
+    var_dump (Log::count ());
+    exit ();
   }
   public function index () {
     $path = FCPATH . 'temp/input.json';

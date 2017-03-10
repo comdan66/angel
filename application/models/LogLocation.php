@@ -15,9 +15,9 @@ use LINE\LINEBot\MessageBuilder\TemplateBuilder\ConfirmTemplateBuilder;
 use LINE\LINEBot\MessageBuilder\TemplateBuilder\CarouselTemplateBuilder;
 use LINE\LINEBot\MessageBuilder\TemplateBuilder\CarouselColumnTemplateBuilder;
 
-class LinebotLogLocation extends OaLineModel {
+class LogLocation extends OaLineModel {
 
-  static $table_name = 'linebot_log_locations';
+  static $table_name = 'log_locations';
 
   static $has_one = array (
   );
@@ -26,22 +26,22 @@ class LinebotLogLocation extends OaLineModel {
   );
 
   static $belongs_to = array (
-    array ('log', 'class_name' => 'LinebotLog'),
+    array ('log', 'class_name' => 'Log'),
   );
 
   public function __construct ($attributes = array (), $guard_attributes = true, $instantiating_via_find = false, $new_record = true) {
     parent::__construct ($attributes, $guard_attributes, $instantiating_via_find, $new_record);
   }
   public function reply ($bot, MessageBuilder $build) {
-    $this->log->setStatus (LinebotLog::STATUS_RESPONSE);
+    $this->log->setStatus (Log::STATUS_RESPONSE);
     $response = $bot->replyMessage ($this->log->reply_token, $build);
 
     if (!$response->isSucceeded ()) return false;
-    $this->log->setStatus (LinebotLog::STATUS_SUCCESS);
+    $this->log->setStatus (Log::STATUS_SUCCESS);
     return true;
   }
   public function searchProducts ($bot) {
-    $this->log->setStatus (LinebotLog::STATUS_MATCH);
+    $this->log->setStatus (Log::STATUS_MATCH);
     $builder = new TemplateMessageBuilder ('有個問題需要被解答！', new ConfirmTemplateBuilder ('請問您是要知道這附近的？', array (new MessageTemplateActionBuilder ('天氣概況', '我想知道這附近的天氣概況(' . $this->latitude . ', ' . $this->longitude . ')'), new MessageTemplateActionBuilder ('美食店家', '我想知道這附近的美食(' . $this->latitude . ', ' . $this->longitude . ')'))));
     return $this->reply ($bot, $builder);
   }

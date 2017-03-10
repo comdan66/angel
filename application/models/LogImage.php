@@ -6,9 +6,9 @@
  * @link        http://www.ioa.tw/
  */
 
-class LinebotLogImage extends OaLineModel {
+class LogImage extends OaLineModel {
 
-  static $table_name = 'linebot_log_images';
+  static $table_name = 'log_images';
 
   static $has_one = array (
   );

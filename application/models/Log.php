@@ -6,9 +6,9 @@
  * @link        http://www.ioa.tw/
  */
 
-class LinebotLog extends OaLineModel {
+class Log extends OaLineModel {
 
-  static $table_name = 'linebot_logs';
+  static $table_name = 'logs';
 
   static $has_one = array (
   );
@@ -37,7 +37,7 @@ class LinebotLog extends OaLineModel {
     parent::__construct ($attributes, $guard_attributes, $instantiating_via_find, $new_record);
   }
   public function setStatus ($status) {
-    if (!(isset ($this->id, $this->status) && in_array ($status, array_keys (LinebotLog::$statusNames)))) return false;
+    if (!(isset ($this->id, $this->status) && in_array ($status, array_keys (Log::$statusNames)))) return false;
     $this->status = $status;
     return $this->save ();
   }

@@ -5,14 +5,15 @@
  * @copyright   Copyright (c) 2016 OA Wu Design
  */
 
-class Migration_Add_linebot_log_texts extends CI_Migration {
+class Migration_Add_log_stickers extends CI_Migration {
   public function up () {
     $this->db->query (
-      "CREATE TABLE `linebot_log_texts` (
+      "CREATE TABLE `log_stickers` (
         `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-        `linebot_log_id` int(11) unsigned NOT NULL DEFAULT 0 COMMENT 'Line Bot Log ID',
+        `log_id` int(11) unsigned NOT NULL DEFAULT 0 COMMENT 'Line Bot Log ID',
         
-        `text` text NOT NULL COMMENT '訊息內容',
+        `package_id` varchar(50) COLLATE utf8_unicode_ci NOT NULL DEFAULT '' COMMENT 'Package ID',
+        `sticker_id` varchar(50) COLLATE utf8_unicode_ci NOT NULL DEFAULT '' COMMENT 'Sticker ID',
 
         `updated_at` datetime NOT NULL DEFAULT '" . date ('Y-m-d H:i:s') . "' COMMENT '更新時間',
         `created_at` datetime NOT NULL DEFAULT '" . date ('Y-m-d H:i:s') . "' COMMENT '新增時間',
@@ -22,7 +23,7 @@ class Migration_Add_linebot_log_texts extends CI_Migration {
   }
   public function down () {
     $this->db->query (
-      "DROP TABLE `linebot_log_texts`;"
+      "DROP TABLE `log_stickers`;"
     );
   }
 }

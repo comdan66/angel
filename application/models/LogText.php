@@ -165,7 +165,7 @@ class LogText extends OaLineModel {
   }
 
   public function searchLocation ($bot) {
-    $pattern = '附近的?美食\s*\((?P<c>(\-?\d+(\.\d+)?),\s*(\-?\d+(\.\d+)?))\)';
+    $pattern = '附近的?美食\s*\((?P<' . LogText::KEYWORD . '>(\-?\d+(\.\d+)?),\s*(\-?\d+(\.\d+)?))\)';
 
     if (!(isset ($this->text) && ($keys = LogText::regex ($pattern, $this->text)))) return false;
 
@@ -186,7 +186,7 @@ class LogText extends OaLineModel {
     return $this->reply ($bot, $builder);
   }
   public function searchWeather ($bot) {
-    $pattern = '附近的?天氣.*\s*\((?P<c>(\-?\d+(\.\d+)?),\s*(\-?\d+(\.\d+)?))\)';
+    $pattern = '附近的?天氣.*\s*\((?P<' . LogText::KEYWORD . '>(\-?\d+(\.\d+)?),\s*(\-?\d+(\.\d+)?))\)';
 
     if (!(isset ($this->text) && ($keys = LogText::regex ($pattern, $this->text)))) return false;
 

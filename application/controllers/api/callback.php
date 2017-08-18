@@ -89,12 +89,12 @@ class Callback extends Api_controller {
           if (!LogText::transaction (function () use (&$logText, $params) { return verifyCreateOrm ($logText = LogText::create ( array_intersect_key ($params, LogText::table ()->columns))); })) return false;
           $log->setStatus (Log::STATUS_CONTENT);
 
-          // if ($log->source_id != 'U4a37e32a1d11b3995d2bf299597e432f') return false;
+          if ($log->source_id != 'U4a37e32a1d11b3995d2bf299597e432f') return false;
 
-          // if ($logText->searchLocation ($bot) ||
-          //     $logText->searchWeather ($bot) ||
-          //     $logText->compare ($bot) ||
-          //     false)
+          if ($logText->searchLocation ($bot) ||
+              $logText->searchWeather ($bot) ||
+              $logText->compare ($bot) ||
+              false)
             echo 'Succeeded!';
 
           break;
@@ -114,13 +114,13 @@ class Callback extends Api_controller {
 
           break;
         case 'StickerMessage':
-          // $params = array (
-          //     'log_id' => $log->id,
-          //     'package_id' => $event->getPackageId (),
-          //     'sticker_id' => $event->getStickerId (),
-          //   );
-          // if (!LogSticker::transaction (function () use (&$logSticker, $params) { return verifyCreateOrm ($logSticker = LogSticker::create ( array_intersect_key ($params, LogSticker::table ()->columns))); })) return false;
-          // $log->setStatus (Log::STATUS_CONTENT);
+          $params = array (
+              'log_id' => $log->id,
+              'package_id' => $event->getPackageId (),
+              'sticker_id' => $event->getStickerId (),
+            );
+          if (!LogSticker::transaction (function () use (&$logSticker, $params) { return verifyCreateOrm ($logSticker = LogSticker::create ( array_intersect_key ($params, LogSticker::table ()->columns))); })) return false;
+          $log->setStatus (Log::STATUS_CONTENT);
           break;
 
         case 'VideoMessage': $params = array ('log_id' => $log->id,); if (!LogVideo::transaction (function () use (&$logText, $params) { return verifyCreateOrm ($logText = LogVideo::create ( array_intersect_key ($params, LogVideo::table ()->columns))); })) return false; $log->setStatus (Log::STATUS_CONTENT); break;

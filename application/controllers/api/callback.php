@@ -99,17 +99,17 @@ class Callback extends Api_controller {
 
           break;
         case 'LocationMessage':
-          // $params = array (
-          //     'log_id' => $log->id,
-          //     'title' => $event->getTitle (),
-          //     'address' => $event->getAddress (),
-          //     'latitude' => $event->getLatitude (),
-          //     'longitude' => $event->getLongitude (),
-          //   );
-          // if (!LogLocation::transaction (function () use (&$logLocation, $params) { return verifyCreateOrm ($logLocation = LogLocation::create ( array_intersect_key ($params, LogLocation::table ()->columns))); })) return false;
-          // $log->setStatus (Log::STATUS_CONTENT);
+          $params = array (
+              'log_id' => $log->id,
+              'title' => $event->getTitle (),
+              'address' => $event->getAddress (),
+              'latitude' => $event->getLatitude (),
+              'longitude' => $event->getLongitude (),
+            );
+          if (!LogLocation::transaction (function () use (&$logLocation, $params) { return verifyCreateOrm ($logLocation = LogLocation::create ( array_intersect_key ($params, LogLocation::table ()->columns))); })) return false;
+          $log->setStatus (Log::STATUS_CONTENT);
 
-          // if ($logLocation->searchProducts ($bot))
+          if ($logLocation->searchProducts ($bot))
             echo 'Succeeded!';
 
           break;

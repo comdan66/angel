@@ -107,7 +107,6 @@ class LogText extends OaLineModel {
     if (!$datas = AlleyGet::search (implode (' ', $keys))) return null;
 
     return new TemplateMessageBuilder (mb_strimwidth (implode (',', $keys) . ' 來囉！', 0, 198 * 2, '…','UTF-8'), new CarouselTemplateBuilder (array_map (function ($data) {
-      Log::trace ('=>>>>>> ' . $data['img']);
       return new CarouselColumnTemplateBuilder (
         mb_strimwidth ($data['title'], 0, 18 * 2, '…','UTF-8'),
         mb_strimwidth ($data['desc'], 0, 28 * 2, '…','UTF-8'),

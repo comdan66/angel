@@ -72,7 +72,7 @@ class Callback extends Api_controller {
       if (!($sid = $event->getEventSourceId ()))
         continue;
 
-      $status = $event->getType () == 'leave' ? Source::STATUS_LEAVE : Source::STATUS_JOIN;
+      $status = ($event->getType () == 'leave' || $event->getType () == 'unfollow') ? Source::STATUS_LEAVE : Source::STATUS_JOIN;
 
       if (!$source = Source::find ('one', array ('conditions' => array ('sid = ?', $sid)))) {
         $params = array (
@@ -96,6 +96,7 @@ class Callback extends Api_controller {
           'message_id' => $event->getType () == 'message' ? $event->getMessageId () : '',
           'status' => Log::STATUS_INIT,
         );
+      Log::trace ('===>' . json_encode($params));
 
       if (!Log::transaction (function () use (&$log, $params) { return verifyCreateOrm ($log = Log::create (array_intersect_key ($params, Log::table ()->columns))); })) continue;
 

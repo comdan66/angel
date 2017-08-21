@@ -29,22 +29,23 @@ class Send extends Api_controller {
     parent::__construct ();
     
   }
-  public function x () {
-    $channel_secret = Cfg::setting ('line', 'channel', 'secret');
-    $token = Cfg::setting ('line', 'channel', 'token');
+  // public function getUser () {
+  //   $channel_secret = Cfg::setting ('line', 'channel', 'secret');
+  //   $token = Cfg::setting ('line', 'channel', 'token');
 
-    $httpClient = new CurlHTTPClient ($token);
-    $bot = new LINEBot ($httpClient, ['channelSecret' => $channel_secret]);
+  //   $httpClient = new CurlHTTPClient ($token);
+  //   $bot = new LINEBot ($httpClient, ['channelSecret' => $channel_secret]);
 
-    $user_id = 'U4a37e32a1d11b3995d2bf299597e432f';
-    $response = $bot->getProfile ($user_id);
-    if ($response->isSucceeded ()) {
-        $profile = $response->getJSONDecodedBody ();
-        echo $profile['displayName'];
-        echo $profile['pictureUrl'];
-        echo $profile['statusMessage'];
-    }
-  }
+  //   $user_id = 'U4a37e32a1d11b3995d2bf299597e432f';
+  //   $response = $bot->getProfile ($user_id);
+  //   if ($response->isSucceeded ()) {
+  //       $profile = $response->getJSONDecodedBody ();
+  //       echo $profile['displayName'];
+  //       echo $profile['pictureUrl'];
+  //       echo $profile['statusMessage'];
+  //   }
+  // }
+
   /**
    * @api {get} /send/sticker/:packageId/:stickerId 景點內容
    * @apiGroup Send

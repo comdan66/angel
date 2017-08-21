@@ -41,7 +41,7 @@ class Send extends Api_controller {
     $httpClient = new CurlHTTPClient ($token);
     $bot = new LINEBot ($httpClient, ['channelSecret' => $channel_secret]);
 
-    $builder = new StickerMessageBuilder ($packageId, $stickerId);
+    $builder = new StickerMessageBuilder ((int)$packageId, (int)$stickerId);
     $response = $bot->pushMessage ($user_id, $builder);
   }
 

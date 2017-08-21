@@ -30,8 +30,11 @@ class Send extends Api_controller {
     
   }
 
-  public function sticker () {
-    $user_id = 'U4a37e32a1d11b3995d2bf299597e432f';
+  public function sticker ($packageId = 1, $stickerId = 1) {
+    if (!(($packageId = trim ($packageId)) && is_numeric ($packageId) && ($stickerId = trim ($stickerId)) && is_numeric ($stickerId)))
+      return ;
+
+    $user_id = 'C060c524e90c9f04dbf35d983c2e2c52e';
     $channel_secret = Cfg::setting ('line', 'channel', 'secret');
     $token = Cfg::setting ('line', 'channel', 'token');
 

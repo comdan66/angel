@@ -51,7 +51,11 @@ class Send extends Api_controller {
     $httpClient = new CurlHTTPClient ($token);
     $bot = new LINEBot ($httpClient, ['channelSecret' => $channel_secret]);
 
-    $textMessageBuilder = new TextMessageBuilder ($q);
-    $response = $bot->pushMessage ($user_id, $textMessageBuilder);
+    if (in_array (pathinfo ($q, PATHINFO_EXTENSION), array ('jpg', 'gif', 'jpeg', 'png')))
+      $builder = new ImageMessageBuilder ($q, $q);
+    else
+      $builder = new TextMessageBuilder ($q);
+
+    $response = $bot->pushMessage ($user_id, $builder);
   }
 }

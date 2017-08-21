@@ -193,7 +193,7 @@ class Send extends Api_controller {
     if (!(($source = OAInput::get ('user_id')) && ($source = trim ($source)) && ($source = Source::find ('one', array ('select' => 'sid', 'conditions' => array ('sid = ? AND status = ?', $source, Source::STATUS_JOIN))))))
       return $this->output_error_json ('使用者錯誤');
     
-    if (!(($text = OAInput::get ('q')) && ($text = trim ($text)))) return;
+    if (!(($text = OAInput::get ('text')) && ($text = trim ($text)))) return;
     
     $text = mb_strimwidth ($text, 0, 998 * 2, '…','UTF-8');
 
@@ -202,5 +202,6 @@ class Send extends Api_controller {
 
     $builder = new TextMessageBuilder ($q);
     $response = $bot->pushMessage ($source->sid, $builder);
+    return $this->output_json (array ('status' => true));
   }
 }

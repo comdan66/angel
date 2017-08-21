@@ -106,6 +106,8 @@ class LogText extends OaLineModel {
     $this->CI->load->library ('AlleyGet');
     if (!$datas = AlleyGet::search (implode (' ', $keys))) return null;
 
+LogText::trace ('===> ' . json_encode($datas));
+
     return new TemplateMessageBuilder (mb_strimwidth (implode (',', $keys) . ' 來囉！', 0, 198 * 2, '…','UTF-8'), new CarouselTemplateBuilder (array_map (function ($data) {
       return new CarouselColumnTemplateBuilder (
         mb_strimwidth ($data['title'], 0, 18 * 2, '…','UTF-8'),

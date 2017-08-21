@@ -200,7 +200,7 @@ class Send extends Api_controller {
     $httpClient = new CurlHTTPClient (Cfg::setting ('line', 'channel', 'token'));
     $bot = new LINEBot ($httpClient, ['channelSecret' => Cfg::setting ('line', 'channel', 'secret')]);
 
-    $builder = new TextMessageBuilder ($q);
+    $builder = new TextMessageBuilder ($text);
     $response = $bot->pushMessage ($source->sid, $builder);
     return $this->output_json (array ('status' => true));
   }

@@ -106,20 +106,12 @@ class LogText extends OaLineModel {
     $this->CI->load->library ('AlleyGet');
     if (!$datas = AlleyGet::search (implode (' ', $keys))) return null;
 
-
-    return new TemplateMessageBuilder (mb_strimwidth ('123' . ' 來囉！', 0, 190 * 2, '…','UTF-8'), new CarouselTemplateBuilder (array_map (function ($data) {
-
-// LogText::trace ('===> ' . mb_strimwidth (implode (',', $keys) . ' 來囉！', 0, 198 * 2, '…','UTF-8'));
-// LogText::trace ('===> ' . mb_strimwidth ($data['title'], 0, 18 * 2, '…','UTF-8'));
-// LogText::trace ('===> ' . mb_strimwidth ($data['desc'], 0, 28 * 2, '…','UTF-8'));
-// LogText::trace ('===> ' . $data['img']);
-// LogText::trace ('===> ' . mb_strimwidth ('我要吃 ' . $data['title'], 0, 8 * 2, '…','UTF-8'));
-
+    return new TemplateMessageBuilder (mb_strimwidth (implode (',', $keys) . ' 來囉！', 0, 198 * 2, '…','UTF-8'), new CarouselTemplateBuilder (array_map (function ($data) {
       return new CarouselColumnTemplateBuilder (
-        mb_strimwidth ('123', 0, 15 * 2, '…','UTF-8'),
-        mb_strimwidth ('123', 0, 25 * 2, '…','UTF-8'),
-        'https://pic.mazu.ioa.tw/u/ckeditor_images/name/0/0/0/71/800h_617618209_58de022ac0577.jpg',
-        array (new UriTemplateActionBuilder (mb_strimwidth ('我要吃 ' . '123', 0, 5 * 2, '…','UTF-8'), 'https://pic.mazu.ioa.tw/u/ckeditor_images/name/0/0/0/71/800h_617618209_58de022ac0577.jpg'))
+        mb_strimwidth ($data['title'], 0, 18 * 2, '…','UTF-8'),
+        mb_strimwidth ($data['desc'], 0, 28 * 2, '…','UTF-8'),
+        $data['img'],
+        array (new UriTemplateActionBuilder (mb_strimwidth ('我要吃 ' . $data['title'], 0, 8 * 2, '…','UTF-8'), 'https://pic.mazu.ioa.tw/u/ckeditor_images/name/0/0/0/71/800h_617618209_58de022ac0577.jpg'))
       );
     }, $datas)));
   }

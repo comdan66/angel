@@ -20,6 +20,7 @@ use LINE\LINEBot\Event\MessageEvent\ImageMessage;
 use LINE\LINEBot\Event\MessageEvent\AudioMessage;
 use LINE\LINEBot\MessageBuilder\TextMessageBuilder;
 use LINE\LINEBot\MessageBuilder\ImageMessageBuilder;
+use LINE\LINEBot\MessageBuilder\LocationMessageBuilder;
 
 class Send extends Api_controller {
 
@@ -28,6 +29,17 @@ class Send extends Api_controller {
     
   }
 
+  public function location () {
+    $user_id = 'U4a37e32a1d11b3995d2bf299597e432f';
+    $channel_secret = Cfg::setting ('line', 'channel', 'secret');
+    $token = Cfg::setting ('line', 'channel', 'token');
+
+    $httpClient = new CurlHTTPClient ($token);
+    $bot = new LINEBot ($httpClient, ['channelSecret' => $channel_secret]);
+
+    $builder = new LocationMessageBuilder ('我在這裡，快來打我呀笨蛋～', '據說叫遠時的地方', 25.071171571919, 121.57121546566);
+    $response = $bot->pushMessage ($user_id, $builder);
+  }
   public function img () {
     $user_id = 'U4a37e32a1d11b3995d2bf299597e432f';
     $channel_secret = Cfg::setting ('line', 'channel', 'secret');

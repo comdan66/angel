@@ -78,7 +78,7 @@ class Callback extends Api_controller {
           'type' => $event->isUserEvent() ? Source::TYPE_USER : ($event->isGroupEvent () ? Source::TYPE_GROUP : ($even->isRoomEvent () ? Source::TYPE_ROOM : Source::TYPE_OTHER)),
           'sid' => $sid,
           'memo' => '',
-          'status' => $type,
+          'status' => $status,
         );
         if (!Source::transaction (function () use (&$source, $params) { return verifyCreateOrm ($source = Source::create (array_intersect_key ($params, Source::table ()->columns))); })) continue;
       }

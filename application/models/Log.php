@@ -17,6 +17,7 @@ class Log extends OaLineModel {
   );
 
   static $belongs_to = array (
+    array ('source', 'class_name' => 'Source'),
   );
 
   const STATUS_INIT     = 1;

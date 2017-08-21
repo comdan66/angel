@@ -72,7 +72,8 @@ class Callback extends Api_controller {
       if (!($sid = $event->getEventSourceId ()))
         continue;
 
-      $status = $event->getType () == 'join' ? Source::STATUS_JOIN : ($event->getType () == 'leave' ? Source::STATUS_LEAVE : Source::STATUS_OTHER);
+      $status = $event->getType () == 'leave' ? Source::STATUS_LEAVE : Source::STATUS_JOIN;
+
       if (!$source = Source::find ('one', array ('conditions' => array ('sid = ?', $sid)))) {
         $params = array (
           'type' => $event->isUserEvent() ? Source::TYPE_USER : ($event->isGroupEvent () ? Source::TYPE_GROUP : ($even->isRoomEvent () ? Source::TYPE_ROOM : Source::TYPE_OTHER)),
@@ -82,7 +83,7 @@ class Callback extends Api_controller {
         );
         if (!Source::transaction (function () use (&$source, $params) { return verifyCreateOrm ($source = Source::create (array_intersect_key ($params, Source::table ()->columns))); })) continue;
       }
-      if (in_array ($status, array (Source::STATUS_JOIN, Source::STATUS_LEAVE)) && $source->status != $status && ($source->status = $status))
+      if ($source->status != $status && ($source->status = $status))
         $source->save ();
 
       $params = array (

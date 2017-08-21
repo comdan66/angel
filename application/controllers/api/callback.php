@@ -111,8 +111,8 @@ class Callback extends Api_controller {
           if (!LogLocation::transaction (function () use (&$logLocation, $params) { return verifyCreateOrm ($logLocation = LogLocation::create ( array_intersect_key ($params, LogLocation::table ()->columns))); })) return false;
           $log->setStatus (Log::STATUS_CONTENT);
 
-          // if ($logLocation->searchProducts ($bot))
-          //   echo 'Succeeded!';
+          if ($logLocation->searchProducts ($bot))
+            echo 'Succeeded!';
 
           break;
         case 'StickerMessage':

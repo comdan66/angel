@@ -107,7 +107,7 @@ class LogText extends OaLineModel {
     if (!$datas = AlleyGet::search (implode (' ', $keys))) return null;
 
 
-    return new TemplateMessageBuilder (mb_strimwidth (implode (',', $keys) . ' 來囉！', 0, 190 * 2, '…','UTF-8'), new CarouselTemplateBuilder (array_map (function ($data) {
+    return new TemplateMessageBuilder (mb_strimwidth ('123' . ' 來囉！', 0, 190 * 2, '…','UTF-8'), new CarouselTemplateBuilder (array_map (function ($data) {
 
 // LogText::trace ('===> ' . mb_strimwidth (implode (',', $keys) . ' 來囉！', 0, 198 * 2, '…','UTF-8'));
 // LogText::trace ('===> ' . mb_strimwidth ($data['title'], 0, 18 * 2, '…','UTF-8'));
@@ -119,8 +119,8 @@ class LogText extends OaLineModel {
       return new CarouselColumnTemplateBuilder (
         mb_strimwidth ('123', 0, 15 * 2, '…','UTF-8'),
         mb_strimwidth ('123', 0, 25 * 2, '…','UTF-8'),
-        $data['img'],
-        array (new UriTemplateActionBuilder (mb_strimwidth ('我要吃 ' . '123', 0, 5 * 2, '…','UTF-8'), $data['url']))
+        'http://imagealley.friday.tw/data/list/788/8788.jpg',
+        array (new UriTemplateActionBuilder (mb_strimwidth ('我要吃 ' . '123', 0, 5 * 2, '…','UTF-8'), '1234'))
       );
     }, $datas)));
   }

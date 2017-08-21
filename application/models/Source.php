@@ -43,4 +43,21 @@ class Source extends OaModel {
   public function __construct ($attributes = array (), $guard_attributes = true, $instantiating_via_find = false, $new_record = true) {
     parent::__construct ($attributes, $guard_attributes, $instantiating_via_find, $new_record);
   }
+  public function updateTitle () {
+    if (!(isset ($this->id) && isset ($this->sid) && isset ($this->title))) return false;
+
+    $httpClient = new CurlHTTPClient (Cfg::setting ('line', 'channel', 'token'));
+    $bot = new LINEBot ($httpClient, ['channelSecret' => Cfg::setting ('line', 'channel', 'secret')]);
+
+    $response = $bot->getProfile ($this->sid);
+    
+    if (!$response->isSucceeded ()) return false;
+
+    $profile = $response->getJSONDecodedBody ();
+    $this->title = $profile['displayName'];
+    return $this->save ();
+        // echo $profile['displayName'];
+        // echo $profile['pictureUrl'];
+        // echo $profile['statusMessage'];
+  }
 }

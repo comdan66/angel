@@ -31,6 +31,36 @@ class Send extends Api_controller {
   }
 
   /**
+   * @api {get} /send/users 取得使用者
+   * @apiGroup User
+   *
+   * @apiSuccess {String}   id          User ID
+   * @apiSuccess {String}   title       使用者名稱
+   *
+   * @apiSuccessExample {json} Success Response:
+   *     HTTP/1.1 200 OK
+   *     [
+   *         {
+   *             "id": "U...",
+   *             "title": "吳政賢"
+   *         }
+   *     ]
+   *
+   * @apiError   {String}    message     錯誤原因
+   *
+   * @apiErrorExample {json} Error-Response:
+   *     HTTP/1.1 405 Error
+   *     {
+   *         "message": "參數錯誤"
+   *     }
+   */
+  public function users () {
+    return $this->output_json (array_map (function ($source) {
+      return array ('id' => $source->sid, 'title' => $source->title);
+    }, Source::find ('all', array ('select' => 'title, sid', 'conditions' => array ('status = ? AND title != ?', Source::STATUS_JOIN, '')))));
+  }
+
+  /**
    * @api {get} /send/sticker/:packageId/:stickerId 傳貼圖
    * @apiGroup Send
    *

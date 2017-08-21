@@ -110,7 +110,7 @@ class LogText extends OaLineModel {
       return new CarouselColumnTemplateBuilder (
         mb_strimwidth ($data['title'], 0, 18 * 2, '…','UTF-8'),
         mb_strimwidth ($data['desc'], 0, 28 * 2, '…','UTF-8'),
-        $data['img'],
+        'https://pic.mazu.ioa.tw/u/ckeditor_images/name/0/0/0/71/800h_617618209_58de022ac0577.jpg',
         array (new UriTemplateActionBuilder (mb_strimwidth ('我要吃 ' . $data['title'], 0, 8 * 2, '…','UTF-8'), 'https://pic.mazu.ioa.tw/u/ckeditor_images/name/0/0/0/71/800h_617618209_58de022ac0577.jpg'))
       );
     }, $datas)));

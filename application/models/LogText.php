@@ -117,10 +117,10 @@ class LogText extends OaLineModel {
 // LogText::trace ('===> ' . $data['url']);
 
       return new CarouselColumnTemplateBuilder (
-        mb_strimwidth ($data['title'], 0, 15 * 2, '…','UTF-8'),
-        mb_strimwidth ($data['desc'], 0, 25 * 2, '…','UTF-8'),
+        mb_strimwidth ('123', 0, 15 * 2, '…','UTF-8'),
+        mb_strimwidth ('123', 0, 25 * 2, '…','UTF-8'),
         $data['img'],
-        array (new UriTemplateActionBuilder (mb_strimwidth ('我要吃 ' . $data['title'], 0, 5 * 2, '…','UTF-8'), $data['url']))
+        array (new UriTemplateActionBuilder (mb_strimwidth ('我要吃 ' . '123', 0, 5 * 2, '…','UTF-8'), $data['url']))
       );
     }, $datas)));
   }
@@ -151,7 +151,6 @@ class LogText extends OaLineModel {
         return $this->reply ($bot, $this->replyText ($match['keyword']->contents));
         break;
       case Keyword::METHOD_ALLEY_KEYWORD:
-      Log::trace ('========>' . json_encode($this->replyAlleyKeyword ($match['keys'])));
         return $this->reply ($bot, $this->replyAlleyKeyword ($match['keys']));
         break;
       

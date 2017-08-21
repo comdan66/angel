@@ -37,7 +37,7 @@ class Send extends Api_controller {
     $httpClient = new CurlHTTPClient ($token);
     $bot = new LINEBot ($httpClient, ['channelSecret' => $channel_secret]);
 
-    $builder = new LocationMessageBuilder ('我在這裡，快來打我呀笨蛋～', '據說叫遠時的地方', 25.071171571919, 121.57121546566);
+    $builder = new LocationMessageBuilder ('小夏，我在這裡，快來打我呀笨蛋～', '你右邊的後面的前面那位！', 25.0736393,121.5719186);
     $response = $bot->pushMessage ($user_id, $builder);
   }
   public function img () {

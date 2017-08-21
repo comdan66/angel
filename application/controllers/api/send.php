@@ -116,7 +116,7 @@ class Send extends Api_controller {
     $bot = new LINEBot ($httpClient, ['channelSecret' => Cfg::setting ('line', 'channel', 'secret')]);
 
     $builder = new LocationMessageBuilder ($title, $address, $latitude, $longitude);
-    $response = $bot->pushMessage ($user_id, $builder);
+    $response = $bot->pushMessage ($source->sid, $builder);
 
     return $this->output_json (array ('status' => true));
   }

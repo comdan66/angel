@@ -82,7 +82,7 @@ class Callback extends Api_controller {
         );
         if (!Source::transaction (function () use (&$source, $params) { return verifyCreateOrm ($source = Source::create (array_intersect_key ($params, Source::table ()->columns))); })) continue;
       }
-      if ($source->status != $status && ($source->status = $status))
+      if (in_array ($status, array (Source::STATUS_JOIN, Source::STATUS_LEAVE)) && $source->status != $status && ($source->status = $status))
         $source->save ();
 
       $params = array (

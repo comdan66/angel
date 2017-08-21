@@ -6,6 +6,20 @@
  * @link        http://www.ioa.tw/
  */
 
+require_once FCPATH . 'vendor/autoload.php';
+
+use LINE\LINEBot;
+use LINE\LINEBot\Constant\EventSourceType;
+use LINE\LINEBot\HTTPClient\CurlHTTPClient;
+use LINE\LINEBot\Constant\HTTPHeader;
+use LINE\LINEBot\Event\MessageEvent\TextMessage;
+use LINE\LINEBot\Event\MessageEvent\VideoMessage;
+use LINE\LINEBot\Event\MessageEvent\StickerMessage;
+use LINE\LINEBot\Event\MessageEvent\LocationMessage;
+use LINE\LINEBot\Event\MessageEvent\ImageMessage;
+use LINE\LINEBot\Event\MessageEvent\AudioMessage;
+use LINE\LINEBot\MessageBuilder\TextMessageBuilder;
+
 class Send extends Api_controller {
 
   public function __construct () {

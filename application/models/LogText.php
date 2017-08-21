@@ -151,7 +151,7 @@ class LogText extends OaLineModel {
         return $this->reply ($bot, $this->replyText ($match['keyword']->contents));
         break;
       case Keyword::METHOD_ALLEY_KEYWORD:
-      Log::trace (json_encode($this->replyAlleyKeyword ($match['keys'])));
+      Log::trace ('========>' . json_encode($this->replyAlleyKeyword ($match['keys'])));
         return $this->reply ($bot, $this->replyAlleyKeyword ($match['keys']));
         break;
       

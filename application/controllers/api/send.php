@@ -29,31 +29,15 @@ class Send extends Api_controller {
     parent::__construct ();
     
   }
-  // public function getUser () {
-  //   $channel_secret = Cfg::setting ('line', 'channel', 'secret');
-  //   $token = Cfg::setting ('line', 'channel', 'token');
-
-  //   $httpClient = new CurlHTTPClient ($token);
-  //   $bot = new LINEBot ($httpClient, ['channelSecret' => $channel_secret]);
-
-  //   $user_id = 'U4a37e32a1d11b3995d2bf299597e432f';
-  //   $response = $bot->getProfile ($user_id);
-  //   if ($response->isSucceeded ()) {
-  //       $profile = $response->getJSONDecodedBody ();
-  //       echo $profile['displayName'];
-  //       echo $profile['pictureUrl'];
-  //       echo $profile['statusMessage'];
-  //   }
-  // }
 
   /**
    * @api {get} /send/sticker/:packageId/:stickerId 景點內容
    * @apiGroup Send
    *
-   * @apiParam {String}      userId       User ID
-   *
    * @apiParam {String}      packageId    package ID
    * @apiParam {String}      stickerId    sticker ID
+   *
+   * @apiParam {String}      user_id       User ID
    *
    * @apiSuccess {Boolean}   status       執行狀態
    *
@@ -73,10 +57,12 @@ class Send extends Api_controller {
    *     }
    */
   public function sticker ($packageId = 0, $stickerId = 0) {
+    if (!(($source = OAInput::get ('user_id')) && ($source = trim ($source)) && ($source = Source::find ('one', array ('select' => 'sid', 'conditions' => array ('sid = ? AND status = ?', $source, Source::STATUS_JOIN))))))
+      return $this->output_error_json ('使用者錯誤');
+
     if (!(($packageId = trim ($packageId)) && is_numeric ($packageId) && ($stickerId = trim ($stickerId)) && is_numeric ($stickerId)))
       return $this->output_error_json ('參數錯誤');
 
-    $user_id = 'U4a37e32a1d11b3995d2bf299597e432f';
     $channel_secret = Cfg::setting ('line', 'channel', 'secret');
     $token = Cfg::setting ('line', 'channel', 'token');
 
@@ -84,7 +70,7 @@ class Send extends Api_controller {
     $bot = new LINEBot ($httpClient, ['channelSecret' => $channel_secret]);
 
     $builder = new StickerMessageBuilder ((int)$packageId, (int)$stickerId);
-    $response = $bot->pushMessage ($user_id, $builder);
+    $response = $bot->pushMessage ($source->sid, $builder);
 
     return $this->output_json (array ('status' => true));
   }

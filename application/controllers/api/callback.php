@@ -72,7 +72,7 @@ class Callback extends Api_controller {
       if (!($sid = $event->getEventSourceId ()))
         continue;
 
-      $status = $event->getType () == 'join' ? Source::STATUS_JOIN : ($event->getType () == 'level' ? Source::STATUS_LEAVE : Source::STATUS_OTHER);
+      $status = $event->getType () == 'join' ? Source::STATUS_JOIN : ($event->getType () == 'leave' ? Source::STATUS_LEAVE : Source::STATUS_OTHER);
       if (!$source = Source::find ('one', array ('conditions' => array ('sid = ?', $sid)))) {
         $params = array (
           'type' => $event->isUserEvent() ? Source::TYPE_USER : ($event->isGroupEvent () ? Source::TYPE_GROUP : ($even->isRoomEvent () ? Source::TYPE_ROOM : Source::TYPE_OTHER)),

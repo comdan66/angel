@@ -5,6 +5,9 @@
  * @copyright   Copyright (c) 2016 OA Wu Design
  */
 
+use LINE\LINEBot;
+use LINE\LINEBot\HTTPClient\CurlHTTPClient;
+
 class Source extends OaModel {
 
   static $table_name = 'sources';

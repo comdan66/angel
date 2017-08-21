@@ -106,6 +106,10 @@ class LogText extends OaLineModel {
     $this->CI->load->library ('AlleyGet');
     if (!$datas = AlleyGet::search (implode (' ', $keys))) return null;
 
+
+
+    return new TemplateMessageBuilder (mb_strimwidth (implode (',', $keys) . ' 來囉！', 0, 198 * 2, '…','UTF-8'), new CarouselTemplateBuilder (array_map (function ($data) {
+
 LogText::trace ('===> ' . mb_strimwidth (implode (',', $keys) . ' 來囉！', 0, 198 * 2, '…','UTF-8'));
 LogText::trace ('===> ' . mb_strimwidth ($data['title'], 0, 18 * 2, '…','UTF-8'));
 LogText::trace ('===> ' . mb_strimwidth ($data['desc'], 0, 28 * 2, '…','UTF-8'));
@@ -113,7 +117,6 @@ LogText::trace ('===> ' . $data['img']);
 LogText::trace ('===> ' . mb_strimwidth ('我要吃 ' . $data['title'], 0, 8 * 2, '…','UTF-8'));
 LogText::trace ('===> ' . $data['url']);
 
-    return new TemplateMessageBuilder (mb_strimwidth (implode (',', $keys) . ' 來囉！', 0, 198 * 2, '…','UTF-8'), new CarouselTemplateBuilder (array_map (function ($data) {
       return new CarouselColumnTemplateBuilder (
         mb_strimwidth ($data['title'], 0, 18 * 2, '…','UTF-8'),
         mb_strimwidth ($data['desc'], 0, 28 * 2, '…','UTF-8'),

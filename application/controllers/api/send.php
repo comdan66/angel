@@ -121,7 +121,7 @@ class Send extends Api_controller {
     return $this->output_json (array ('status' => true));
   }
   /**
-   * @api {get} /send/image 圖片
+   * @api {get} /send/image 傳圖片
    * @apiGroup Send
    *
    * @apiParam {String}      ori       原始圖片網址，需要 Https，網址長度最長 1000
@@ -163,23 +163,44 @@ class Send extends Api_controller {
     $response = $bot->pushMessage ($source->sid, $builder);
     return $this->output_json (array ('status' => true));
   }
-  public function test () {
-    if (!(($q = OAInput::get ('q')) && ($q = trim ($q)))) return;
+  
+  /**
+   * @api {get} /send/message 傳文字
+   * @apiGroup Send
+   *
+   * @apiParam {String}      text      文字訊息，長度最長 2000
+   *
+   * @apiParam {String}      user_id      接收者 User ID
+   *
+   * @apiSuccess {Boolean}   status       執行狀態
+   *
+   * @apiSuccessExample {json} Success Response:
+   *     HTTP/1.1 200 OK
+   *     {
+   *         "status": true
+   *     }
+   *
+   *
+   * @apiError   {String}    message     錯誤原因
+   *
+   * @apiErrorExample {json} Error-Response:
+   *     HTTP/1.1 405 Error
+   *     {
+   *         "message": "參數錯誤"
+   *     }
+   */
+  public function message () {
+    if (!(($source = OAInput::get ('user_id')) && ($source = trim ($source)) && ($source = Source::find ('one', array ('select' => 'sid', 'conditions' => array ('sid = ? AND status = ?', $source, Source::STATUS_JOIN))))))
+      return $this->output_error_json ('使用者錯誤');
     
-    $q = mb_strimwidth ($q, 0, 998 * 2, '…','UTF-8');
+    if (!(($text = OAInput::get ('q')) && ($text = trim ($text)))) return;
+    
+    $text = mb_strimwidth ($text, 0, 998 * 2, '…','UTF-8');
 
-    $user_id = 'U4a37e32a1d11b3995d2bf299597e432f';
-    $channel_secret = Cfg::setting ('line', 'channel', 'secret');
-    $token = Cfg::setting ('line', 'channel', 'token');
+    $httpClient = new CurlHTTPClient (Cfg::setting ('line', 'channel', 'token'));
+    $bot = new LINEBot ($httpClient, ['channelSecret' => Cfg::setting ('line', 'channel', 'secret')]);
 
-    $httpClient = new CurlHTTPClient ($token);
-    $bot = new LINEBot ($httpClient, ['channelSecret' => $channel_secret]);
-
-    if ((substr ($q, 0, 8) == "https://") && in_array (pathinfo ($q, PATHINFO_EXTENSION), array ('jpg', 'gif', 'jpeg', 'png')))
-      $builder = new ImageMessageBuilder ($q, $q);
-    else
-      $builder = new TextMessageBuilder ($q);
-
-    $response = $bot->pushMessage ($user_id, $builder);
+    $builder = new TextMessageBuilder ($q);
+    $response = $bot->pushMessage ($source->sid, $builder);
   }
 }

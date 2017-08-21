@@ -30,11 +30,37 @@ class Send extends Api_controller {
     
   }
 
+  /**
+   * @api {get} /send/sticker/:packageId/:stickerId 景點內容
+   * @apiGroup Send
+   *
+   * @apiParam {String}      userId       User ID
+   *
+   * @apiParam {String}      packageId    package ID
+   * @apiParam {String}      stickerId    sticker ID
+   *
+   * @apiSuccess {Boolean}   status       執行狀態
+   *
+   * @apiSuccessExample {json} Success Response:
+   *     HTTP/1.1 200 OK
+   *     {
+   *         "status": true
+   *     }
+   *
+   *
+   * @apiError   {String}    message     錯誤原因
+   *
+   * @apiErrorExample {json} Error-Response:
+   *     HTTP/1.1 405 Error
+   *     {
+   *         "message": "參數錯誤"
+   *     }
+   */
   public function sticker ($packageId = 0, $stickerId = 0) {
     if (!(($packageId = trim ($packageId)) && is_numeric ($packageId) && ($stickerId = trim ($stickerId)) && is_numeric ($stickerId)))
-      return ;
+      return $this->output_error_json ('參數錯誤');
 
-    $user_id = 'C060c524e90c9f04dbf35d983c2e2c52e';
+    $user_id = 'U4a37e32a1d11b3995d2bf299597e432f';
     $channel_secret = Cfg::setting ('line', 'channel', 'secret');
     $token = Cfg::setting ('line', 'channel', 'token');
 
@@ -43,10 +69,12 @@ class Send extends Api_controller {
 
     $builder = new StickerMessageBuilder ((int)$packageId, (int)$stickerId);
     $response = $bot->pushMessage ($user_id, $builder);
+
+    return $this->output_json (array ('status' => true));
   }
 
   public function location () {
-    $user_id = 'C060c524e90c9f04dbf35d983c2e2c52e';
+    $user_id = 'U4a37e32a1d11b3995d2bf299597e432f';
     $channel_secret = Cfg::setting ('line', 'channel', 'secret');
     $token = Cfg::setting ('line', 'channel', 'token');
 
@@ -72,7 +100,7 @@ class Send extends Api_controller {
     
     $q = mb_strimwidth ($q, 0, 998 * 2, '…','UTF-8');
 
-    $user_id = 'C060c524e90c9f04dbf35d983c2e2c52e';
+    $user_id = 'U4a37e32a1d11b3995d2bf299597e432f';
     $channel_secret = Cfg::setting ('line', 'channel', 'secret');
     $token = Cfg::setting ('line', 'channel', 'token');
 

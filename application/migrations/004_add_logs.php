@@ -4,18 +4,20 @@
  * @author      OA Wu <comdan66@gmail.com>
  * @copyright   Copyright (c) 2016 OA Wu Design
  */
-
+// `source_type` varchar(50) COLLATE utf8_unicode_ci NOT NULL DEFAULT '' COMMENT '來源類型',
+//         `source_id` varchar(50) COLLATE utf8_unicode_ci NOT NULL DEFAULT '' COMMENT '來源 ID',
+        
 class Migration_Add_logs extends CI_Migration {
   public function up () {
     $this->db->query (
       "CREATE TABLE `logs` (
         `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+        `source_id` int(11) unsigned NOT NULL DEFAULT 0 COMMENT 'Source ID',
+
         `type` varchar(20) COLLATE utf8_unicode_ci NOT NULL DEFAULT '' COMMENT '類型',
         `reply_token` varchar(50) COLLATE utf8_unicode_ci NOT NULL DEFAULT '' COMMENT '回覆 Token',
         `instanceof` varchar(20) COLLATE utf8_unicode_ci NOT NULL DEFAULT '' COMMENT '對方類型',
         
-        `source_type` varchar(50) COLLATE utf8_unicode_ci NOT NULL DEFAULT '' COMMENT '來源類型',
-        `source_id` varchar(50) COLLATE utf8_unicode_ci NOT NULL DEFAULT '' COMMENT '來源 ID',
         `timestamp` varchar(20) COLLATE utf8_unicode_ci NOT NULL DEFAULT '' COMMENT '時間',
         `message_type` varchar(20) COLLATE utf8_unicode_ci NOT NULL DEFAULT '' COMMENT '訊息類型',
         `message_id` varchar(50) COLLATE utf8_unicode_ci NOT NULL DEFAULT '' COMMENT '訊息 ID',

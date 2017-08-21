@@ -17,6 +17,8 @@ use LINE\LINEBot\Event\MessageEvent\StickerMessage;
 use LINE\LINEBot\Event\MessageEvent\LocationMessage;
 use LINE\LINEBot\Event\MessageEvent\ImageMessage;
 use LINE\LINEBot\Event\MessageEvent\AudioMessage;
+use LINE\LINEBot\Event\MessageEvent\JoinEvent;
+use LINE\LINEBot\Event\MessageEvent\LeaveEvent;
 
 class Callback extends Api_controller {
 
@@ -59,24 +61,39 @@ class Callback extends Api_controller {
 
       if ($event instanceof TextMessage) $instanceof = 'TextMessage';
       if ($event instanceof LocationMessage) $instanceof = 'LocationMessage';
-      
       if ($event instanceof VideoMessage) $instanceof = 'VideoMessage';
       if ($event instanceof StickerMessage) $instanceof = 'StickerMessage';
       if ($event instanceof ImageMessage) $instanceof = 'ImageMessage';
       if ($event instanceof AudioMessage) $instanceof = 'AudioMessage';
-      
+
+      if ($event instanceof JoinEvent) $instanceof = 'JoinEvent';
+      if ($event instanceof LeaveEvent) $instanceof = 'LeaveEvent';
+
+      if (!($sid = $event->getEventSourceId ()))
+        continue;
+
+      if (!$source = Source::find ('one', array ('conditions' => array ('sid = ?', $sid)))) {
+        $params = array (
+          'type' => $event->isUserEvent() ? Source::TYPE_USER : ($event->isGroupEvent () ? Source::TYPE_GROUP : ($even->isRoomEvent () ? Source::TYPE_ROOM : Source::TYPE_OTHER)),
+          'sid' => $sid,
+          'memo' => '',
+          'status' => $event->getType () == 'join' ? Source::STATUS_JOIN : ($event->getType () == 'level' ? Source::STATUS_LEAVE : Source::STATUS_OTHER),
+        );
+        if (!Source::transaction (function () use (&$source, $params) { return verifyCreateOrm ($source = Source::create (array_intersect_key ($params, Source::table ()->columns))); })) continue;
+      }
+
       $params = array (
+          'source_id' => $source->id,
           'type' => $event->getType (),
           'instanceof' => $instanceof,
-          'reply_token' => $event->getType () == 'unfollow' ? '' : $event->getReplyToken (),
-          'source_id' => $event->getEventSourceId (),
-          'source_type' => $event->isUserEvent() ? EventSourceType::USER : ($event->isGroupEvent () ? EventSourceType::GROUP : EventSourceType::ROOM),
+          'reply_token' => $event->getType () == 'unfollow' || !$event->getReplyToken () ? '' : $event->getReplyToken (),
           'timestamp' => $event->getTimestamp (),
           'message_type' => $event->getType () == 'message' ? $event->getMessageType () : '',
           'message_id' => $event->getType () == 'message' ? $event->getMessageId () : '',
           'status' => Log::STATUS_INIT,
         );
-      if (!Log::transaction (function () use (&$log, $params) { return verifyCreateOrm ($log = Log::create ( array_intersect_key ($params, Log::table ()->columns))); })) return false;
+
+      if (!Log::transaction (function () use (&$log, $params) { return verifyCreateOrm ($log = Log::create (array_intersect_key ($params, Log::table ()->columns))); })) continue;
 
       if ($event->getType () != 'message') continue;
 

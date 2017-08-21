@@ -224,11 +224,11 @@ class Oa_controller extends Root_controller {
   protected function output_error_json ($message, $code = 405, $cache = 0) {
     $server_protocol = (isset($_SERVER['SERVER_PROTOCOL'])) ? $_SERVER['SERVER_PROTOCOL'] : FALSE;
     if (substr (php_sapi_name (), 0, 3) == 'cgi')
-      header ('Status: ' . $code . ' ' . $message, true);
+      header ('Status: ' . $code . ' ' . 'Error', true);
     elseif (($server_protocol == 'HTTP/1.1') || ($server_protocol == 'HTTP/1.0'))
-      header ($server_protocol . ' ' . $code . ' ' . $message, true, $code);
+      header ($server_protocol . ' ' . $code . ' ' . 'Error', true, $code);
     else
-      header ('HTTP/1.1 ' . $code . ' ' . $message, true, $code);
+      header ('HTTP/1.1 ' . $code . ' ' . 'Error', true, $code);
 
     return $this->output
                 ->set_content_type ('application/json')

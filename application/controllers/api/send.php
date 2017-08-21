@@ -27,7 +27,11 @@ class Send extends Api_controller {
     
   }
 
-  public function test ($message = '') {
+  public function test () {
+    if (!(($q = OAInput::get ('q')) && ($q = trim ($q)))) return;
+    
+    $q = mb_strimwidth ($q, 0, 998 * 2, '…','UTF-8');
+
     $user_id = 'C060c524e90c9f04dbf35d983c2e2c52e';
     $channel_secret = Cfg::setting ('line', 'channel', 'secret');
     $token = Cfg::setting ('line', 'channel', 'token');
@@ -35,7 +39,7 @@ class Send extends Api_controller {
     $httpClient = new CurlHTTPClient ($token);
     $bot = new LINEBot ($httpClient, ['channelSecret' => $channel_secret]);
 
-    $textMessageBuilder = new TextMessageBuilder ('測試！');
+    $textMessageBuilder = new TextMessageBuilder ($q);
     $response = $bot->pushMessage ($user_id, $textMessageBuilder);
   }
 }

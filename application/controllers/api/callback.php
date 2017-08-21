@@ -74,7 +74,7 @@ class Callback extends Api_controller {
 
       $status = ($event->getType () == 'leave' || $event->getType () == 'unfollow') ? Source::STATUS_LEAVE : Source::STATUS_JOIN;
 
-      if (!$source = Source::find ('one', array ('conditions' => array ('sid = ?', $sid)))) {
+      if (!$source = Source::find ('one', array ('select' => 'id, title, status', 'conditions' => array ('sid = ?', $sid)))) {
         $params = array (
           'type' => $event->isUserEvent() ? Source::TYPE_USER : ($event->isGroupEvent () ? Source::TYPE_GROUP : ($even->isRoomEvent () ? Source::TYPE_ROOM : Source::TYPE_OTHER)),
           'sid' => $sid,
@@ -85,6 +85,10 @@ class Callback extends Api_controller {
       }
       if ($source->status != $status && ($source->status = $status))
         $source->save ();
+
+      if (!$source->title && $source->type == Source::TYPE_USER) {
+        $source->updateTitle ();
+      }
 
       $params = array (
           'source_id' => $source->id,

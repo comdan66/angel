@@ -19,6 +19,7 @@ use LINE\LINEBot\Event\MessageEvent\LocationMessage;
 use LINE\LINEBot\Event\MessageEvent\ImageMessage;
 use LINE\LINEBot\Event\MessageEvent\AudioMessage;
 use LINE\LINEBot\MessageBuilder\TextMessageBuilder;
+use LINE\LINEBot\MessageBuilder\ImageMessageBuilder;
 
 class Send extends Api_controller {
 
@@ -27,6 +28,17 @@ class Send extends Api_controller {
     
   }
 
+  public function img () {
+    $user_id = 'U4a37e32a1d11b3995d2bf299597e432f';
+    $channel_secret = Cfg::setting ('line', 'channel', 'secret');
+    $token = Cfg::setting ('line', 'channel', 'token');
+
+    $httpClient = new CurlHTTPClient ($token);
+    $bot = new LINEBot ($httpClient, ['channelSecret' => $channel_secret]);
+
+    $builder = new ImageMessageBuilder ('https://pic.mazu.ioa.tw/u/album_images/name/0/0/4/76/800w_1889643416_58dd52e847cc8.jpg', 'https://pic.mazu.ioa.tw/u/album_images/name/0/0/4/76/800w_1889643416_58dd52e847cc8.jpg');
+    $response = $bot->pushMessage ($user_id, $builder);
+  }
   public function test () {
     if (!(($q = OAInput::get ('q')) && ($q = trim ($q)))) return;
     

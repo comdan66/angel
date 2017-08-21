@@ -80,7 +80,7 @@ class AlleyGet {
       return array (
           'title' => $item['productName'],
           'desc' => ($item['story']) ? $item['story'] : $item['address'],
-          'img' => $item['originImage'],
+          'img' => str_replace ('http://imagealley.friday.tw/', 'https://s3-ap-northeast-1.amazonaws.com/', $item['originImage']),
           'url' => $item['webSite'],
         );
     }, $data['items']), 0, 5);

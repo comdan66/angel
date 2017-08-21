@@ -33,7 +33,7 @@ class Source extends OaModel {
   const TYPE_ROOM    = 3;
   const TYPE_OTHER   = 4;
 
-  static $statusNames = array (
+  static $typeNames = array (
     self::TYPE_USER   => '使用者',
     self::TYPE_GROUP  => '群組',
     self::TYPE_ROOM   => '聊天室',

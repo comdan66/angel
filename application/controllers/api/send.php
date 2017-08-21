@@ -120,16 +120,48 @@ class Send extends Api_controller {
 
     return $this->output_json (array ('status' => true));
   }
-  public function img () {
-    $user_id = 'U4a37e32a1d11b3995d2bf299597e432f';
-    $channel_secret = Cfg::setting ('line', 'channel', 'secret');
-    $token = Cfg::setting ('line', 'channel', 'token');
+  /**
+   * @api {get} /send/image 圖片
+   * @apiGroup Send
+   *
+   * @apiParam {String}      ori       原始圖片網址，需要 Https，網址長度最長 1000
+   * @apiParam {String}      prev      預覽圖片網址，需要 Https，網址長度最長 1000
+   *
+   * @apiParam {String}      user_id      接收者 User ID
+   *
+   * @apiSuccess {Boolean}   status       執行狀態
+   *
+   * @apiSuccessExample {json} Success Response:
+   *     HTTP/1.1 200 OK
+   *     {
+   *         "status": true
+   *     }
+   *
+   *
+   * @apiError   {String}    message     錯誤原因
+   *
+   * @apiErrorExample {json} Error-Response:
+   *     HTTP/1.1 405 Error
+   *     {
+   *         "message": "參數錯誤"
+   *     }
+   */
+  public function image () {
+    if (!(($source = OAInput::get ('user_id')) && ($source = trim ($source)) && ($source = Source::find ('one', array ('select' => 'sid', 'conditions' => array ('sid = ? AND status = ?', $source, Source::STATUS_JOIN))))))
+      return $this->output_error_json ('使用者錯誤');
+    
+    $ori = OAInput::get ('ori');
+    $prev = OAInput::get ('prev');
 
-    $httpClient = new CurlHTTPClient ($token);
-    $bot = new LINEBot ($httpClient, ['channelSecret' => $channel_secret]);
+    if (!(($ori = trim ($ori)) && ($prev = trim ($prev)) && strlen ($ori) <= 1000 && strlen ($prev) <= 1000))
+      return $this->output_error_json ('參數錯誤');
 
-    $builder = new ImageMessageBuilder ('https://i.imgur.com/6LNrn1m.gif', 'https://i.imgur.com/6LNrn1m.gif');
-    $response = $bot->pushMessage ($user_id, $builder);
+    $httpClient = new CurlHTTPClient (Cfg::setting ('line', 'channel', 'token'));
+    $bot = new LINEBot ($httpClient, ['channelSecret' => Cfg::setting ('line', 'channel', 'secret')]);
+
+    $builder = new ImageMessageBuilder ($ori, $prev);
+    $response = $bot->pushMessage ($source->sid, $builder);
+    return $this->output_json (array ('status' => true));
   }
   public function test () {
     if (!(($q = OAInput::get ('q')) && ($q = trim ($q)))) return;

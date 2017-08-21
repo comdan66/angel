@@ -30,7 +30,7 @@ class Send extends Api_controller {
     
   }
 
-  public function sticker ($packageId = 1, $stickerId = 1) {
+  public function sticker ($packageId = 0, $stickerId = 0) {
     if (!(($packageId = trim ($packageId)) && is_numeric ($packageId) && ($stickerId = trim ($stickerId)) && is_numeric ($stickerId)))
       return ;
 

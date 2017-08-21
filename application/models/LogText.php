@@ -114,7 +114,7 @@ class LogText extends OaLineModel {
 // LogText::trace ('===> ' . mb_strimwidth ($data['desc'], 0, 28 * 2, '…','UTF-8'));
 // LogText::trace ('===> ' . $data['img']);
 // LogText::trace ('===> ' . mb_strimwidth ('我要吃 ' . $data['title'], 0, 8 * 2, '…','UTF-8'));
-// LogText::trace ('===> ' . $data['url']);
+LogText::trace ('===> ' . $data['url']);
 
       return new CarouselColumnTemplateBuilder (
         mb_strimwidth ('123', 0, 15 * 2, '…','UTF-8'),

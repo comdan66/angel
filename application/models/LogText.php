@@ -114,12 +114,11 @@ class LogText extends OaLineModel {
 // LogText::trace ('===> ' . mb_strimwidth ($data['desc'], 0, 28 * 2, '…','UTF-8'));
 // LogText::trace ('===> ' . $data['img']);
 // LogText::trace ('===> ' . mb_strimwidth ('我要吃 ' . $data['title'], 0, 8 * 2, '…','UTF-8'));
-LogText::trace ('===> ' . $data['url']);
 
       return new CarouselColumnTemplateBuilder (
         mb_strimwidth ('123', 0, 15 * 2, '…','UTF-8'),
         mb_strimwidth ('123', 0, 25 * 2, '…','UTF-8'),
-        'http://imagealley.friday.tw/data/list/788/8788.jpg',
+        'https://pic.mazu.ioa.tw/u/ckeditor_images/name/0/0/0/71/800h_617618209_58de022ac0577.jpg',
         array (new UriTemplateActionBuilder (mb_strimwidth ('我要吃 ' . '123', 0, 5 * 2, '…','UTF-8'), '1234'))
       );
     }, $datas)));

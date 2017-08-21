@@ -44,14 +44,16 @@ class AlleyGet {
     $data = json_decode ($data, true);
     if (!(isset ($data['items']) && $data['items'])) return array ();
     
-    return array_slice (array_map (function ($item) {
+    return array_slice (array_filter (array_map (function ($item) {
       return array (
           'title' => $item['productName'],
           'desc' => ($item['story']) ? $item['story'] : $item['address'],
-          'img' => $item['originImage'],
+          'img' => str_replace ('http://imagealley.friday.tw/', 'https://s3-ap-northeast-1.amazonaws.com/imagealley.friday.tw/', $item['originImage']),
           'url' => $item['webSite'],
         );
-    }, $data['items']), 0, 5);
+    }, $data['items']), function ($t) {
+      return (substr ($t['img'], 0, 8) == "https://") && (substr ($t['url'], 0, 8) == "https://");
+    }), 0, 5);
   }
   public static function search ($keyword) {
     $url = "https://apialley.friday.tw/api/2.0/product/search/?keyword=" . $keyword;

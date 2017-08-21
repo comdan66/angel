@@ -59,7 +59,7 @@ class Send extends Api_controller {
   public function sticker ($packageId = 0, $stickerId = 0) {
     if (!(($source = OAInput::get ('user_id')) && ($source = trim ($source)) && ($source = Source::find ('one', array ('select' => 'sid', 'conditions' => array ('sid = ? AND status = ?', $source, Source::STATUS_JOIN)))))) {
       echo '<meta http-equiv="Content-type" content="text/html; charset=utf-8" /><pre>';
-      var_dump ($source);
+      var_dump (Source::STATUS_JOIN);
       exit ();
       return $this->output_error_json ('使用者錯誤');
     }

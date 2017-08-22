@@ -28,9 +28,10 @@ $(function () {
       $('<p />').text (obj.c));
   }
   function loadMsgs (a) {
+    console.error ('1');
+    
     if (!a && _lo) return false;
     _lo = true;
-    console.error (a);
     
     $.ajax ({
       url: 'api/messages/',

@@ -382,7 +382,10 @@ class Send extends Api_controller {
       if (!($column['actions'] = isset ($column['actions']) ? $this->_actions ($column['actions']) : array ()))
         return null;
 
-      if (!$cnt_actions && ($cnt_actions = count ($column['actions'])) && ($cnt_actions != count ($column['actions'])))
+      if (!$cnt_actions)
+        $cnt_actions = count ($column['actions']);
+
+      if ($cnt_actions != count ($column['actions']))
         return null;
 
       return new CarouselColumnTemplateBuilder ($column['title'], $column['text'], $column['img'], $column['actions']);

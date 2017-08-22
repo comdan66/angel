@@ -371,10 +371,7 @@ class Send extends Api_controller {
    *     }
    */
   public function confirm () {
-    echo '<meta http-equiv="Content-type" content="text/html; charset=utf-8" /><pre>';
-    var_dump (count ($actions = $this->_actions (OAInput::post ('actions'))));
-    exit ();
-    if (count ($actions = $this->_actions (OAInput::post ('actions'))) == 2)
+    if (count ($actions = $this->_actions (OAInput::post ('actions'))) != 2)
       return $this->output_error_json ('要有兩個 Action，或者您的 Actions 都格式錯誤');
 
     if (!(($alt = OAInput::post ('alt')) && ($alt = trim ($alt)) && ($alt = catStr ($alt, 400)) && ($text = OAInput::post ('text')) && ($text = trim ($text)) && ($text = catStr ($text, 240))))

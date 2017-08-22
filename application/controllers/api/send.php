@@ -88,12 +88,12 @@ class Send extends Api_controller {
    *
    * @apiGroup Message
    *
+   * @apiHeader {String}     user_id     接收者 User ID
+   *
    * @apiParam {String}      title       標題，最多 100 個字元，中文一個字算 2 字元
    * @apiParam {String}      address     地址，最多 100 個字元，中文一個字算 2 字元
    * @apiParam {String}      latitude    緯度
    * @apiParam {String}      longitude   經度
-   *
-   * @apiParam {String}      user_id      接收者 User ID
    *
    * @apiSuccess {Boolean}   status       執行狀態
    *
@@ -113,15 +113,7 @@ class Send extends Api_controller {
    *     }
    */
   public function location () {
-    if (!(($this->source = OAInput::get ('user_id')) && ($this->source = trim ($this->source)) && ($this->source = Source::find ('one', array ('select' => 'sid', 'conditions' => array ('sid = ? AND status = ?', $this->source, Source::STATUS_JOIN))))))
-      return $this->output_error_json ('使用者錯誤');
-    
-    $title = OAInput::get ('title');
-    $address = OAInput::get ('address');
-    $latitude = OAInput::get ('latitude');
-    $longitude = OAInput::get ('longitude');
-    
-    if (!(($title = trim ($title)) && ($title = catStr ($title, 100)) && ($address = trim ($address)) && ($address = catStr ($address, 100)) && is_numeric ($latitude = trim ($latitude)) && is_numeric ($longitude = trim ($longitude))))
+    if (!(($title = OAInput::get ('title')) && ($address = OAInput::get ('address')) && ($latitude = OAInput::get ('latitude')) && ($longitude = OAInput::get ('longitude')) && ($title = trim ($title)) && ($title = catStr ($title, 100)) && ($address = trim ($address)) && ($address = catStr ($address, 100)) && is_numeric ($latitude = trim ($latitude)) && is_numeric ($longitude = trim ($longitude))))
       return $this->output_error_json ('參數錯誤');
 
     $httpClient = new CurlHTTPClient (Cfg::setting ('line', 'channel', 'token'));

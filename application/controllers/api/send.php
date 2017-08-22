@@ -367,7 +367,7 @@ class Send extends Api_controller {
     }, $actions))) ? $actions : array ();
   }
   public function button () {
-    if (!(($source = OAInput::get ('user_id')) && ($source = trim ($source)) && ($source = Source::find ('one', array ('select' => 'sid', 'conditions' => array ('sid = ? AND status = ?', $source, Source::STATUS_JOIN))))))
+    if (!(($source = OAInput::post ('user_id')) && ($source = trim ($source)) && ($source = Source::find ('one', array ('select' => 'sid', 'conditions' => array ('sid = ? AND status = ?', $source, Source::STATUS_JOIN))))))
       return $this->output_error_json ('使用者錯誤');
     
     $alt   = OAInput::post ('alt');;

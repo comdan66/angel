@@ -12,6 +12,7 @@
     } ?>
   </div>
   <div id='room'>
+    <div id='title'></div>
     <div id='msgs'></div>
     <form id='fm'>
       <div>

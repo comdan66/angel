@@ -242,11 +242,12 @@ class Send extends Api_controller {
   
   /**
    * @api {get} /send/message 傳文字
+   *
    * @apiGroup Message
    *
-   * @apiParam {String}      text         文字訊息，最多 2000 字元，中文一個字算 2 字元
+   * @apiHeader {String}     id           接收者 User ID
    *
-   * @apiParam {String}      user_id      接收者 User ID
+   * @apiParam {String}      text         文字訊息，最多 2000 字元，中文一個字算 2 字元
    *
    * @apiSuccess {Boolean}   status       執行狀態
    *
@@ -266,12 +267,7 @@ class Send extends Api_controller {
    *     }
    */
   public function message () {
-    if (!(($this->source = OAInput::get ('user_id')) && ($this->source = trim ($this->source)) && ($this->source = Source::find ('one', array ('select' => 'sid', 'conditions' => array ('sid = ? AND status = ?', $this->source, Source::STATUS_JOIN))))))
-      return $this->output_error_json ('使用者錯誤');
-    
-    $text = OAInput::get ('text');
-
-    if (!(($text = trim ($text)) && ($text = catStr ($text, 2000))))
+    if (!(($text = OAInput::get ('text')) && ($text = trim ($text)) && ($text = catStr ($text, 2000))))
       return $this->output_error_json ('參數錯誤');
 
     $httpClient = new CurlHTTPClient (Cfg::setting ('line', 'channel', 'token'));
@@ -284,11 +280,13 @@ class Send extends Api_controller {
   
   /**
    * @api {post} /send/button 傳按鈕
+   *
    * @apiGroup Template
    *
    * @apiDescription 可以傳送多組按鈕
    *
-   * @apiParam {String}      user_id      接收者 User ID
+   * @apiHeader {String}     id           接收者 User ID
+   *
    * @apiParam {String}      alt          預覽訊息，最多 400 字元，中文一個字算 2 字元
    * @apiParam {String}      [title]      標題訊息，最多 40 字元，中文一個字算 2 字元
    * @apiParam {String}      text         文字訊息，沒有圖片最多 160 字元，有圖片最多 60 字元，中文一個字算 2 字元
@@ -319,20 +317,13 @@ class Send extends Api_controller {
    *     }
    */
   public function button () {
-    if (!(($this->source = OAInput::post ('user_id')) && ($this->source = trim ($this->source)) && ($this->source = Source::find ('one', array ('select' => 'sid', 'conditions' => array ('sid = ? AND status = ?', $this->source, Source::STATUS_JOIN))))))
-      return $this->output_error_json ('使用者錯誤');
-    
-    $alt   = OAInput::post ('alt');;
     $title = ($title = OAInput::post ('title')) && ($title = trim ($title)) && ($title = catStr ($title, 40)) ? $title : null;
-    $text  = OAInput::post ('text');;
     $img   = ($img = OAInput::post ('img')) && ($img = trim ($img)) && isHttps ($img) ? $img : null;
   
     if (!$actions = array_slice ($this->_actions (OAInput::post ('actions')), 0, 4))
       return $this->output_error_json ('至少要有一項 Action，或者您的 Actions 都格式錯誤');
 
-    if (!(($alt = trim ($alt)) && ($alt = catStr ($alt, 400)) &&
-          ($text = trim ($text)) && ($text = catStr ($text, $img ? 60 : 160))
-        ))
+    if (!(($alt = OAInput::post ('alt')) && ($alt = trim ($alt)) && ($alt = catStr ($alt, 400)) && ($text = OAInput::post ('text')) && ($text = trim ($text)) && ($text = catStr ($text, $img ? 60 : 160))))
       return $this->output_error_json ('參數錯誤');
 
     $httpClient = new CurlHTTPClient (Cfg::setting ('line', 'channel', 'token'));
@@ -345,11 +336,13 @@ class Send extends Api_controller {
 
   /**
    * @api {post} /send/confirm 傳確認
+   *
    * @apiGroup Template
    *
    * @apiDescription 可以傳送選項式的訊息，注意！按鈕，一定要兩個
    *
-   * @apiParam {String}      user_id      接收者 User ID
+   * @apiHeader {String}     id           接收者 User ID
+   *
    * @apiParam {String}      alt          預覽訊息，最多 400 字元，中文一個字算 2 字元
    * @apiParam {String}      text         文字訊息，最多 240 字元，中文一個字算 2 字元
    *
@@ -378,18 +371,10 @@ class Send extends Api_controller {
    *     }
    */
   public function confirm () {
-    if (!(($this->source = OAInput::post ('user_id')) && ($this->source = trim ($this->source)) && ($this->source = Source::find ('one', array ('select' => 'sid', 'conditions' => array ('sid = ? AND status = ?', $this->source, Source::STATUS_JOIN))))))
-      return $this->output_error_json ('使用者錯誤');
-    
-    $alt   = OAInput::post ('alt');;
-    $text = OAInput::post ('text');;
-  
     if (count ($actions = $this->_actions (OAInput::post ('actions'))) == 2)
       return $this->output_error_json ('要有兩個 Action，或者您的 Actions 都格式錯誤');
 
-    if (!(($alt = trim ($alt)) && ($alt = catStr ($alt, 400)) &&
-          ($text = trim ($text)) && ($text = catStr ($text, 240))
-        ))
+    if (!(($alt = OAInput::post ('alt')) && ($alt = trim ($alt)) && ($alt = catStr ($alt, 400)) && ($text = OAInput::post ('text')) && ($text = trim ($text)) && ($text = catStr ($text, 240))))
       return $this->output_error_json ('參數錯誤');
 
     $httpClient = new CurlHTTPClient (Cfg::setting ('line', 'channel', 'token'));
@@ -402,11 +387,13 @@ class Send extends Api_controller {
 
   /**
    * @api {post} /send/carousel 傳卡片
+   *
    * @apiGroup Template
    *
    * @apiDescription 可以傳送卡片式的訊息，注意！所有的卡片的 Action 數量要相同
    *
-   * @apiParam {String}      user_id      接收者 User ID
+   * @apiHeader {String}     id           接收者 User ID
+   *
    * @apiParam {String}      alt          預覽訊息，最多 400 字元，中文一個字算 2 字元
    *
    * @apiParam {Array}       columns          卡片，最多 5 個
@@ -439,17 +426,10 @@ class Send extends Api_controller {
    *     }
    */
   public function carousel () {
-    if (!(($this->source = OAInput::post ('user_id')) && ($this->source = trim ($this->source)) && ($this->source = Source::find ('one', array ('select' => 'sid', 'conditions' => array ('sid = ? AND status = ?', $this->source, Source::STATUS_JOIN))))))
-      return $this->output_error_json ('使用者錯誤');
-    
-    $alt   = OAInput::post ('alt');;
-  
     if (!$columns = $this->_columns (OAInput::post ('columns')))
       return $this->output_error_json ('項目至少要一個，或項目全部格式錯誤');
-    
 
-    if (!(($alt = trim ($alt)) && ($alt = catStr ($alt, 400))
-        ))
+    if (!(($alt = OAInput::post ('alt')) && ($alt = trim ($alt)) && ($alt = catStr ($alt, 400))))
       return $this->output_error_json ('參數錯誤');
 
     $httpClient = new CurlHTTPClient (Cfg::setting ('line', 'channel', 'token'));

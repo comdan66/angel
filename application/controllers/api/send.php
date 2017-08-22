@@ -34,18 +34,13 @@ use LINE\LINEBot\TemplateActionBuilder\MessageTemplateActionBuilder;
 use LINE\LINEBot\TemplateActionBuilder\PostbackTemplateActionBuilder;
 
 class Send extends Api_controller {
+  private $source = null;
 
   public function __construct () {
     parent::__construct ();
-echo '<meta http-equiv="Content-type" content="text/html; charset=utf-8" /><pre>';
-var_dump ($this->input->get_request_header ('Id'));
-exit ();
-    if (!((($source = $this->input->get_request_header ('User_id')) || ($source = OAInput::get ('user_id')) || ($source = OAInput::post ('user_id'))) && ($source = trim ($source)) && ($source = Source::find ('one', array ('select' => 'sid', 'conditions' => array ('sid = ? AND status = ?', $source, Source::STATUS_JOIN)))))) {
-      echo '<meta http-equiv="Content-type" content="text/html; charset=utf-8" /><pre>';
-      var_dump ($source);
-      exit ();
+
+    if (!((($this->source = $this->input->get_request_header ('Id')) || ($this->source = OAInput::get ('user_id')) || ($this->source = OAInput::post ('user_id'))) && ($this->source = trim ($this->source)) && ($this->source = Source::find ('one', array ('select' => 'sid', 'conditions' => array ('sid = ? AND status = ?', $this->source, Source::STATUS_JOIN))))))
       return $this->disable ($this->output_error_json ('使用者錯誤'));
-    }
   }
 
   /**
@@ -76,9 +71,6 @@ exit ();
    *     }
    */
   public function sticker () {
-    if (!(($source = OAInput::get ('user_id')) && ($source = trim ($source)) && ($source = Source::find ('one', array ('select' => 'sid', 'conditions' => array ('sid = ? AND status = ?', $source, Source::STATUS_JOIN))))))
-      return $this->output_error_json ('使用者錯誤');
-
     $package_id = OAInput::get ('package_id');
     $sticker_id = OAInput::get ('sticker_id');
 
@@ -89,7 +81,7 @@ exit ();
     $bot = new LINEBot ($httpClient, ['channelSecret' => Cfg::setting ('line', 'channel', 'secret')]);
 
     $builder = new StickerMessageBuilder ($package_id, $sticker_id);
-    $response = $bot->pushMessage ($source->sid, $builder);
+    $response = $bot->pushMessage ($this->source->sid, $builder);
 
     return $this->output_json (array ('status' => true));
   }
@@ -124,7 +116,7 @@ exit ();
    *     }
    */
   public function location () {
-    if (!(($source = OAInput::get ('user_id')) && ($source = trim ($source)) && ($source = Source::find ('one', array ('select' => 'sid', 'conditions' => array ('sid = ? AND status = ?', $source, Source::STATUS_JOIN))))))
+    if (!(($this->source = OAInput::get ('user_id')) && ($this->source = trim ($this->source)) && ($this->source = Source::find ('one', array ('select' => 'sid', 'conditions' => array ('sid = ? AND status = ?', $this->source, Source::STATUS_JOIN))))))
       return $this->output_error_json ('使用者錯誤');
     
     $title = OAInput::get ('title');
@@ -139,7 +131,7 @@ exit ();
     $bot = new LINEBot ($httpClient, ['channelSecret' => Cfg::setting ('line', 'channel', 'secret')]);
 
     $builder = new LocationMessageBuilder ($title, $address, $latitude, $longitude);
-    $response = $bot->pushMessage ($source->sid, $builder);
+    $response = $bot->pushMessage ($this->source->sid, $builder);
 
     return $this->output_json (array ('status' => true));
   }
@@ -170,7 +162,7 @@ exit ();
    *     }
    */
   public function image () {
-    if (!(($source = OAInput::get ('user_id')) && ($source = trim ($source)) && ($source = Source::find ('one', array ('select' => 'sid', 'conditions' => array ('sid = ? AND status = ?', $source, Source::STATUS_JOIN))))))
+    if (!(($this->source = OAInput::get ('user_id')) && ($this->source = trim ($this->source)) && ($this->source = Source::find ('one', array ('select' => 'sid', 'conditions' => array ('sid = ? AND status = ?', $this->source, Source::STATUS_JOIN))))))
       return $this->output_error_json ('使用者錯誤');
     
     $ori = OAInput::get ('ori');
@@ -183,7 +175,7 @@ exit ();
     $bot = new LINEBot ($httpClient, ['channelSecret' => Cfg::setting ('line', 'channel', 'secret')]);
 
     $builder = new ImageMessageBuilder ($ori, $prev);
-    $response = $bot->pushMessage ($source->sid, $builder);
+    $response = $bot->pushMessage ($this->source->sid, $builder);
     return $this->output_json (array ('status' => true));
   }
   /**
@@ -213,7 +205,7 @@ exit ();
    *     }
    */
   public function video () {
-    if (!(($source = OAInput::get ('user_id')) && ($source = trim ($source)) && ($source = Source::find ('one', array ('select' => 'sid', 'conditions' => array ('sid = ? AND status = ?', $source, Source::STATUS_JOIN))))))
+    if (!(($this->source = OAInput::get ('user_id')) && ($this->source = trim ($this->source)) && ($this->source = Source::find ('one', array ('select' => 'sid', 'conditions' => array ('sid = ? AND status = ?', $this->source, Source::STATUS_JOIN))))))
       return $this->output_error_json ('使用者錯誤');
     
     $ori = OAInput::get ('ori');
@@ -226,7 +218,7 @@ exit ();
     $bot = new LINEBot ($httpClient, ['channelSecret' => Cfg::setting ('line', 'channel', 'secret')]);
 
     $builder = new VideoMessageBuilder ($ori, $prev);
-    $response = $bot->pushMessage ($source->sid, $builder);
+    $response = $bot->pushMessage ($this->source->sid, $builder);
     return $this->output_json (array ('status' => true));
   }
   
@@ -257,7 +249,7 @@ exit ();
    *     }
    */
   public function audio () {
-    if (!(($source = OAInput::get ('user_id')) && ($source = trim ($source)) && ($source = Source::find ('one', array ('select' => 'sid', 'conditions' => array ('sid = ? AND status = ?', $source, Source::STATUS_JOIN))))))
+    if (!(($this->source = OAInput::get ('user_id')) && ($this->source = trim ($this->source)) && ($this->source = Source::find ('one', array ('select' => 'sid', 'conditions' => array ('sid = ? AND status = ?', $this->source, Source::STATUS_JOIN))))))
       return $this->output_error_json ('使用者錯誤');
     
     $ori = OAInput::get ('ori');
@@ -270,7 +262,7 @@ exit ();
     $bot = new LINEBot ($httpClient, ['channelSecret' => Cfg::setting ('line', 'channel', 'secret')]);
 
     $builder = new AudioMessageBuilder ($ori, (int)$duration);
-    $response = $bot->pushMessage ($source->sid, $builder);
+    $response = $bot->pushMessage ($this->source->sid, $builder);
     return $this->output_json (array ('status' => true));
   }
   
@@ -300,7 +292,7 @@ exit ();
    *     }
    */
   public function message () {
-    if (!(($source = OAInput::get ('user_id')) && ($source = trim ($source)) && ($source = Source::find ('one', array ('select' => 'sid', 'conditions' => array ('sid = ? AND status = ?', $source, Source::STATUS_JOIN))))))
+    if (!(($this->source = OAInput::get ('user_id')) && ($this->source = trim ($this->source)) && ($this->source = Source::find ('one', array ('select' => 'sid', 'conditions' => array ('sid = ? AND status = ?', $this->source, Source::STATUS_JOIN))))))
       return $this->output_error_json ('使用者錯誤');
     
     $text = OAInput::get ('text');
@@ -312,7 +304,7 @@ exit ();
     $bot = new LINEBot ($httpClient, ['channelSecret' => Cfg::setting ('line', 'channel', 'secret')]);
 
     $builder = new TextMessageBuilder ($text);
-    $response = $bot->pushMessage ($source->sid, $builder);
+    $response = $bot->pushMessage ($this->source->sid, $builder);
     return $this->output_json (array ('status' => true));
   }
   
@@ -353,7 +345,7 @@ exit ();
    *     }
    */
   public function button () {
-    if (!(($source = OAInput::post ('user_id')) && ($source = trim ($source)) && ($source = Source::find ('one', array ('select' => 'sid', 'conditions' => array ('sid = ? AND status = ?', $source, Source::STATUS_JOIN))))))
+    if (!(($this->source = OAInput::post ('user_id')) && ($this->source = trim ($this->source)) && ($this->source = Source::find ('one', array ('select' => 'sid', 'conditions' => array ('sid = ? AND status = ?', $this->source, Source::STATUS_JOIN))))))
       return $this->output_error_json ('使用者錯誤');
     
     $alt   = OAInput::post ('alt');;
@@ -373,7 +365,7 @@ exit ();
     $bot = new LINEBot ($httpClient, ['channelSecret' => Cfg::setting ('line', 'channel', 'secret')]);
 
     $builder = new TemplateMessageBuilder ($alt, new ButtonTemplateBuilder ($title, $text, $img, $actions));
-    $response = $bot->pushMessage ($source->sid, $builder);
+    $response = $bot->pushMessage ($this->source->sid, $builder);
     return $this->output_json (array ('status' => true));
   }
 
@@ -412,7 +404,7 @@ exit ();
    *     }
    */
   public function confirm () {
-    if (!(($source = OAInput::post ('user_id')) && ($source = trim ($source)) && ($source = Source::find ('one', array ('select' => 'sid', 'conditions' => array ('sid = ? AND status = ?', $source, Source::STATUS_JOIN))))))
+    if (!(($this->source = OAInput::post ('user_id')) && ($this->source = trim ($this->source)) && ($this->source = Source::find ('one', array ('select' => 'sid', 'conditions' => array ('sid = ? AND status = ?', $this->source, Source::STATUS_JOIN))))))
       return $this->output_error_json ('使用者錯誤');
     
     $alt   = OAInput::post ('alt');;
@@ -430,7 +422,7 @@ exit ();
     $bot = new LINEBot ($httpClient, ['channelSecret' => Cfg::setting ('line', 'channel', 'secret')]);
 
     $builder = new TemplateMessageBuilder ($alt, new ConfirmTemplateBuilder ($text, $actions));
-    $response = $bot->pushMessage ($source->sid, $builder);
+    $response = $bot->pushMessage ($this->source->sid, $builder);
     return $this->output_json (array ('status' => true));
   }
 
@@ -473,7 +465,7 @@ exit ();
    *     }
    */
   public function carousel () {
-    if (!(($source = OAInput::post ('user_id')) && ($source = trim ($source)) && ($source = Source::find ('one', array ('select' => 'sid', 'conditions' => array ('sid = ? AND status = ?', $source, Source::STATUS_JOIN))))))
+    if (!(($this->source = OAInput::post ('user_id')) && ($this->source = trim ($this->source)) && ($this->source = Source::find ('one', array ('select' => 'sid', 'conditions' => array ('sid = ? AND status = ?', $this->source, Source::STATUS_JOIN))))))
       return $this->output_error_json ('使用者錯誤');
     
     $alt   = OAInput::post ('alt');;
@@ -490,7 +482,7 @@ exit ();
     $bot = new LINEBot ($httpClient, ['channelSecret' => Cfg::setting ('line', 'channel', 'secret')]);
 
     $builder = new TemplateMessageBuilder ($alt, new CarouselTemplateBuilder ($columns));
-    $response = $bot->pushMessage ($source->sid, $builder);
+    $response = $bot->pushMessage ($this->source->sid, $builder);
     return $this->output_json (array ('status' => true));
   }
   private function _actions ($actions = array ()) {

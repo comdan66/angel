@@ -370,7 +370,9 @@ class Send extends Api_controller {
     }, $actions))) ? $actions : array ();
   }
   private function _columns ($columns = array ()) {
-    return array_slice ($columns && is_array ($columns) && ($columns = array_filter (array_map (function ($column) {
+    $cnt_actions = 0;
+
+    $columns = array_slice ($columns && is_array ($columns) && ($columns = array_filter (array_map (function ($column) use (&$cnt_actions) {
       $column['img'] = isset ($column['img']) && ($column['img'] = trim ($column['img'])) && isHttps ($column['img']) ? $column['img'] : null;
       $column['title'] = isset ($column['title']) && ($column['title'] = trim ($column['title'])) && catStr ($column['title'], 40) ? $column['title'] : null;
       
@@ -378,6 +380,9 @@ class Send extends Api_controller {
         return null;
 
       if (!($column['actions'] = isset ($column['actions']) ? $this->_actions ($column['actions']) : array ()))
+        return null;
+
+      if (!$cnt_actions && ($cnt_actions = count ($column['actions'])) && ($cnt_actions != count ($column['actions'])))
         return null;
 
       return new CarouselColumnTemplateBuilder ($column['title'], $column['text'], $column['img'], $column['actions']);
@@ -439,8 +444,6 @@ class Send extends Api_controller {
     if (!$columns = $this->_columns (OAInput::post ('columns')))
       return $this->output_error_json ('項目至少要一個，或項目全部格式錯誤');
     
-    // if (!$actions = $this->_actions (OAInput::post ('actions')))
-    //   return $this->output_error_json ('至少要有一項 Action，或者您的 Actions 都格式錯誤');
 
     if (!(($alt = trim ($alt)) && ($alt = catStr ($alt, 400))
         ))

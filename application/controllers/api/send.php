@@ -370,9 +370,9 @@ class Send extends Api_controller {
     }, $actions))) ? $actions : array ();
   }
   private function _columns ($columns = array ()) {
-    $cnt_actions = 0;
+    $cnt_actions = array ();
 
-    return array_slice ($columns && is_array ($columns) && ($columns = array_filter (array_map (function ($column) use (&$cnt_actions) {
+    $columns = array_slice ($columns && is_array ($columns) && ($columns = array_filter (array_map (function ($column) use (&$cnt_actions) {
       $column['img'] = isset ($column['img']) && ($column['img'] = trim ($column['img'])) && isHttps ($column['img']) ? $column['img'] : null;
       $column['title'] = isset ($column['title']) && ($column['title'] = trim ($column['title'])) && catStr ($column['title'], 40) ? $column['title'] : null;
       
@@ -382,14 +382,12 @@ class Send extends Api_controller {
       if (!($column['actions'] = isset ($column['actions']) ? $this->_actions ($column['actions']) : array ()))
         return null;
 
-      if (!$cnt_actions)
-        $cnt_actions = count ($column['actions']);
-
-      if ($cnt_actions != count ($column['actions']))
-        return null;
+      array_push ($cnt_actions, count ($column['actions']));
 
       return new CarouselColumnTemplateBuilder ($column['title'], $column['text'], $column['img'], $column['actions']);
     }, $columns))) ? $columns : array (), 0, 5);
+
+    return array_unique ($cnt_actions) == 1 ? $columns : array ();
   }
   public function button () {
     if (!(($source = OAInput::post ('user_id')) && ($source = trim ($source)) && ($source = Source::find ('one', array ('select' => 'sid', 'conditions' => array ('sid = ? AND status = ?', $source, Source::STATUS_JOIN))))))

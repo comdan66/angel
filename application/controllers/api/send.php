@@ -23,6 +23,7 @@ use LINE\LINEBot\MessageBuilder\ImageMessageBuilder;
 use LINE\LINEBot\MessageBuilder\LocationMessageBuilder;
 use LINE\LINEBot\MessageBuilder\StickerMessageBuilder;
 use LINE\LINEBot\MessageBuilder\VideoMessageBuilder;
+use LINE\LINEBot\MessageBuilder\AudioMessageBuilder;
 
 class Send extends Api_controller {
 
@@ -198,7 +199,7 @@ class Send extends Api_controller {
    * @api {get} /send/video 傳影片
    * @apiGroup Send
    *
-   * @apiParam {String}      ori       影片網址，需要 Https，網址長度最長 1000
+   * @apiParam {String}      ori       影片網址，格式 mp4 檔案，需要 Https，網址長度最長 1000
    * @apiParam {String}      prev      預覽圖片網址，需要 Https，網址長度最長 1000
    *
    * @apiParam {String}      user_id      接收者 User ID
@@ -234,6 +235,50 @@ class Send extends Api_controller {
     $bot = new LINEBot ($httpClient, ['channelSecret' => Cfg::setting ('line', 'channel', 'secret')]);
 
     $builder = new VideoMessageBuilder ($ori, $prev);
+    $response = $bot->pushMessage ($source->sid, $builder);
+    return $this->output_json (array ('status' => true));
+  }
+  
+  /**
+   * @api {get} /send/audio 傳語音
+   * @apiGroup Send
+   *
+   * @apiParam {String}      ori       語音網址，格式 m4a 檔案，需要 Https，網址長度最長 1000
+   * @apiParam {Number}      duration  語音長度，單位 milliseconds
+   *
+   * @apiParam {String}      user_id      接收者 User ID
+   *
+   * @apiSuccess {Boolean}   status       執行狀態
+   *
+   * @apiSuccessExample {json} Success Response:
+   *     HTTP/1.1 200 OK
+   *     {
+   *         "status": true
+   *     }
+   *
+   *
+   * @apiError   {String}    message     錯誤原因
+   *
+   * @apiErrorExample {json} Error-Response:
+   *     HTTP/1.1 405 Error
+   *     {
+   *         "message": "參數錯誤"
+   *     }
+   */
+  public function video () {
+    if (!(($source = OAInput::get ('user_id')) && ($source = trim ($source)) && ($source = Source::find ('one', array ('select' => 'sid', 'conditions' => array ('sid = ? AND status = ?', $source, Source::STATUS_JOIN))))))
+      return $this->output_error_json ('使用者錯誤');
+    
+    $ori = OAInput::get ('ori');
+    $duration = OAInput::get ('duration');
+
+    if (!(($ori = trim ($ori)) && ($duration = trim ($duration)) && strlen ($ori) <= 1000 && is_numeric ($duration)))
+      return $this->output_error_json ('參數錯誤');
+
+    $httpClient = new CurlHTTPClient (Cfg::setting ('line', 'channel', 'token'));
+    $bot = new LINEBot ($httpClient, ['channelSecret' => Cfg::setting ('line', 'channel', 'secret')]);
+
+    $builder = new AudioMessageBuilder ($ori, (int)$duration);
     $response = $bot->pushMessage ($source->sid, $builder);
     return $this->output_json (array ('status' => true));
   }

@@ -18,7 +18,7 @@ jQuery.timeago.settings.strings={prefixAgo:null,prefixFromNow:"從現在開始",
   
 
 $(function () {
-  var _id = null, $_msgs = $('#msgs'), $_in = $('#in'), _ids = [], _lo = false;
+  var _id = null, $_msgs = $('#msgs'), $_in = $('#in'), _ids = [], _lo = false, _tr = null;
 
   $('figure').imgLiquid ({verticalAlign: 'center'});
 
@@ -81,11 +81,15 @@ $(function () {
   }
 
   $('#users > a').click (function () {
-    $(this).addClass ('a').siblings ().removeClass ('a');
-    _id = $(this).data ('id');
-    _lo = false;
-    $_msgs.empty ();
-    loadMsgs (true);
+    clearTimeout (_tr);
+    _tr = setTimeout (function () {
+
+      $(this).addClass ('a').siblings ().removeClass ('a');
+      _id = $(this).data ('id');
+      _lo = false;
+      $_msgs.empty ();
+      loadMsgs (true);
+    }.bind ($(this)), 500);
   }).first ().click ();
   
   $('#fm').submit (function () {

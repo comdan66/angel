@@ -126,12 +126,13 @@ class Send extends Api_controller {
   }
   /**
    * @api {get} /send/image 傳圖片
+   *
    * @apiGroup Message
    *
-   * @apiParam {String}      ori       原始圖片網址，需要 Https，網址長度最長 1000
-   * @apiParam {String}      prev      預覽圖片網址，需要 Https，網址長度最長 1000
+   * @apiHeader {String}     user_id      接收者 User ID
    *
-   * @apiParam {String}      user_id      接收者 User ID
+   * @apiParam {String}      ori          原始圖片網址，需要 Https，網址長度最長 1000
+   * @apiParam {String}      prev         預覽圖片網址，需要 Https，網址長度最長 1000
    *
    * @apiSuccess {Boolean}   status       執行狀態
    *
@@ -151,13 +152,7 @@ class Send extends Api_controller {
    *     }
    */
   public function image () {
-    if (!(($this->source = OAInput::get ('user_id')) && ($this->source = trim ($this->source)) && ($this->source = Source::find ('one', array ('select' => 'sid', 'conditions' => array ('sid = ? AND status = ?', $this->source, Source::STATUS_JOIN))))))
-      return $this->output_error_json ('使用者錯誤');
-    
-    $ori = OAInput::get ('ori');
-    $prev = OAInput::get ('prev');
-
-    if (!(($ori = trim ($ori)) && isHttps ($ori) && ($prev = trim ($prev)) && isHttps ($prev) && strlen ($ori) <= 1000 && strlen ($prev) <= 1000))
+    if (!($ori = OAInput::get ('ori') && $prev = OAInput::get ('prev') && ($ori = trim ($ori)) && isHttps ($ori) && ($prev = trim ($prev)) && isHttps ($prev) && strlen ($ori) <= 1000 && strlen ($prev) <= 1000))
       return $this->output_error_json ('參數錯誤');
 
     $httpClient = new CurlHTTPClient (Cfg::setting ('line', 'channel', 'token'));

@@ -28,7 +28,7 @@ $(function () {
       $('<p />').text (obj.c));
   }
   function loadMsgs (a) {
-    if (!a || _lo) return false;
+    if (!a && _lo) return false;
     _lo = true;
     console.error (a);
     

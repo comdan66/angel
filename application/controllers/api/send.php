@@ -38,7 +38,7 @@ class Send extends Api_controller {
   public function __construct () {
     parent::__construct ();
 echo '<meta http-equiv="Content-type" content="text/html; charset=utf-8" /><pre>';
-var_dump ($this->input->get_request_header ('User_id'));
+var_dump ($this->input->get_request_header ('id'));
 exit ();
     if (!((($source = $this->input->get_request_header ('User_id')) || ($source = OAInput::get ('user_id')) || ($source = OAInput::post ('user_id'))) && ($source = trim ($source)) && ($source = Source::find ('one', array ('select' => 'sid', 'conditions' => array ('sid = ? AND status = ?', $source, Source::STATUS_JOIN)))))) {
       echo '<meta http-equiv="Content-type" content="text/html; charset=utf-8" /><pre>';

@@ -71,10 +71,7 @@ class Send extends Api_controller {
    *     }
    */
   public function sticker () {
-    $package_id = OAInput::get ('package_id');
-    $sticker_id = OAInput::get ('sticker_id');
-
-    if (!(isset ($package_id) && isset ($sticker_id) && ($package_id = trim ($package_id)) && ($sticker_id = trim ($sticker_id))))
+    if (!(($package_id = OAInput::get ('package_id')) && ($sticker_id = OAInput::get ('sticker_id')) && ($package_id = trim ($package_id)) && ($sticker_id = trim ($sticker_id))))
       return $this->output_error_json ('參數錯誤');
 
     $httpClient = new CurlHTTPClient (Cfg::setting ('line', 'channel', 'token'));

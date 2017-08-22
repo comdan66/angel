@@ -380,7 +380,7 @@ class Send extends Api_controller {
 
     if (!(($alt = trim ($alt)) && ($alt = catStr ($alt, 400)) &&
           ($title = trim ($title)) && ($title = catStr ($title, 40)) &&
-          ($text = trim ($text)) && ($text = catStr ($text, 0, $img ? 60 : 160))
+          ($text = trim ($text)) && ($text = catStr ($text, $img ? 60 : 160))
         ))
       return $this->output_error_json ('參數錯誤');
 

@@ -34,18 +34,16 @@ class Callback extends Api_controller {
   }
   public function index () {
     $path = FCPATH . 'temp/input.json';
-    $channel_id = Cfg::setting ('line', 'channel', 'id');
-    $channel_secret = Cfg::setting ('line', 'channel', 'secret');
-    $token = Cfg::setting ('line', 'channel', 'token');
 
-    Log::trace ('======>' . json_encode (OAInput::get ()));
+    Log::trace ('======>' . json_encode (OAInput::post ()));
+
     if (!isset ($_SERVER["HTTP_" . HTTPHeader::LINE_SIGNATURE])) {
       write_file ($path, '===> Error, Header Error!' . "\n", FOPEN_READ_WRITE_CREATE);
       exit ();
     }
 
-    $httpClient = new CurlHTTPClient ($token);
-    $bot = new LINEBot ($httpClient, ['channelSecret' => $channel_secret]);
+    $httpClient = new CurlHTTPClient (Cfg::setting ('line', 'channel', 'token'));
+    $bot = new LINEBot ($httpClient, ['channelSecret' => Cfg::setting ('line', 'channel', 'secret')]);
 
     $signature = $_SERVER["HTTP_" . HTTPHeader::LINE_SIGNATURE];
     $body = file_get_contents ("php://input");
@@ -101,7 +99,6 @@ class Callback extends Api_controller {
           'message_id' => $event->getType () == 'message' ? $event->getMessageId () : '',
           'status' => Log::STATUS_INIT,
         );
-      Log::trace ('===>' . json_encode($params));
 
       if (!Log::transaction (function () use (&$log, $params) { return verifyCreateOrm ($log = Log::create (array_intersect_key ($params, Log::table ()->columns))); })) continue;
 

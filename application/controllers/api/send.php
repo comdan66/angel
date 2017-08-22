@@ -265,7 +265,7 @@ class Send extends Api_controller {
    *         "message": "參數錯誤"
    *     }
    */
-  public function video () {
+  public function audio () {
     if (!(($source = OAInput::get ('user_id')) && ($source = trim ($source)) && ($source = Source::find ('one', array ('select' => 'sid', 'conditions' => array ('sid = ? AND status = ?', $source, Source::STATUS_JOIN))))))
       return $this->output_error_json ('使用者錯誤');
     

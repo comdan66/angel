@@ -14,7 +14,7 @@
 | path to your installation.
 |
 */
-$config['base_url'] = ENVIRONMENT == 'production' ? 'https://angel.ioa.tw/say/' : '';
+$config['base_url'] = ENVIRONMENT == 'production' ? 'https://angel.ioa.tw/' : '';
 
 /*
 |--------------------------------------------------------------------------

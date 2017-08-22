@@ -37,7 +37,7 @@ $(function () {
   function initMsgElement (obj, isme) {
     return $('<div />').addClass (isme ? 'me' : null).append (
       $('<figure />').append (
-        $('<img />').attr ('src', '/res/image/avatar.png'))).append (
+        $('<img />').attr ('src', isme ? '/res/image/avatar.jpg' : '/res/image/avatar.png'))).append (
       $('<b />').attr ('data-time', $.timeago (obj.t)).text ('對方')).append (
       $('<p />').text (obj.c));
   }

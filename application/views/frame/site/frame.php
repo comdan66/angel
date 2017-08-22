@@ -2,6 +2,7 @@
 <html lang="zh">
   <head>
     <?php echo isset ($meta_list) ? $meta_list : ''; ?>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui" />
 
     <title><?php echo isset ($title) ? $title : ''; ?></title>
 

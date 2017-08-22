@@ -147,6 +147,12 @@ $h: 480px;
     + * {
       width: calc(100% - 250px);
     }
+    @include range-width(0, 450px) {
+      width: 50px;
+      + * {
+        width: calc(100% - 50px);
+      }
+    };
   }
 }
 
@@ -210,6 +216,9 @@ $h: 480px;
       text-align: left;
       padding-left: 8px;
       @include overflow-docx3();
+      @include range-width(0, 450px) {
+        display: none;
+      }
     }
     b {
       height: 24px;
@@ -235,6 +244,9 @@ $h: 480px;
       color: rgba(200, 200, 200, 1);
       font-size: 30px;
       @include transition(color .3s);
+      @include range-width(0, 450px) {
+        display: none;
+      }
     }
     + a {
       &:before {
@@ -246,6 +258,9 @@ $h: 480px;
         width: calc(100% - 45px);
         height: 1px;
         background-color: rgba(230, 230, 230, 1);
+        @include range-width(0, 450px) {
+          display: none;
+        }
       }
     }
     &:hover {

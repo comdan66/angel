@@ -13,6 +13,17 @@
 
 @import "functions/_oa-material";
 
+@mixin range-width($min: 0, $max: 0){
+  @if $max == 0 {
+    @media screen and (min-width: $min) {
+      @content;
+    }
+  } @else {
+    @media screen and (max-width: $max - 1px) and (min-width: $min) {
+      @content;
+    }
+  }
+}
 @mixin admin-icomoon-font ($ff) {
   @content;
   font-family: $ff, "微軟正黑體","Open sans", "Helvetica Neue", "HelveticaNeue", Helvetica, Arial, sans-serif;

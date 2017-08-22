@@ -372,7 +372,7 @@ class Send extends Api_controller {
   private function _columns ($columns = array ()) {
     $cnt_actions = 0;
 
-    $columns = array_slice ($columns && is_array ($columns) && ($columns = array_filter (array_map (function ($column) use (&$cnt_actions) {
+    return array_slice ($columns && is_array ($columns) && ($columns = array_filter (array_map (function ($column) use (&$cnt_actions) {
       $column['img'] = isset ($column['img']) && ($column['img'] = trim ($column['img'])) && isHttps ($column['img']) ? $column['img'] : null;
       $column['title'] = isset ($column['title']) && ($column['title'] = trim ($column['title'])) && catStr ($column['title'], 40) ? $column['title'] : null;
       
@@ -382,10 +382,7 @@ class Send extends Api_controller {
       if (!($column['actions'] = isset ($column['actions']) ? $this->_actions ($column['actions']) : array ()))
         return null;
 
-      if (!$cnt_actions)
-        $cnt_actions = count ($column['actions']);
-
-      if ($cnt_actions != count ($column['actions']))
+      if (!$cnt_actions && ($cnt_actions = count ($column['actions'])) && ($cnt_actions != count ($column['actions'])))
         return null;
 
       return new CarouselColumnTemplateBuilder ($column['title'], $column['text'], $column['img'], $column['actions']);

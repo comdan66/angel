@@ -46,6 +46,8 @@ class Send extends Api_controller {
   /**
    * @api {get} /send/sticker 傳貼圖
    *
+   * @apiDescription 可以傳送免費的貼圖，圖片選項請看 <a href='https://angel.ioa.tw/stickers' target='_blank'>這裡</a>
+   *
    * @apiGroup Message
    *
    * @apiHeader {String}     id      接收者 User ID
@@ -82,7 +84,6 @@ class Send extends Api_controller {
 
     return $this->output_json (array ('status' => true));
   }
-
   /**
    * @api {get} /send/location 傳定位
    *
@@ -200,7 +201,6 @@ class Send extends Api_controller {
     $response = $bot->pushMessage ($this->source->sid, $builder);
     return $this->output_json (array ('status' => true));
   }
-  
   /**
    * @api {get} /send/audio 傳語音
    *
@@ -239,7 +239,6 @@ class Send extends Api_controller {
     $response = $bot->pushMessage ($this->source->sid, $builder);
     return $this->output_json (array ('status' => true));
   }
-  
   /**
    * @api {get} /send/message 傳文字
    *
@@ -277,7 +276,7 @@ class Send extends Api_controller {
     $response = $bot->pushMessage ($this->source->sid, $builder);
     return $this->output_json (array ('status' => true));
   }
-  
+
   /**
    * @api {post} /send/button 傳按鈕
    *
@@ -333,7 +332,6 @@ class Send extends Api_controller {
     $response = $bot->pushMessage ($this->source->sid, $builder);
     return $this->output_json (array ('status' => true));
   }
-
   /**
    * @api {post} /send/confirm 傳確認
    *
@@ -384,7 +382,6 @@ class Send extends Api_controller {
     $response = $bot->pushMessage ($this->source->sid, $builder);
     return $this->output_json (array ('status' => true));
   }
-
   /**
    * @api {post} /send/carousel 傳卡片
    *

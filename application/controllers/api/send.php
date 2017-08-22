@@ -387,7 +387,7 @@ class Send extends Api_controller {
       return new CarouselColumnTemplateBuilder ($column['title'], $column['text'], $column['img'], $column['actions']);
     }, $columns))) ? $columns : array (), 0, 5);
 
-    return array_unique ($cnt_actions) == 1 ? $columns : array ();
+    return count (array_unique ($cnt_actions)) == 1 ? $columns : array ();
   }
   public function button () {
     if (!(($source = OAInput::post ('user_id')) && ($source = trim ($source)) && ($source = Source::find ('one', array ('select' => 'sid', 'conditions' => array ('sid = ? AND status = ?', $source, Source::STATUS_JOIN))))))

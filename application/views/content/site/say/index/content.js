@@ -81,15 +81,17 @@ $(function () {
   }
 
   $('#users > a').click (function () {
-    clearTimeout (_tr);
-    _tr = setTimeout (function () {
+    $(this).addClass ('a').siblings ().removeClass ('a');
 
-      $(this).addClass ('a').siblings ().removeClass ('a');
+    // clearTimeout (_tr);
+    // _tr = setTimeout (function () {
       _id = $(this).data ('id');
       _lo = false;
+      _ids = [];
       $_msgs.empty ();
       loadMsgs (true);
-    }.bind ($(this)), 500);
+    // }.bind ($(this)), 500);
+
   }).first ().click ();
   
   $('#fm').submit (function () {

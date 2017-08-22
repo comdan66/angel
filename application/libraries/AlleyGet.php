@@ -52,7 +52,7 @@ class AlleyGet {
           'url' => $item['webSite'],
         );
     }, $data['items']), function ($t) {
-      return (substr ($t['img'], 0, 8) == "https://") && (substr ($t['url'], 0, 8) == "https://");
+      return isHttps ($t['img']) && isHttps ($t['url'])
     }), 0, 5);
   }
   public static function search ($keyword) {
@@ -86,7 +86,7 @@ class AlleyGet {
           'url' => $item['webSite'],
         );
     }, $data['items']), function ($t) {
-      return (substr ($t['img'], 0, 8) == "https://") && (substr ($t['url'], 0, 8) == "https://");
+      return isHttps ($t['img']) && isHttps ($t['url'])
     }), 0, 5);
   }
   public static function products ($lat, $lng) {
@@ -120,7 +120,7 @@ class AlleyGet {
           'url' => $item['webSite'],
         );
     }, $data['items']), function ($t) {
-      return (substr ($t['img'], 0, 8) == "https://") && (substr ($t['url'], 0, 8) == "https://");
+      return isHttps ($t['img'] && isHttps ($t['url']
     }), 0, 5);
   }
 }

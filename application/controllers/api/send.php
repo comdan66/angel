@@ -24,6 +24,11 @@ use LINE\LINEBot\MessageBuilder\LocationMessageBuilder;
 use LINE\LINEBot\MessageBuilder\StickerMessageBuilder;
 use LINE\LINEBot\MessageBuilder\VideoMessageBuilder;
 use LINE\LINEBot\MessageBuilder\AudioMessageBuilder;
+use LINE\LINEBot\MessageBuilder\TemplateMessageBuilder;
+use LINE\LINEBot\MessageBuilder\TemplateBuilder\ButtonTemplateBuilder;
+use LINE\LINEBot\TemplateActionBuilder\UriTemplateActionBuilder;
+use LINE\LINEBot\TemplateActionBuilder\MessageTemplateActionBuilder;
+use LINE\LINEBot\TemplateActionBuilder\PostbackTemplateActionBuilder;
 
 class Send extends Api_controller {
 
@@ -108,8 +113,8 @@ class Send extends Api_controller {
    * @api {get} /send/location 傳定位
    * @apiGroup Send
    *
-   * @apiParam {String}      title       標題，最多 48 個字
-   * @apiParam {String}      address     地址，最多 48 個字
+   * @apiParam {String}      title       標題，最多 100 個字元，中文一個字算 2 字元
+   * @apiParam {String}      address     地址，最多 100 個字元，中文一個字算 2 字元
    * @apiParam {String}      latitude    緯度
    * @apiParam {String}      longitude   經度
    *
@@ -141,7 +146,7 @@ class Send extends Api_controller {
     $latitude = OAInput::get ('latitude');
     $longitude = OAInput::get ('longitude');
     
-    if (!(($title = trim ($title)) && ($title = mb_strimwidth ($title, 0, 48 * 2, '…','UTF-8')) && ($address = trim ($address)) && ($address = mb_strimwidth ($address, 0, 48 * 2, '…','UTF-8')) && is_numeric ($latitude = trim ($latitude)) && is_numeric ($longitude = trim ($longitude))))
+    if (!(($title = trim ($title)) && ($title = catStr ($title, 100)) && ($address = trim ($address)) && ($address = catStr ($address, 100)) && is_numeric ($latitude = trim ($latitude)) && is_numeric ($longitude = trim ($longitude))))
       return $this->output_error_json ('參數錯誤');
 
     $httpClient = new CurlHTTPClient (Cfg::setting ('line', 'channel', 'token'));
@@ -185,7 +190,7 @@ class Send extends Api_controller {
     $ori = OAInput::get ('ori');
     $prev = OAInput::get ('prev');
 
-    if (!(($ori = trim ($ori)) && ($prev = trim ($prev)) && strlen ($ori) <= 1000 && strlen ($prev) <= 1000))
+    if (!(($ori = trim ($ori)) && isHttps ($ori) && ($prev = trim ($prev)) && isHttps ($prev) && strlen ($ori) <= 1000 && strlen ($prev) <= 1000))
       return $this->output_error_json ('參數錯誤');
 
     $httpClient = new CurlHTTPClient (Cfg::setting ('line', 'channel', 'token'));
@@ -228,7 +233,7 @@ class Send extends Api_controller {
     $ori = OAInput::get ('ori');
     $prev = OAInput::get ('prev');
 
-    if (!(($ori = trim ($ori)) && ($prev = trim ($prev)) && strlen ($ori) <= 1000 && strlen ($prev) <= 1000))
+    if (!(($ori = trim ($ori)) && ($prev = trim ($prev)) && isHttps ($ori) && isHttps ($prev) && strlen ($ori) <= 1000 && strlen ($prev) <= 1000))
       return $this->output_error_json ('參數錯誤');
 
     $httpClient = new CurlHTTPClient (Cfg::setting ('line', 'channel', 'token'));
@@ -272,7 +277,7 @@ class Send extends Api_controller {
     $ori = OAInput::get ('ori');
     $duration = OAInput::get ('duration');
 
-    if (!(($ori = trim ($ori)) && ($duration = trim ($duration)) && strlen ($ori) <= 1000 && is_numeric ($duration)))
+    if (!(($ori = trim ($ori)) && isHttps ($ori) && ($duration = trim ($duration)) && strlen ($ori) <= 1000 && is_numeric ($duration)))
       return $this->output_error_json ('參數錯誤');
 
     $httpClient = new CurlHTTPClient (Cfg::setting ('line', 'channel', 'token'));
@@ -287,7 +292,7 @@ class Send extends Api_controller {
    * @api {get} /send/message 傳文字
    * @apiGroup Send
    *
-   * @apiParam {String}      text      文字訊息，長度最長 2000
+   * @apiParam {String}      text         文字訊息，最多 2000 字元，中文一個字算 2 字元
    *
    * @apiParam {String}      user_id      接收者 User ID
    *
@@ -312,14 +317,78 @@ class Send extends Api_controller {
     if (!(($source = OAInput::get ('user_id')) && ($source = trim ($source)) && ($source = Source::find ('one', array ('select' => 'sid', 'conditions' => array ('sid = ? AND status = ?', $source, Source::STATUS_JOIN))))))
       return $this->output_error_json ('使用者錯誤');
     
-    if (!(($text = OAInput::get ('text')) && ($text = trim ($text)))) return;
-    
-    $text = mb_strimwidth ($text, 0, 998 * 2, '…','UTF-8');
+    $text = OAInput::get ('text');
+
+    if (!(($text = trim ($text)) && ($text = catStr ($text, 2000))))
+      return $this->output_error_json ('參數錯誤');
 
     $httpClient = new CurlHTTPClient (Cfg::setting ('line', 'channel', 'token'));
     $bot = new LINEBot ($httpClient, ['channelSecret' => Cfg::setting ('line', 'channel', 'secret')]);
 
     $builder = new TextMessageBuilder ($text);
+    $response = $bot->pushMessage ($source->sid, $builder);
+    return $this->output_json (array ('status' => true));
+  }
+
+
+  private function _actions ($actions = array ()) {
+    return $actions && is_array ($actions) && ($actions = array_filter (array_map (function ($action) {
+      if (!(isset ($action['type']) && in_array ($action['type'], array ('uri', 'message', 'postback')))) return null;
+      if (!(isset ($action['label']) && ($action['label'] = trim ($action['label'])) && ($action['label'] = catStr ($action['label'], 20)))) return null;
+
+      switch ($action['type']) {
+        case 'uri':
+          if (!(isset ($action['uri']) && ($action['uri'] = trim ($action['uri'])) && (strlen ($action['uri']) <= 1000) && (isHttps ($action['uri']) || isHttp ($action['uri']) || isTel ($action['uri'])))) return null;
+          break;
+
+        case 'postback':
+          if (!(isset ($action['data']) && ($action['data'] = trim ($action['data'])) && ($action['data'] = catStr ($action['data'], 300)))) return null;
+
+        case 'message':
+          if (!(isset ($action['text']) && ($action['text'] = trim ($action['text'])) && ($action['text'] = catStr ($action['text'], 300)))) return null;
+          break;
+      }
+
+      switch ($action['type']) {
+        case 'uri':
+          return new UriTemplateActionBuilder ($action['label'], $action['uri']);
+          break;
+
+        case 'message':
+          return new MessageTemplateActionBuilder ($action['label'], $action['text']);
+          break;
+
+        case 'postback':
+          return new PostbackTemplateActionBuilder ($action['label'], $action['data'], $action['text']);
+          break;
+      }
+
+      return null;
+    }, $actions))) ? $actions : array ();
+  }
+  public function button () {
+    if (!(($source = OAInput::get ('user_id')) && ($source = trim ($source)) && ($source = Source::find ('one', array ('select' => 'sid', 'conditions' => array ('sid = ? AND status = ?', $source, Source::STATUS_JOIN))))))
+      return $this->output_error_json ('使用者錯誤');
+    
+    $alt   = OAInput::post ('alt');;
+    $title = OAInput::post ('title');;
+    $text  = OAInput::post ('text');;
+    $img   = ($img = OAInput::post ('img')) && ($img = trim ($img)) && isHttps ($img) ? $img : null;
+  
+    if (!$actions = $this->_actions (OAInput::post ('actions')))
+      return $this->output_error_json ('至少要有一項 Action，或者您的 Actions 都格式錯誤');
+
+    if (!(($alt = trim ($alt)) && ($alt = catStr ($alt, 400)) &&
+          ($title = trim ($title)) && ($title = catStr ($title, 40)) &&
+          ($text = trim ($text)) && ($text = catStr ($text, 0, $img ? 60 : 160))
+        ))
+      return $this->output_error_json ('參數錯誤');
+
+    $httpClient = new CurlHTTPClient (Cfg::setting ('line', 'channel', 'token'));
+    $bot = new LINEBot ($httpClient, ['channelSecret' => Cfg::setting ('line', 'channel', 'secret')]);
+
+
+    $builder = new TemplateMessageBuilder ($alt, new ButtonTemplateBuilder ($title, $text, $img, $actions));
     $response = $bot->pushMessage ($source->sid, $builder);
     return $this->output_json (array ('status' => true));
   }

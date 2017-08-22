@@ -27,6 +27,30 @@ if ( !function_exists ('size_unit')) {
   }
 }
 
+if ( !function_exists ('catStr')) {
+  function catStr ($str, $len) {
+    return mb_strimwidth ($str, 0, ($len - 2) / 2, '…','UTF-8');
+  }
+}
+
+if ( !function_exists ('isHttp')) {
+  function isHttp ($str) {
+    return substr ($str, 0, 7) == "http://";
+  }
+}
+
+if ( !function_exists ('isTel')) {
+  function isTel ($str) {
+    return substr ($str, 0, 6) == "tel://";
+  }
+}
+
+if ( !function_exists ('isHttps')) {
+  function isHttps ($str) {
+    return substr ($str, 0, 8) == "https://";
+  }
+}
+
 if ( !function_exists ('password')) {
   function password ($password) {
     return md5 (md5 ($password));

@@ -37,47 +37,20 @@ class Send extends Api_controller {
 
   public function __construct () {
     parent::__construct ();
-    
+
+    if (!((($source = $this->input->get_request_header ('User_id')) || ($source = OAInput::get ('user_id')) || ($source = OAInput::post ('user_id'))) && ($source = trim ($source)) && ($source = Source::find ('one', array ('select' => 'sid', 'conditions' => array ('sid = ? AND status = ?', $source, Source::STATUS_JOIN))))))
+      return $this->disable ($this->output_error_json ('使用者錯誤'));
   }
 
   /**
-   * @api {get} /send/users 取得使用者
-   * @apiGroup User
+   * @api {get} /send/sticker 傳貼圖
    *
-   * @apiSuccess {String}   id          User ID
-   * @apiSuccess {String}   title       使用者名稱
+   * @apiGroup Message
    *
-   * @apiSuccessExample {json} Success Response:
-   *     HTTP/1.1 200 OK
-   *     [
-   *         {
-   *             "id": "U...",
-   *             "title": "吳政賢"
-   *         }
-   *     ]
+   * @apiHeader {String}     user_id      接收者 User ID
    *
-   * @apiError   {String}    message     錯誤原因
-   *
-   * @apiErrorExample {json} Error-Response:
-   *     HTTP/1.1 405 Error
-   *     {
-   *         "message": "參數錯誤"
-   *     }
-   */
-  public function users () {
-    return $this->output_json (array_map (function ($source) {
-      return array ('id' => $source->sid, 'title' => $source->title);
-    }, Source::find ('all', array ('select' => 'title, sid', 'conditions' => array ('status = ? AND title != ?', Source::STATUS_JOIN, '')))));
-  }
-
-  /**
-   * @api {get} /send/sticker/:packageId/:stickerId 傳貼圖
-   * @apiGroup Send
-   *
-   * @apiParam {String}      packageId    package ID
-   * @apiParam {String}      stickerId    sticker ID
-   *
-   * @apiParam {String}      user_id      接收者 User ID
+   * @apiParam {String}      package_id   package ID
+   * @apiParam {String}      sticker_id   sticker ID
    *
    * @apiSuccess {Boolean}   status       執行狀態
    *
@@ -96,17 +69,20 @@ class Send extends Api_controller {
    *         "message": "參數錯誤"
    *     }
    */
-  public function sticker ($packageId = 0, $stickerId = 0) {
+  public function sticker () {
     if (!(($source = OAInput::get ('user_id')) && ($source = trim ($source)) && ($source = Source::find ('one', array ('select' => 'sid', 'conditions' => array ('sid = ? AND status = ?', $source, Source::STATUS_JOIN))))))
       return $this->output_error_json ('使用者錯誤');
 
-    if (!(($packageId = trim ($packageId)) && is_numeric ($packageId) && ($stickerId = trim ($stickerId)) && is_numeric ($stickerId)))
+    $package_id = OAInput::get ('package_id');
+    $sticker_id = OAInput::get ('sticker_id');
+
+    if (!(($package_id = trim ($package_id)) && ($sticker_id = trim ($sticker_id))))
       return $this->output_error_json ('參數錯誤');
 
     $httpClient = new CurlHTTPClient (Cfg::setting ('line', 'channel', 'token'));
     $bot = new LINEBot ($httpClient, ['channelSecret' => Cfg::setting ('line', 'channel', 'secret')]);
 
-    $builder = new StickerMessageBuilder ((int)$packageId, (int)$stickerId);
+    $builder = new StickerMessageBuilder ($package_id, $sticker_id);
     $response = $bot->pushMessage ($source->sid, $builder);
 
     return $this->output_json (array ('status' => true));
@@ -114,7 +90,8 @@ class Send extends Api_controller {
 
   /**
    * @api {get} /send/location 傳定位
-   * @apiGroup Send
+   *
+   * @apiGroup Message
    *
    * @apiParam {String}      title       標題，最多 100 個字元，中文一個字算 2 字元
    * @apiParam {String}      address     地址，最多 100 個字元，中文一個字算 2 字元
@@ -162,7 +139,7 @@ class Send extends Api_controller {
   }
   /**
    * @api {get} /send/image 傳圖片
-   * @apiGroup Send
+   * @apiGroup Message
    *
    * @apiParam {String}      ori       原始圖片網址，需要 Https，網址長度最長 1000
    * @apiParam {String}      prev      預覽圖片網址，需要 Https，網址長度最長 1000
@@ -205,7 +182,7 @@ class Send extends Api_controller {
   }
   /**
    * @api {get} /send/video 傳影片
-   * @apiGroup Send
+   * @apiGroup Message
    *
    * @apiParam {String}      ori       影片網址，格式 mp4 檔案，需要 Https，網址長度最長 1000
    * @apiParam {String}      prev      預覽圖片網址，需要 Https，網址長度最長 1000
@@ -249,7 +226,7 @@ class Send extends Api_controller {
   
   /**
    * @api {get} /send/audio 傳語音
-   * @apiGroup Send
+   * @apiGroup Message
    *
    * @apiParam {String}      ori       語音網址，格式 m4a 檔案，需要 Https，網址長度最長 1000
    * @apiParam {Number}      duration  語音長度，單位 milliseconds
@@ -293,7 +270,7 @@ class Send extends Api_controller {
   
   /**
    * @api {get} /send/message 傳文字
-   * @apiGroup Send
+   * @apiGroup Message
    *
    * @apiParam {String}      text         文字訊息，最多 2000 字元，中文一個字算 2 字元
    *
@@ -332,8 +309,184 @@ class Send extends Api_controller {
     $response = $bot->pushMessage ($source->sid, $builder);
     return $this->output_json (array ('status' => true));
   }
+  
+  /**
+   * @api {post} /send/button 傳按鈕
+   * @apiGroup Template
+   *
+   * @apiDescription 可以傳送多組按鈕
+   *
+   * @apiParam {String}      user_id      接收者 User ID
+   * @apiParam {String}      alt          預覽訊息，最多 400 字元，中文一個字算 2 字元
+   * @apiParam {String}      [title]      標題訊息，最多 40 字元，中文一個字算 2 字元
+   * @apiParam {String}      text         文字訊息，沒有圖片最多 160 字元，有圖片最多 60 字元，中文一個字算 2 字元
+   * @apiParam {String}      img          圖片網址，需要 Https，網址長度最長 1000
+   *
+   * @apiParam {Array}       actions         按鈕，最多 4 個
+   * @apiParam {String}      actions.type    按鈕類型，有 uri、postback、message 三種
+   * @apiParam {String}      actions.label   按鈕類型，按鈕文字，最多 20 字元，中文一個字算 2 字元
+   * @apiParam {String}      actions.uri     按鈕型態為 uri 時所需要的參數，反應的網址，可以接受 http、https、tel 三種協定
+   * @apiParam {String}      actions.text    按鈕型態為 postback、message 時所需要的參數，按下者會重複回應此字串，型態為 postback 時為非必要選項
+   * @apiParam {String}      actions.data    按鈕型態為 postback 時所需要的參數，用途不知道，還在研究
+   *
+   * @apiSuccess {Boolean}   status       執行狀態
+   *
+   * @apiSuccessExample {json} Success Response:
+   *     HTTP/1.1 200 OK
+   *     {
+   *         "status": true
+   *     }
+   *
+   *
+   * @apiError   {String}    message     錯誤原因
+   *
+   * @apiErrorExample {json} Error-Response:
+   *     HTTP/1.1 405 Error
+   *     {
+   *         "message": "參數錯誤"
+   *     }
+   */
+  public function button () {
+    if (!(($source = OAInput::post ('user_id')) && ($source = trim ($source)) && ($source = Source::find ('one', array ('select' => 'sid', 'conditions' => array ('sid = ? AND status = ?', $source, Source::STATUS_JOIN))))))
+      return $this->output_error_json ('使用者錯誤');
+    
+    $alt   = OAInput::post ('alt');;
+    $title = ($title = OAInput::post ('title')) && ($title = trim ($title)) && ($title = catStr ($title, 40)) ? $title : null;
+    $text  = OAInput::post ('text');;
+    $img   = ($img = OAInput::post ('img')) && ($img = trim ($img)) && isHttps ($img) ? $img : null;
+  
+    if (!$actions = array_slice ($this->_actions (OAInput::post ('actions')), 0, 4))
+      return $this->output_error_json ('至少要有一項 Action，或者您的 Actions 都格式錯誤');
 
+    if (!(($alt = trim ($alt)) && ($alt = catStr ($alt, 400)) &&
+          ($text = trim ($text)) && ($text = catStr ($text, $img ? 60 : 160))
+        ))
+      return $this->output_error_json ('參數錯誤');
 
+    $httpClient = new CurlHTTPClient (Cfg::setting ('line', 'channel', 'token'));
+    $bot = new LINEBot ($httpClient, ['channelSecret' => Cfg::setting ('line', 'channel', 'secret')]);
+
+    $builder = new TemplateMessageBuilder ($alt, new ButtonTemplateBuilder ($title, $text, $img, $actions));
+    $response = $bot->pushMessage ($source->sid, $builder);
+    return $this->output_json (array ('status' => true));
+  }
+
+  /**
+   * @api {post} /send/confirm 傳確認
+   * @apiGroup Template
+   *
+   * @apiDescription 可以傳送選項式的訊息，注意！按鈕，一定要兩個
+   *
+   * @apiParam {String}      user_id      接收者 User ID
+   * @apiParam {String}      alt          預覽訊息，最多 400 字元，中文一個字算 2 字元
+   * @apiParam {String}      text         文字訊息，最多 240 字元，中文一個字算 2 字元
+   *
+   * @apiParam {Array}       actions         按鈕，一定要兩個
+   * @apiParam {String}      actions.type    按鈕類型，有 uri、postback、message 三種
+   * @apiParam {String}      actions.label   按鈕類型，按鈕文字，最多 20 字元，中文一個字算 2 字元
+   * @apiParam {String}      actions.uri     按鈕型態為 uri 時所需要的參數，反應的網址，可以接受 http、https、tel 三種協定
+   * @apiParam {String}      actions.text    按鈕型態為 postback、message 時所需要的參數，按下者會重複回應此字串，型態為 postback 時為非必要選項
+   * @apiParam {String}      actions.data    按鈕型態為 postback 時所需要的參數，用途不知道，還在研究
+   *
+   * @apiSuccess {Boolean}   status       執行狀態
+   *
+   * @apiSuccessExample {json} Success Response:
+   *     HTTP/1.1 200 OK
+   *     {
+   *         "status": true
+   *     }
+   *
+   *
+   * @apiError   {String}    message     錯誤原因
+   *
+   * @apiErrorExample {json} Error-Response:
+   *     HTTP/1.1 405 Error
+   *     {
+   *         "message": "參數錯誤"
+   *     }
+   */
+  public function confirm () {
+    if (!(($source = OAInput::post ('user_id')) && ($source = trim ($source)) && ($source = Source::find ('one', array ('select' => 'sid', 'conditions' => array ('sid = ? AND status = ?', $source, Source::STATUS_JOIN))))))
+      return $this->output_error_json ('使用者錯誤');
+    
+    $alt   = OAInput::post ('alt');;
+    $text = OAInput::post ('text');;
+  
+    if (count ($actions = $this->_actions (OAInput::post ('actions'))) == 2)
+      return $this->output_error_json ('要有兩個 Action，或者您的 Actions 都格式錯誤');
+
+    if (!(($alt = trim ($alt)) && ($alt = catStr ($alt, 400)) &&
+          ($text = trim ($text)) && ($text = catStr ($text, 240))
+        ))
+      return $this->output_error_json ('參數錯誤');
+
+    $httpClient = new CurlHTTPClient (Cfg::setting ('line', 'channel', 'token'));
+    $bot = new LINEBot ($httpClient, ['channelSecret' => Cfg::setting ('line', 'channel', 'secret')]);
+
+    $builder = new TemplateMessageBuilder ($alt, new ConfirmTemplateBuilder ($text, $actions));
+    $response = $bot->pushMessage ($source->sid, $builder);
+    return $this->output_json (array ('status' => true));
+  }
+
+  /**
+   * @api {post} /send/carousel 傳卡片
+   * @apiGroup Template
+   *
+   * @apiDescription 可以傳送卡片式的訊息，注意！所有的卡片的 Action 數量要相同
+   *
+   * @apiParam {String}      user_id      接收者 User ID
+   * @apiParam {String}      alt          預覽訊息，最多 400 字元，中文一個字算 2 字元
+   *
+   * @apiParam {Array}       columns          卡片，最多 5 個
+   * @apiParam {String}      [columns.title]  卡片標題，最多 40 字元，中文一個字算 2 字元
+   * @apiParam {String}      columns.text     卡片文字訊息，沒有圖片最多 160 字元，有圖片最多 60 字元，中文一個字算 2 字元
+   * @apiParam {String}      columns.img      卡片圖片網址，需要 Https，網址長度最長 1000
+   *
+   * @apiParam {Array}       columns.actions         按鈕，最多三個，所有的卡片的 Action 數量要相同
+   * @apiParam {String}      columns.actions.type    按鈕類型，有 uri、postback、message 三種
+   * @apiParam {String}      columns.actions.label   按鈕類型，按鈕文字，最多 20 字元，中文一個字算 2 字元
+   * @apiParam {String}      columns.actions.uri     按鈕型態為 uri 時所需要的參數，反應的網址，可以接受 http、https、tel 三種協定
+   * @apiParam {String}      columns.actions.text    按鈕型態為 postback、message 時所需要的參數，按下者會重複回應此字串，型態為 postback 時為非必要選項
+   * @apiParam {String}      columns.actions.data    按鈕型態為 postback 時所需要的參數，用途不知道，還在研究
+   *
+   * @apiSuccess {Boolean}   status       執行狀態
+   *
+   * @apiSuccessExample {json} Success Response:
+   *     HTTP/1.1 200 OK
+   *     {
+   *         "status": true
+   *     }
+   *
+   *
+   * @apiError   {String}    message     錯誤原因
+   *
+   * @apiErrorExample {json} Error-Response:
+   *     HTTP/1.1 405 Error
+   *     {
+   *         "message": "參數錯誤"
+   *     }
+   */
+  public function carousel () {
+    if (!(($source = OAInput::post ('user_id')) && ($source = trim ($source)) && ($source = Source::find ('one', array ('select' => 'sid', 'conditions' => array ('sid = ? AND status = ?', $source, Source::STATUS_JOIN))))))
+      return $this->output_error_json ('使用者錯誤');
+    
+    $alt   = OAInput::post ('alt');;
+  
+    if (!$columns = $this->_columns (OAInput::post ('columns')))
+      return $this->output_error_json ('項目至少要一個，或項目全部格式錯誤');
+    
+
+    if (!(($alt = trim ($alt)) && ($alt = catStr ($alt, 400))
+        ))
+      return $this->output_error_json ('參數錯誤');
+
+    $httpClient = new CurlHTTPClient (Cfg::setting ('line', 'channel', 'token'));
+    $bot = new LINEBot ($httpClient, ['channelSecret' => Cfg::setting ('line', 'channel', 'secret')]);
+
+    $builder = new TemplateMessageBuilder ($alt, new CarouselTemplateBuilder ($columns));
+    $response = $bot->pushMessage ($source->sid, $builder);
+    return $this->output_json (array ('status' => true));
+  }
   private function _actions ($actions = array ()) {
     return $actions && is_array ($actions) && ($actions = array_filter (array_map (function ($action) {
       if (!(isset ($action['type']) && in_array ($action['type'], array ('uri', 'message', 'postback')))) return null;
@@ -388,73 +541,5 @@ class Send extends Api_controller {
     }, $columns))) ? $columns : array (), 0, 5);
 
     return count (array_unique ($cnt_actions)) == 1 ? $columns : array ();
-  }
-  public function button () {
-    if (!(($source = OAInput::post ('user_id')) && ($source = trim ($source)) && ($source = Source::find ('one', array ('select' => 'sid', 'conditions' => array ('sid = ? AND status = ?', $source, Source::STATUS_JOIN))))))
-      return $this->output_error_json ('使用者錯誤');
-    
-    $alt   = OAInput::post ('alt');;
-    $title = OAInput::post ('title');;
-    $text  = OAInput::post ('text');;
-    $img   = ($img = OAInput::post ('img')) && ($img = trim ($img)) && isHttps ($img) ? $img : null;
-  
-    if (!$actions = $this->_actions (OAInput::post ('actions')))
-      return $this->output_error_json ('至少要有一項 Action，或者您的 Actions 都格式錯誤');
-
-    if (!(($alt = trim ($alt)) && ($alt = catStr ($alt, 400)) &&
-          ($title = trim ($title)) && ($title = catStr ($title, 40)) &&
-          ($text = trim ($text)) && ($text = catStr ($text, $img ? 60 : 160))
-        ))
-      return $this->output_error_json ('參數錯誤');
-
-    $httpClient = new CurlHTTPClient (Cfg::setting ('line', 'channel', 'token'));
-    $bot = new LINEBot ($httpClient, ['channelSecret' => Cfg::setting ('line', 'channel', 'secret')]);
-
-    $builder = new TemplateMessageBuilder ($alt, new ButtonTemplateBuilder ($title, $text, $img, $actions));
-    $response = $bot->pushMessage ($source->sid, $builder);
-    return $this->output_json (array ('status' => true));
-  }
-  public function confirm () {
-    if (!(($source = OAInput::post ('user_id')) && ($source = trim ($source)) && ($source = Source::find ('one', array ('select' => 'sid', 'conditions' => array ('sid = ? AND status = ?', $source, Source::STATUS_JOIN))))))
-      return $this->output_error_json ('使用者錯誤');
-    
-    $alt   = OAInput::post ('alt');;
-    $text = OAInput::post ('text');;
-  
-    if (count ($actions = $this->_actions (OAInput::post ('actions'))) == 2)
-      return $this->output_error_json ('要有兩個 Action，或者您的 Actions 都格式錯誤');
-
-    if (!(($alt = trim ($alt)) && ($alt = catStr ($alt, 400)) &&
-          ($text = trim ($text)) && ($text = catStr ($text, 240))
-        ))
-      return $this->output_error_json ('參數錯誤');
-
-    $httpClient = new CurlHTTPClient (Cfg::setting ('line', 'channel', 'token'));
-    $bot = new LINEBot ($httpClient, ['channelSecret' => Cfg::setting ('line', 'channel', 'secret')]);
-
-    $builder = new TemplateMessageBuilder ($alt, new ConfirmTemplateBuilder ($text, $actions));
-    $response = $bot->pushMessage ($source->sid, $builder);
-    return $this->output_json (array ('status' => true));
-  }
-  public function carousel () {
-    if (!(($source = OAInput::post ('user_id')) && ($source = trim ($source)) && ($source = Source::find ('one', array ('select' => 'sid', 'conditions' => array ('sid = ? AND status = ?', $source, Source::STATUS_JOIN))))))
-      return $this->output_error_json ('使用者錯誤');
-    
-    $alt   = OAInput::post ('alt');;
-  
-    if (!$columns = $this->_columns (OAInput::post ('columns')))
-      return $this->output_error_json ('項目至少要一個，或項目全部格式錯誤');
-    
-
-    if (!(($alt = trim ($alt)) && ($alt = catStr ($alt, 400))
-        ))
-      return $this->output_error_json ('參數錯誤');
-
-    $httpClient = new CurlHTTPClient (Cfg::setting ('line', 'channel', 'token'));
-    $bot = new LINEBot ($httpClient, ['channelSecret' => Cfg::setting ('line', 'channel', 'secret')]);
-
-    $builder = new TemplateMessageBuilder ($alt, new CarouselTemplateBuilder ($columns));
-    $response = $bot->pushMessage ($source->sid, $builder);
-    return $this->output_json (array ('status' => true));
   }
 }

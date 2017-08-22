@@ -38,6 +38,7 @@ class Callback extends Api_controller {
     $channel_secret = Cfg::setting ('line', 'channel', 'secret');
     $token = Cfg::setting ('line', 'channel', 'token');
 
+    Log::trace ('======>' . json_encode (OAInput::get ()));
     if (!isset ($_SERVER["HTTP_" . HTTPHeader::LINE_SIGNATURE])) {
       write_file ($path, '===> Error, Header Error!' . "\n", FOPEN_READ_WRITE_CREATE);
       exit ();

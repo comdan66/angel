@@ -35,8 +35,6 @@ class Callback extends Api_controller {
   public function index () {
     $path = FCPATH . 'temp/input.json';
 
-    Log::trace ('======>' . json_encode (OAInput::post ()));
-
     if (!isset ($_SERVER["HTTP_" . HTTPHeader::LINE_SIGNATURE])) {
       write_file ($path, '===> Error, Header Error!' . "\n", FOPEN_READ_WRITE_CREATE);
       exit ();

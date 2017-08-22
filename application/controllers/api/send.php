@@ -387,8 +387,29 @@ class Send extends Api_controller {
     $httpClient = new CurlHTTPClient (Cfg::setting ('line', 'channel', 'token'));
     $bot = new LINEBot ($httpClient, ['channelSecret' => Cfg::setting ('line', 'channel', 'secret')]);
 
-
     $builder = new TemplateMessageBuilder ($alt, new ButtonTemplateBuilder ($title, $text, $img, $actions));
+    $response = $bot->pushMessage ($source->sid, $builder);
+    return $this->output_json (array ('status' => true));
+  }
+  public function confirm () {
+    if (!(($source = OAInput::post ('user_id')) && ($source = trim ($source)) && ($source = Source::find ('one', array ('select' => 'sid', 'conditions' => array ('sid = ? AND status = ?', $source, Source::STATUS_JOIN))))))
+      return $this->output_error_json ('使用者錯誤');
+    
+    $alt   = OAInput::post ('alt');;
+    $text = OAInput::post ('text');;
+  
+    if (!$actions = $this->_actions (OAInput::post ('actions')))
+      return $this->output_error_json ('至少要有一項 Action，或者您的 Actions 都格式錯誤');
+
+    if (!(($alt = trim ($alt)) && ($alt = catStr ($alt, 400)) &&
+          ($text = trim ($text)) && ($text = catStr ($text, 240))
+        ))
+      return $this->output_error_json ('參數錯誤');
+
+    $httpClient = new CurlHTTPClient (Cfg::setting ('line', 'channel', 'token'));
+    $bot = new LINEBot ($httpClient, ['channelSecret' => Cfg::setting ('line', 'channel', 'secret')]);
+
+    $builder = new TemplateMessageBuilder ($alt, new ConfirmTemplateBuilder ($text, $actions));
     $response = $bot->pushMessage ($source->sid, $builder);
     return $this->output_json (array ('status' => true));
   }

@@ -48,7 +48,7 @@ class Send extends Api_controller {
    *
    * @apiGroup Message
    *
-   * @apiHeader {String}     user_id      接收者 User ID
+   * @apiHeader {String}     id      接收者 User ID
    *
    * @apiParam {String}      package_id   package ID
    * @apiParam {String}      sticker_id   sticker ID
@@ -88,7 +88,7 @@ class Send extends Api_controller {
    *
    * @apiGroup Message
    *
-   * @apiHeader {String}     user_id     接收者 User ID
+   * @apiHeader {String}     id     接收者 User ID
    *
    * @apiParam {String}      title       標題，最多 100 個字元，中文一個字算 2 字元
    * @apiParam {String}      address     地址，最多 100 個字元，中文一個字算 2 字元
@@ -129,7 +129,7 @@ class Send extends Api_controller {
    *
    * @apiGroup Message
    *
-   * @apiHeader {String}     user_id      接收者 User ID
+   * @apiHeader {String}     id      接收者 User ID
    *
    * @apiParam {String}      ori          原始圖片網址，需要 Https，網址長度最長 1000
    * @apiParam {String}      prev         預覽圖片網址，需要 Https，網址長度最長 1000
@@ -152,7 +152,7 @@ class Send extends Api_controller {
    *     }
    */
   public function image () {
-    if (!($ori = OAInput::get ('ori') && $prev = OAInput::get ('prev') && ($ori = trim ($ori)) && isHttps ($ori) && ($prev = trim ($prev)) && isHttps ($prev) && strlen ($ori) <= 1000 && strlen ($prev) <= 1000))
+    if (!(($ori = OAInput::get ('ori')) && ($prev = OAInput::get ('prev')) && ($ori = trim ($ori)) && isHttps ($ori) && ($prev = trim ($prev)) && isHttps ($prev) && strlen ($ori) <= 1000 && strlen ($prev) <= 1000))
       return $this->output_error_json ('參數錯誤');
 
     $httpClient = new CurlHTTPClient (Cfg::setting ('line', 'channel', 'token'));

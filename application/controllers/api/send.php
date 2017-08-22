@@ -164,12 +164,13 @@ class Send extends Api_controller {
   }
   /**
    * @api {get} /send/video 傳影片
+   *
    * @apiGroup Message
    *
-   * @apiParam {String}      ori       影片網址，格式 mp4 檔案，需要 Https，網址長度最長 1000
-   * @apiParam {String}      prev      預覽圖片網址，需要 Https，網址長度最長 1000
+   * @apiHeader {String}     id           接收者 User ID
    *
-   * @apiParam {String}      user_id      接收者 User ID
+   * @apiParam {String}      ori          影片網址，格式 mp4 檔案，需要 Https，網址長度最長 1000
+   * @apiParam {String}      prev         預覽圖片網址，需要 Https，網址長度最長 1000
    *
    * @apiSuccess {Boolean}   status       執行狀態
    *
@@ -189,13 +190,7 @@ class Send extends Api_controller {
    *     }
    */
   public function video () {
-    if (!(($this->source = OAInput::get ('user_id')) && ($this->source = trim ($this->source)) && ($this->source = Source::find ('one', array ('select' => 'sid', 'conditions' => array ('sid = ? AND status = ?', $this->source, Source::STATUS_JOIN))))))
-      return $this->output_error_json ('使用者錯誤');
-    
-    $ori = OAInput::get ('ori');
-    $prev = OAInput::get ('prev');
-
-    if (!(($ori = trim ($ori)) && ($prev = trim ($prev)) && isHttps ($ori) && isHttps ($prev) && strlen ($ori) <= 1000 && strlen ($prev) <= 1000))
+    if (!(($ori = OAInput::get ('ori')) && ($prev = OAInput::get ('prev')) && ($ori = trim ($ori)) && ($prev = trim ($prev)) && isHttps ($ori) && isHttps ($prev) && strlen ($ori) <= 1000 && strlen ($prev) <= 1000))
       return $this->output_error_json ('參數錯誤');
 
     $httpClient = new CurlHTTPClient (Cfg::setting ('line', 'channel', 'token'));
@@ -208,12 +203,13 @@ class Send extends Api_controller {
   
   /**
    * @api {get} /send/audio 傳語音
+   *
    * @apiGroup Message
    *
-   * @apiParam {String}      ori       語音網址，格式 m4a 檔案，需要 Https，網址長度最長 1000
-   * @apiParam {Number}      duration  語音長度，單位 milliseconds
+   * @apiHeader {String}     id           接收者 User ID
    *
-   * @apiParam {String}      user_id      接收者 User ID
+   * @apiParam {String}      ori          語音網址，格式 m4a 檔案，需要 Https，網址長度最長 1000
+   * @apiParam {Number}      duration     語音長度，單位 milliseconds
    *
    * @apiSuccess {Boolean}   status       執行狀態
    *
@@ -233,13 +229,7 @@ class Send extends Api_controller {
    *     }
    */
   public function audio () {
-    if (!(($this->source = OAInput::get ('user_id')) && ($this->source = trim ($this->source)) && ($this->source = Source::find ('one', array ('select' => 'sid', 'conditions' => array ('sid = ? AND status = ?', $this->source, Source::STATUS_JOIN))))))
-      return $this->output_error_json ('使用者錯誤');
-    
-    $ori = OAInput::get ('ori');
-    $duration = OAInput::get ('duration');
-
-    if (!(($ori = trim ($ori)) && isHttps ($ori) && ($duration = trim ($duration)) && strlen ($ori) <= 1000 && is_numeric ($duration)))
+    if (!(($ori = OAInput::get ('ori')) && ($duration = OAInput::get ('duration')) && ($ori = trim ($ori)) && isHttps ($ori) && ($duration = trim ($duration)) && strlen ($ori) <= 1000 && is_numeric ($duration)))
       return $this->output_error_json ('參數錯誤');
 
     $httpClient = new CurlHTTPClient (Cfg::setting ('line', 'channel', 'token'));

@@ -22,6 +22,7 @@ use LINE\LINEBot\MessageBuilder\TextMessageBuilder;
 use LINE\LINEBot\MessageBuilder\ImageMessageBuilder;
 use LINE\LINEBot\MessageBuilder\LocationMessageBuilder;
 use LINE\LINEBot\MessageBuilder\StickerMessageBuilder;
+use LINE\LINEBot\MessageBuilder\VideoMessageBuilder;
 
 class Send extends Api_controller {
 
@@ -190,6 +191,49 @@ class Send extends Api_controller {
     $bot = new LINEBot ($httpClient, ['channelSecret' => Cfg::setting ('line', 'channel', 'secret')]);
 
     $builder = new ImageMessageBuilder ($ori, $prev);
+    $response = $bot->pushMessage ($source->sid, $builder);
+    return $this->output_json (array ('status' => true));
+  }
+  /**
+   * @api {get} /send/video 傳影片
+   * @apiGroup Send
+   *
+   * @apiParam {String}      ori       影片網址，需要 Https，網址長度最長 1000
+   * @apiParam {String}      prev      預覽圖片網址，需要 Https，網址長度最長 1000
+   *
+   * @apiParam {String}      user_id      接收者 User ID
+   *
+   * @apiSuccess {Boolean}   status       執行狀態
+   *
+   * @apiSuccessExample {json} Success Response:
+   *     HTTP/1.1 200 OK
+   *     {
+   *         "status": true
+   *     }
+   *
+   *
+   * @apiError   {String}    message     錯誤原因
+   *
+   * @apiErrorExample {json} Error-Response:
+   *     HTTP/1.1 405 Error
+   *     {
+   *         "message": "參數錯誤"
+   *     }
+   */
+  public function video () {
+    if (!(($source = OAInput::get ('user_id')) && ($source = trim ($source)) && ($source = Source::find ('one', array ('select' => 'sid', 'conditions' => array ('sid = ? AND status = ?', $source, Source::STATUS_JOIN))))))
+      return $this->output_error_json ('使用者錯誤');
+    
+    $ori = OAInput::get ('ori');
+    $prev = OAInput::get ('prev');
+
+    if (!(($ori = trim ($ori)) && ($prev = trim ($prev)) && strlen ($ori) <= 1000 && strlen ($prev) <= 1000))
+      return $this->output_error_json ('參數錯誤');
+
+    $httpClient = new CurlHTTPClient (Cfg::setting ('line', 'channel', 'token'));
+    $bot = new LINEBot ($httpClient, ['channelSecret' => Cfg::setting ('line', 'channel', 'secret')]);
+
+    $builder = new VideoMessageBuilder ($ori, $prev);
     $response = $bot->pushMessage ($source->sid, $builder);
     return $this->output_json (array ('status' => true));
   }

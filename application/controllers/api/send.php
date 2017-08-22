@@ -27,6 +27,8 @@ use LINE\LINEBot\MessageBuilder\AudioMessageBuilder;
 use LINE\LINEBot\MessageBuilder\TemplateMessageBuilder;
 use LINE\LINEBot\MessageBuilder\TemplateBuilder\ButtonTemplateBuilder;
 use LINE\LINEBot\MessageBuilder\TemplateBuilder\ConfirmTemplateBuilder;
+use LINE\LINEBot\MessageBuilder\TemplateBuilder\CarouselTemplateBuilder;
+use LINE\LINEBot\MessageBuilder\TemplateBuilder\CarouselColumnTemplateBuilder;
 use LINE\LINEBot\TemplateActionBuilder\UriTemplateActionBuilder;
 use LINE\LINEBot\TemplateActionBuilder\MessageTemplateActionBuilder;
 use LINE\LINEBot\TemplateActionBuilder\PostbackTemplateActionBuilder;
@@ -367,6 +369,20 @@ class Send extends Api_controller {
       return null;
     }, $actions))) ? $actions : array ();
   }
+  private function _columns ($columns = array ()) {
+    return array_slice ($columns && is_array ($columns) && ($columns = array_filter (array_map (function ($column) {
+      $column['img'] = isset ($column['img']) && ($column['img'] = trim ($column['img'])) && isHttps ($column['img']) ? $column['img'] : null;
+      $column['title'] = isset ($column['title']) && ($column['title'] = trim ($column['title'])) && catStr ($column['title'], 40) ? $column['title'] : null;
+      
+      if (!(isset ($column['text']) && ($column['text'] = trim ($column['text'])) && catStr ($column['text'], $column['img'] ? 60 : 120)))
+        return null;
+
+      if (!($column['actions'] = isset ($column['actions']) ? $this->_actions ($column['actions']) : array ()))
+        return null;
+
+      return new CarouselColumnTemplateBuilder ($column['title'], $column['text'], $column['img'], $column['actions']);
+    }, $columns))) ? $columns : array (), 0, 5);
+  }
   public function button () {
     if (!(($source = OAInput::post ('user_id')) && ($source = trim ($source)) && ($source = Source::find ('one', array ('select' => 'sid', 'conditions' => array ('sid = ? AND status = ?', $source, Source::STATUS_JOIN))))))
       return $this->output_error_json ('使用者錯誤');
@@ -399,8 +415,8 @@ class Send extends Api_controller {
     $alt   = OAInput::post ('alt');;
     $text = OAInput::post ('text');;
   
-    if (!$actions = $this->_actions (OAInput::post ('actions')))
-      return $this->output_error_json ('至少要有一項 Action，或者您的 Actions 都格式錯誤');
+    if (count ($actions = $this->_actions (OAInput::post ('actions'))) == 2)
+      return $this->output_error_json ('要有兩個 Action，或者您的 Actions 都格式錯誤');
 
     if (!(($alt = trim ($alt)) && ($alt = catStr ($alt, 400)) &&
           ($text = trim ($text)) && ($text = catStr ($text, 240))
@@ -411,6 +427,29 @@ class Send extends Api_controller {
     $bot = new LINEBot ($httpClient, ['channelSecret' => Cfg::setting ('line', 'channel', 'secret')]);
 
     $builder = new TemplateMessageBuilder ($alt, new ConfirmTemplateBuilder ($text, $actions));
+    $response = $bot->pushMessage ($source->sid, $builder);
+    return $this->output_json (array ('status' => true));
+  }
+  public function carousel () {
+    if (!(($source = OAInput::post ('user_id')) && ($source = trim ($source)) && ($source = Source::find ('one', array ('select' => 'sid', 'conditions' => array ('sid = ? AND status = ?', $source, Source::STATUS_JOIN))))))
+      return $this->output_error_json ('使用者錯誤');
+    
+    $alt   = OAInput::post ('alt');;
+  
+    if (!$columns = $this->_columns (OAInput::post ('columns')))
+      return $this->output_error_json ('項目至少要一個，或項目全部格式錯誤');
+    
+    // if (!$actions = $this->_actions (OAInput::post ('actions')))
+    //   return $this->output_error_json ('至少要有一項 Action，或者您的 Actions 都格式錯誤');
+
+    if (!(($alt = trim ($alt)) && ($alt = catStr ($alt, 400))
+        ))
+      return $this->output_error_json ('參數錯誤');
+
+    $httpClient = new CurlHTTPClient (Cfg::setting ('line', 'channel', 'token'));
+    $bot = new LINEBot ($httpClient, ['channelSecret' => Cfg::setting ('line', 'channel', 'secret')]);
+
+    $builder = new TemplateMessageBuilder ($alt, new CarouselTemplateBuilder ($columns));
     $response = $bot->pushMessage ($source->sid, $builder);
     return $this->output_json (array ('status' => true));
   }

@@ -12,6 +12,7 @@ class Migration_Add_sources extends CI_Migration {
         `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
 
         `title` varchar(255) COLLATE utf8_unicode_ci NOT NULL DEFAULT '' COMMENT '標題',
+        `bio` varchar(255) COLLATE utf8_unicode_ci NOT NULL DEFAULT '' COMMENT '狀態',
         `type` tinyint(1) unsigned NOT NULL DEFAULT 1 COMMENT '狀態，1 使用者，2 群組，3 聊天室',
         `sid` varchar(50) COLLATE utf8_unicode_ci NOT NULL DEFAULT '' COMMENT '來源 ID',
         `memo` varchar(50) COLLATE utf8_unicode_ci NOT NULL DEFAULT '' COMMENT '備註',

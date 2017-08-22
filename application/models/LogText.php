@@ -28,6 +28,7 @@ class LogText extends OaLineModel {
 
   static $belongs_to = array (
     array ('log', 'class_name' => 'Log'),
+    array ('log2', 'class_name' => 'Log', 'select' => 'id,created_at'),
   );
   const KEYWORD = 'k';
 

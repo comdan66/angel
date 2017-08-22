@@ -62,14 +62,16 @@ $(function () {
       async: true, cache: false, dataType: 'json', type: 'GET'
     })
     .done (function (result) {
-      var l = result.map (function (t, i) {
-        if ($.inArray (t.i, _ids) != -1) return null;
-        _ids.push (t.i);
-        initMsgFeature (initMsgElement (t).appendTo ($_msgs));
-        return t
-      }).filter (function (t) { return t != null; });
-      
-      if (l.length) $_msgs.scrollTop ($_msgs[0].scrollHeight);
+      if (_lo) {
+        var l = result.map (function (t, i) {
+          if ($.inArray (t.i, _ids) != -1) return null;
+          _ids.push (t.i);
+          initMsgFeature (initMsgElement (t).appendTo ($_msgs));
+          return t
+        }).filter (function (t) { return t != null; });
+        
+        if (l.length) $_msgs.scrollTop ($_msgs[0].scrollHeight);
+      }
 
       _lo = false;
     }.bind ($(this)))
@@ -81,6 +83,8 @@ $(function () {
   $('#users > a').click (function () {
     $(this).addClass ('a').siblings ().removeClass ('a');
     _id = $(this).data ('id');
+    _lo = false;
+    $_msgs.empty ();
     loadMsgs (true);
   }).first ().click ();
   

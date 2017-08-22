@@ -15,6 +15,20 @@ $(function () {
   function _fgd (date) { var date = typeof date == 'undefined' ? new Date () : date, year = date.getFullYear (), month = date.getMonth () + 1, day = date.getDate (), hour = date.getHours (), min = date.getMinutes (), sec = date.getSeconds (); return year + '-' + _faz (month) + '-' + _faz (day) + ' ' + _faz (hour) + ':' + _faz (min) + ':' + _faz (sec); }
   function _fu2d (t) { return _fgd (new Date (t)); }
 
+  function sendMsg (val) {
+
+    $.ajax ({
+      url: 'api/messages/',
+      data: {id : _id, val: val},
+      async: true, cache: false, dataType: 'json', type: 'POST'
+    })
+    .done (function (result) {
+      
+    }.bind ($(this)))
+    .fail (function (result) {
+      location.reload (true);
+    }.bind ($(this)));
+  }
   function initMsgFeature ($obj) {
     $obj.find ('figure').imgLiquid ({verticalAlign: 'center'});
     setTimeout (function () { $obj.addClass ('s'); }, 300);
@@ -28,15 +42,13 @@ $(function () {
       $('<p />').text (obj.c));
   }
   function loadMsgs (a) {
-    console.error ('1');
-    
     if (!a && _lo) return false;
     _lo = true;
     
     $.ajax ({
       url: 'api/messages/',
       data: {id : _id},
-      async: true, cache: false, dataType: 'json', type: 'POST'
+      async: true, cache: false, dataType: 'json', type: 'GET'
     })
     .done (function (result) {
       var l = result.map (function (t, i) {
@@ -67,8 +79,10 @@ $(function () {
     initMsgFeature (initMsgElement ({ t: _fu2d (new Date ().getTime ()), c: val }, true).appendTo ($_msgs)); 
     $_msgs.scrollTop ($_msgs[0].scrollHeight);
     $_in.val ('');
+    
+    sendMsg (val);
     return false;
   });
 
-  setInterval (loadMsgs, 1000)
+  setInterval (loadMsgs, 3000)
 });

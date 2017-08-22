@@ -10,6 +10,8 @@ Route::get ('/logout', 'platform@logout');
 Route::get ('/platform/index', 'platform@login');
 Route::get ('/platform', 'platform@login');
 
+Route::post ('/api/messages', 'api/messages@create');
+
 
 Route::group ('admin', function () {
   Route::resourcePagination (array ('keywords'), 'keywords');

@@ -22,6 +22,10 @@ use LINE\LINEBot\MessageBuilder\TextMessageBuilder;
 use LINE\LINEBot\MessageBuilder\ImageMessageBuilder;
 use LINE\LINEBot\MessageBuilder\LocationMessageBuilder;
 use LINE\LINEBot\MessageBuilder\StickerMessageBuilder;
+use LINE\LINEBot\MessageBuilder\ImagemapMessageBuilder;
+use LINE\LINEBot\ImagemapActionBuilder\AreaBuilder;
+use LINE\LINEBot\ImagemapActionBuilder\ImagemapUriActionBuilder;
+use LINE\LINEBot\ImagemapActionBuilder\ImagemapMessageActionBuilder;
 use LINE\LINEBot\MessageBuilder\VideoMessageBuilder;
 use LINE\LINEBot\MessageBuilder\AudioMessageBuilder;
 use LINE\LINEBot\MessageBuilder\TemplateMessageBuilder;
@@ -29,6 +33,7 @@ use LINE\LINEBot\MessageBuilder\TemplateBuilder\ButtonTemplateBuilder;
 use LINE\LINEBot\MessageBuilder\TemplateBuilder\ConfirmTemplateBuilder;
 use LINE\LINEBot\MessageBuilder\TemplateBuilder\CarouselTemplateBuilder;
 use LINE\LINEBot\MessageBuilder\TemplateBuilder\CarouselColumnTemplateBuilder;
+use LINE\LINEBot\MessageBuilder\Imagemap\BaseSizeBuilder;
 use LINE\LINEBot\TemplateActionBuilder\UriTemplateActionBuilder;
 use LINE\LINEBot\TemplateActionBuilder\MessageTemplateActionBuilder;
 use LINE\LINEBot\TemplateActionBuilder\PostbackTemplateActionBuilder;
@@ -490,5 +495,28 @@ class Send extends Api_controller {
     }, $columns))) ? $columns : array (), 0, 5);
 
     return count (array_unique ($cnt_actions)) == 1 ? $columns : array ();
+  }
+  public function imagemap () {
+    // if (!(($text = OAInput::get ('text')) && ($text = trim ($text)) && ($text = catStr ($text, 2000))))
+    //   return $this->output_error_json ('參數錯誤');
+
+    $httpClient = new CurlHTTPClient (Cfg::setting ('line', 'channel', 'token'));
+    $bot = new LINEBot ($httpClient, ['channelSecret' => Cfg::setting ('line', 'channel', 'secret')]);
+// ImagemapUriActionBuilder
+// ImagemapMessageActionBuilder
+    $builder = new ImagemapMessageBuilder (
+        'https://devdocs.line.me/en/#send-message-object',
+        'abc',
+        new BaseSizeBuilder (1040, 1040),
+        [new ImagemapUriActionBuilder (
+          'https://devdocs.line.me/en/#send-message-object',
+            new AreaBuilder (0, 0, 520, 1040)
+          ),new ImagemapMessageActionBuilder (
+          '1234',
+            new AreaBuilder (520, 0, 520, 1040)
+          )]
+      );
+    $response = $bot->pushMessage ($this->source->sid, $builder);
+    return $this->output_json (array ('status' => true));
   }
 }

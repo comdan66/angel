@@ -8,6 +8,6 @@
 class Say extends Site_controller {
 
   public function index () {
-    return $this->load_view ();
+    // return $this->load_view ();
   }
 }

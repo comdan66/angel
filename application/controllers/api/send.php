@@ -505,15 +505,21 @@ class Send extends Api_controller {
 // ImagemapUriActionBuilder
 // ImagemapMessageActionBuilder
     $builder = new ImagemapMessageBuilder (
-        'https://devdocs.line.me/en/#send-message-object',
+        'https://angel.ioa.tw/res/image/t/1040.png',
         'abc',
         new BaseSizeBuilder (1040, 1040),
         [new ImagemapUriActionBuilder (
           'https://devdocs.line.me/en/#send-message-object',
-            new AreaBuilder (0, 0, 520, 1040)
+            new AreaBuilder (0, 0, 520, 520)
           ),new ImagemapMessageActionBuilder (
           '1234',
-            new AreaBuilder (520, 0, 520, 1040)
+            new AreaBuilder (520, 0, 520, 520)
+          ),new ImagemapMessageActionBuilder (
+          '1234',
+            new AreaBuilder (0, 520, 520, 520)
+          ),new ImagemapMessageActionBuilder (
+          '1234',
+            new AreaBuilder (520, 520, 520, 520)
           )]
       );
     $response = $bot->pushMessage ($this->source->sid, $builder);

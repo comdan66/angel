@@ -505,7 +505,7 @@ class Send extends Api_controller {
 // ImagemapUriActionBuilder
 // ImagemapMessageActionBuilder
     $builder = new ImagemapMessageBuilder (
-        'https://angel.ioa.tw/res/image/t2',
+        'https://angel.ioa.tw/res/image/t3',
         'abc',
         new BaseSizeBuilder (1040, 1040),
         [   new ImagemapMessageActionBuilder (

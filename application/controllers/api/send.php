@@ -505,20 +505,20 @@ class Send extends Api_controller {
 // ImagemapUriActionBuilder
 // ImagemapMessageActionBuilder
     $builder = new ImagemapMessageBuilder (
-        'https://angel.ioa.tw/res/image/t/1040.png',
+        'https://angel.ioa.tw/res/image/t2/',
         'abc',
         new BaseSizeBuilder (1040, 1040),
-        [new ImagemapUriActionBuilder (
-          'https://devdocs.line.me/en/#send-message-object',
+        [   new ImagemapMessageActionBuilder (
+          '我選李經理！',
             new AreaBuilder (0, 0, 520, 520)
           ),new ImagemapMessageActionBuilder (
-          '1234',
+          '我要來一瓶沙士！',
             new AreaBuilder (520, 0, 520, 520)
           ),new ImagemapMessageActionBuilder (
-          '1234',
+          '當然是宗達啦！',
             new AreaBuilder (0, 520, 520, 520)
           ),new ImagemapMessageActionBuilder (
-          '1234',
+          '喵～！',
             new AreaBuilder (520, 520, 520, 520)
           )]
       );

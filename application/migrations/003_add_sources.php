@@ -11,17 +11,14 @@ class Migration_Add_sources extends CI_Migration {
       "CREATE TABLE `sources` (
         `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
 
-        `title` varchar(255) COLLATE utf8_unicode_ci NOT NULL DEFAULT '' COMMENT '標題',
-        `bio` varchar(255) COLLATE utf8_unicode_ci NOT NULL DEFAULT '' COMMENT '狀態',
+        `sid` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '來源 ID',
+        `title` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '標題',
         `type` tinyint(1) unsigned NOT NULL DEFAULT 1 COMMENT '狀態，1 使用者，2 群組，3 聊天室',
-        `sid` varchar(50) COLLATE utf8_unicode_ci NOT NULL DEFAULT '' COMMENT '來源 ID',
-        `memo` varchar(50) COLLATE utf8_unicode_ci NOT NULL DEFAULT '' COMMENT '備註',
-        `status` tinyint(1) unsigned NOT NULL DEFAULT 2 COMMENT '狀態，1 離開，2 加入',
 
         `created_at` datetime NOT NULL DEFAULT '" . date ('Y-m-d H:i:s') . "' COMMENT '新增時間',
         PRIMARY KEY (`id`),
         KEY `sid_index` (`sid`)
-      ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;"
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
     );
   }
   public function down () {

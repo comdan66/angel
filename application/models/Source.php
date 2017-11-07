@@ -5,9 +5,6 @@
  * @copyright   Copyright (c) 2016 OA Wu Design
  */
 
-use LINE\LINEBot;
-use LINE\LINEBot\HTTPClient\CurlHTTPClient;
-
 class Source extends OaModel {
 
   static $table_name = 'sources';
@@ -19,16 +16,6 @@ class Source extends OaModel {
   );
 
   static $belongs_to = array (
-  );
-
-  const STATUS_LEAVE    = 1;
-  const STATUS_JOIN     = 2;
-  const STATUS_OTHER    = 3;
-
-  static $statusNames = array (
-    self::STATUS_LEAVE => '離開',
-    self::STATUS_JOIN  => '加入',
-    self::STATUS_OTHER => '其他',
   );
 
   const TYPE_USER    = 1;
@@ -46,15 +33,44 @@ class Source extends OaModel {
   public function __construct ($attributes = array (), $guard_attributes = true, $instantiating_via_find = false, $new_record = true) {
     parent::__construct ($attributes, $guard_attributes, $instantiating_via_find, $new_record);
   }
+  public static function getType ($event) {
+    if ($event->isUserEvent ()) return Source::TYPE_USER;
+    if ($event->isGroupEvent ()) return Source::TYPE_GROUP;
+    if ($event->isRoomEvent ()) return Source::TYPE_ROOM;
+    return Source::TYPE_OTHER;
+  }
+  public static function getSource ($event, &$say) {
+    if (!$sid = $event->getEventSourceId ()) return null;
+
+    if (!($source = Source::find ('one', array ('select' => 'id, sid, title, type', 'conditions' => array ('sid = ?', $sid)))))
+      if (!(($params = array ('sid' => $sid, 'title' => '', 'type' => Source::getType ($event))) && Source::transaction (function () use (&$source, $params) { return verifyCreateOrm ($source = Source::create (array_intersect_key ($params, Source::table ()->columns))); })))
+        return null;
+
+    if (in_array ($source->type, array (Source::TYPE_GROUP, Source::TYPE_ROOM))) {
+      $userId = $event->getUserId ();
+
+      if (!($say = Source::find ('one', array ('select' => 'id, sid, title, type', 'conditions' => array ('sid = ?', $userId)))))
+        if (!(($params = array ('sid' => $userId, 'title' => '', 'type' => Source::TYPE_USER)) && Source::transaction (function () use (&$say, $params) { return verifyCreateOrm ($say = Source::create (array_intersect_key ($params, Source::table ()->columns))); })))
+          $say = null;
+
+      if ($say) $say->updateTitle ();
+    }
+
+    $source->updateTitle ();
+
+    return $source;
+  }
   public function updateTitle () {
-    if (!(isset ($this->id) && isset ($this->sid) && isset ($this->title))) return false;
+    if (!(($this->type == Source::TYPE_USER) && isset ($this->id) && isset ($this->sid) && isset ($this->title) && !$this->title && isset ($this->type)))
+      return false;
 
-    $httpClient = new CurlHTTPClient (Cfg::setting ('line', 'channel', 'token'));
-    $bot = new LINEBot ($httpClient, ['channelSecret' => Cfg::setting ('line', 'channel', 'secret')]);
+    $this->CI->load->library ('OALineBot');
+    if (!$oaLineBot = OALineBot::create ())
+      return false;
 
-    $response = $bot->getProfile ($this->sid);
-    
-    if (!$response->isSucceeded ()) return false;
+    $response = $oaLineBot->bot ()->getProfile ($this->sid);
+    if (!$response->isSucceeded ())
+      return false;
 
     $profile = $response->getJSONDecodedBody ();
     $this->title = $profile['displayName'];

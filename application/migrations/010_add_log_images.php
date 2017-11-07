@@ -5,21 +5,21 @@
  * @copyright   Copyright (c) 2016 OA Wu Design
  */
 
-class Migration_Add_log_texts extends CI_Migration {
+class Migration_Add_log_images extends CI_Migration {
   public function up () {
     $this->db->query (
-      "CREATE TABLE `log_texts` (
+      "CREATE TABLE `log_images` (
         `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
         `log_id` int(11) unsigned NOT NULL DEFAULT 0 COMMENT 'Line Bot Log ID',
-        
-        `text` text NOT NULL COMMENT '訊息內容',
+        `reply_token` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '回覆 Token',
+        `message_id` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '訊息 ID',
         PRIMARY KEY (`id`)
-      ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;"
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
     );
   }
   public function down () {
     $this->db->query (
-      "DROP TABLE `log_texts`;"
+      "DROP TABLE `log_images`;"
     );
   }
 }

@@ -44,7 +44,7 @@ class Send extends Api_controller {
   public function __construct () {
     parent::__construct ();
 
-    if (!((($this->source = $this->input->get_request_header ('Id')) || ($this->source = OAInput::get ('user_id')) || ($this->source = OAInput::post ('user_id'))) && ($this->source = trim ($this->source)) && ($this->source = Source::find ('one', array ('select' => 'sid', 'conditions' => array ('sid = ? AND status = ?', $this->source, Source::STATUS_JOIN))))))
+    if (!((($this->source = $this->input->get_request_header ('Id')) || ($this->source = OAInput::get ('user_id')) || ($this->source = OAInput::post ('user_id'))) && ($this->source = trim ($this->source)) && ($this->source = Source::find ('one', array ('select' => 'sid', 'conditions' => array ('sid = ?', $this->source))))))
       return $this->disable ($this->output_error_json ('使用者錯誤'));
   }
 
@@ -292,9 +292,9 @@ class Send extends Api_controller {
    * @apiHeader {String}     id           接收者 User ID
    *
    * @apiParam {String}      alt          預覽訊息，最多 400 字元，中文一個字算 2 字元
-   * @apiParam {String}      [title]      標題訊息，最多 40 字元，中文一個字算 2 字元
    * @apiParam {String}      text         文字訊息，沒有圖片最多 160 字元，有圖片最多 60 字元，中文一個字算 2 字元
-   * @apiParam {String}      img          圖片網址，需要 Https，網址長度最長 1000
+   * @apiParam {String}      [title]      標題訊息，最多 40 字元，中文一個字算 2 字元
+   * @apiParam {String}      [img]        圖片網址，需要 Https，網址長度最長 1000
    *
    * @apiParam {Array}       actions         按鈕，最多 4 個
    * @apiParam {String}      actions.type    按鈕類型，有 uri、postback、message 三種

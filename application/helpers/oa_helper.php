@@ -56,15 +56,26 @@ if ( !function_exists ('password')) {
     return md5 (md5 ($password));
   }
 }
-if ( !function_exists ('is_datetime')) {
-  function is_datetime ($date) {
+if ( !function_exists ('isDatetime')) {
+  function isDatetime ($date) {
     return (DateTime::createFromFormat('Y-m-d H:i:s', $date) !== false);
   }
 }
+if ( !function_exists ('isDatetimeT')) {
+  function isDatetimeT ($date) {
+    return (DateTime::createFromFormat('Y-m-d\TH:i', $date) !== false) || (DateTime::createFromFormat('Y-m-d\tH:i', $date) !== false);
+  }
+}
 
-if ( !function_exists ('is_date')) {
-  function is_date ($date) {
+if ( !function_exists ('isDate')) {
+  function isDate ($date) {
     return (DateTime::createFromFormat('Y-m-d', $date) !== false);
+  }
+}
+
+if ( !function_exists ('isTimeHI')) {
+  function isTimeHI ($date) {
+    return (DateTime::createFromFormat('H:i', $date) !== false);
   }
 }
 

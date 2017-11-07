@@ -6,9 +6,9 @@
  * @license     http://creativecommons.org/licenses/by-nc/2.0/tw/
  */
 
-class ArticleSource extends OaModel {
+class LogPostback extends OaModel {
 
-  static $table_name = 'article_sources';
+  static $table_name = 'log_postbacks';
 
   static $has_one = array (
   );
@@ -21,9 +21,5 @@ class ArticleSource extends OaModel {
 
   public function __construct ($attributes = array (), $guard_attributes = true, $instantiating_via_find = false, $new_record = true) {
     parent::__construct ($attributes, $guard_attributes, $instantiating_via_find, $new_record);
-  }
-  public function destroy () {
-    if (!isset ($this->id)) return false;
-    return $this->delete ();
   }
 }

@@ -6,7 +6,7 @@
  * @license     http://creativecommons.org/licenses/by-nc/2.0/tw/
  */
 
-$company['char']   = 'x';
-$company['name']   = 'iOA';
-$company['ename']   = 'iOA Admin';
+$company['char']   = '👼';
+$company['name']   = '鏟屎官';
+$company['ename']   = 'Angel';
 $company['domain']  = 'ioa.tw';

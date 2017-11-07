@@ -6,16 +6,14 @@
  * @license     http://creativecommons.org/licenses/by-nc/2.0/tw/
  */
 
-class ArticleTagMapping extends OaModel {
+class LogAudio extends OaModel {
 
-  static $table_name = 'article_tag_mappings';
+  static $table_name = 'log_audios';
 
   static $has_one = array (
   );
 
   static $has_many = array (
-    array ('tags',     'class_name' => 'ArticleTag'),
-    array ('articles', 'class_name' => 'Article'),
   );
 
   static $belongs_to = array (
@@ -23,10 +21,7 @@ class ArticleTagMapping extends OaModel {
 
   public function __construct ($attributes = array (), $guard_attributes = true, $instantiating_via_find = false, $new_record = true) {
     parent::__construct ($attributes, $guard_attributes, $instantiating_via_find, $new_record);
-  }
-  public function destroy () {
-    if (!isset ($this->id)) return false;
-    
-    return $this->delete ();
+
+    OrmFileUploader::bind ('file', 'LogAudioFileFileUploader');
   }
 }

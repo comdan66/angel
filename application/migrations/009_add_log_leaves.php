@@ -1,4 +1,4 @@
-<?php if (!defined ('BASEPATH')) exit ('No direct script access allowed');
+<?php defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
  * @author      OA Wu <comdan66@gmail.com>
@@ -6,19 +6,19 @@
  * @license     http://creativecommons.org/licenses/by-nc/2.0/tw/
  */
 
-class Migration_Add_article_tags extends CI_Migration {
+class Migration_Add_log_leaves extends CI_Migration {
   public function up () {
     $this->db->query (
-      "CREATE TABLE `article_tags` (
+      "CREATE TABLE `log_leaves` (
         `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-        `name` varchar(255) COLLATE utf8_unicode_ci NOT NULL DEFAULT '' COMMENT '名稱',
+        `log_id` int(11) unsigned NOT NULL DEFAULT 0 COMMENT 'Line Bot Log ID',
         PRIMARY KEY (`id`)
-      ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;"
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
     );
   }
   public function down () {
     $this->db->query (
-      "DROP TABLE `article_tags`;"
+      "DROP TABLE `log_leaves`;"
     );
   }
 }

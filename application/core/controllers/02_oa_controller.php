@@ -1,8 +1,9 @@
-<?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+<?php if (!defined ('BASEPATH')) exit ('No direct script access allowed');
 
 /**
  * @author      OA Wu <comdan66@gmail.com>
- * @copyright   Copyright (c) 2016 OA Wu Design
+ * @copyright   Copyright (c) 2017 OA Wu Design
+ * @license     http://creativecommons.org/licenses/by-nc/2.0/tw/
  */
 
 class Oa_controller extends Root_controller {
@@ -18,8 +19,9 @@ class Oa_controller extends Root_controller {
   private $js_list     = array ();
   private $css_list    = array ();
 
-  private $append_js_list     = array ();
-  private $append_css_list    = array ();
+  private $append_js_list      = array ();
+  private $append_css_list     = array ();
+  public  $static_file_version = 1;
 
   public function __construct () {
     parent::__construct ();
@@ -148,15 +150,31 @@ class Oa_controller extends Root_controller {
       return null;
 
     $file_name = implode (Cfg::system ('static', 'separate'), array (Cfg::system ('static', 'file_prefix'), get_parent_class ($this), $this->get_class (), $this->get_method (), Cfg::system ('static', 'name'), $i));
-    $file_name = (Cfg::system ('static', 'is_md5') ? md5 ($file_name) : $file_name) . '.' .  $format;
+    $file_name =  $this->static_file_version . '_' . (Cfg::system ('static', 'is_md5') ? md5 ($file_name) : $file_name) . '.' .  $format;
     $bom = pack ('H*','EFBBBF');
+
+    $cfg = Cfg::system ('static', 's3');
+    $f = implode ('/', array_merge (Cfg::system ('static', 'assets_folder'), array ($file_name)));
 
     if (!is_readable ($folder_path . $file_name) && !($data = '')) {
       foreach ($temp as $key => $value)
-        $data .= (($file = preg_replace("/^$bom/", '', read_file ($path = FCPATH . preg_replace ("|^(" . preg_quote (base_url ('')) . ")|", '', $value)))) ? Cfg::system ('static', 'minify') ? $this->minify->$format->min ($file) : $file : '') . "\n";
-      write_file ($folder_path . $file_name, $data, 'w+');
+        $data .= (($file = preg_replace ("/^$bom/", '', str_replace ("/res", $cfg['url'] . "res/" . $this->static_file_version, read_file ($path = FCPATH . preg_replace ("|^(" . preg_quote (base_url ('')) . ")|", '', $value))))) ? Cfg::system ('static', 'minify') ? $this->minify->$format->min ($file) : $file : '') . "\n";
+      write_file ($t = $folder_path . $file_name, $data, 'w+');
+
+      
+      if ($cfg) {
+        if (!class_exists ('S3')) {
+          $this->load->library ('S3');
+
+          if (!S3::initialize (Cfg::system ('s3', 'buckets', $cfg['bucket'])))
+            return $this->error = array ('OrmUploader 錯誤！', '初始化 S3 錯誤！', '請確認一下 Bucket 的 access_key 與 secret_key 是否正確');
+        }
+
+        $cfg = S3::putFile ($t, $cfg['bucket'], $f);
+      }
     }
-    return base_url (array_merge (Cfg::system ('static', 'assets_folder'), array ($file_name)));
+
+    return ($cfg ? $cfg['url'] . $f : base_url ($f)) . '?v=' . $this->static_file_version;
   }
   private function _combine_static_files () {
     if ((ENVIRONMENT !== 'production') && Cfg::system ('static', 'enable'))
@@ -200,10 +218,14 @@ class Oa_controller extends Root_controller {
 
     $this->add_css (base_url (implode ('/', array_merge ($this->get_views_path (), $this->get_public_path (), array ('public.css')))))
          ->add_css (base_url (implode ('/', array_merge ($this->get_views_path (), $this->get_frame_path (), array ('frame.css')))))
-         ->add_css (base_url (implode ('/', array_merge ($this->get_views_path (), $this->get_content_path (), array ($this->get_class (), $this->get_method (), 'content.css')))))
          ->add_js (base_url (implode ('/', array_merge ($this->get_views_path (), $this->get_public_path (), array ('public.js')))))
-         ->add_js (base_url (implode ('/', array_merge ($this->get_views_path (), $this->get_frame_path (), array ('frame.js')))))
-         ->add_js (base_url (implode ('/', array_merge ($this->get_views_path (), $this->get_content_path (), array ($this->get_class (), $this->get_method (), 'content.js')))));
+         ->add_js (base_url (implode ('/', array_merge ($this->get_views_path (), $this->get_frame_path (), array ('frame.js')))));
+
+    if (file_exists ((FCPATH . implode ('/', array_merge ($this->get_views_path (), $this->get_content_path (), array ($this->get_class (), $this->get_method (), 'content.css'))))))
+      $this->add_css (base_url (implode ('/', array_merge ($this->get_views_path (), $this->get_content_path (), array ($this->get_class (), $this->get_method (), 'content.css')))));
+
+    if (file_exists ((FCPATH . implode ('/', array_merge ($this->get_views_path (), $this->get_content_path (), array ($this->get_class (), $this->get_method (), 'content.js'))))))
+      $this->add_js (base_url (implode ('/', array_merge ($this->get_views_path (), $this->get_content_path (), array ($this->get_class (), $this->get_method (), 'content.js')))));
 
     if ($this->append_js_list)
       foreach ($this->append_js_list as $append_js)
@@ -224,11 +246,11 @@ class Oa_controller extends Root_controller {
   protected function output_error_json ($message, $code = 405, $cache = 0) {
     $server_protocol = (isset($_SERVER['SERVER_PROTOCOL'])) ? $_SERVER['SERVER_PROTOCOL'] : FALSE;
     if (substr (php_sapi_name (), 0, 3) == 'cgi')
-      header ('Status: ' . $code . ' ' . 'Error', true);
+      header ('Status: ' . $code . ' ' . $message, true);
     elseif (($server_protocol == 'HTTP/1.1') || ($server_protocol == 'HTTP/1.0'))
-      header ($server_protocol . ' ' . $code . ' ' . 'Error', true, $code);
+      header ($server_protocol . ' ' . $code . ' ' . $message, true, $code);
     else
-      header ('HTTP/1.1 ' . $code . ' ' . 'Error', true, $code);
+      header ('HTTP/1.1 ' . $code . ' ' . $message, true, $code);
 
     return $this->output
                 ->set_content_type ('application/json')

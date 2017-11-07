@@ -1,9 +1,9 @@
-<?php defined ('BASEPATH') OR exit ('No direct script access allowed');
+<?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
 /**
  * @author      OA Wu <comdan66@gmail.com>
- * @copyright   Copyright (c) 2016 OA Wu Design
- * @link        http://www.ioa.tw/
+ * @copyright   Copyright (c) 2017 OA Wu Design
+ * @license     http://creativecommons.org/licenses/by-nc/2.0/tw/
  */
 
 use LINE\LINEBot;
@@ -22,7 +22,7 @@ use LINE\LINEBot\Event\FollowEvent;
 use LINE\LINEBot\Event\UnfollowEvent;
 use LINE\LINEBot\Event\PostbackEvent;
 
-class Log extends OaLineModel {
+class Log extends OaModel {
 
   static $table_name = 'logs';
 
@@ -49,11 +49,10 @@ class Log extends OaLineModel {
     self::STATUS_RESPONSE => '回應內容',
     self::STATUS_SUCCESS  => '回應成功',
   );
-
+  
   public function __construct ($attributes = array (), $guard_attributes = true, $instantiating_via_find = false, $new_record = true) {
     parent::__construct ($attributes, $guard_attributes, $instantiating_via_find, $new_record);
   }
-
   public static function getEventInstanceof ($event, &$callback) {
     if ($event instanceof TextMessage) { $callback = function ($event, $log, &$obj) { $params = array ('log_id' => $log->id, 'reply_token' => $event->getReplyToken () ? $event->getReplyToken () : '', 'message_id' => $event->getType () == 'message' ? $event->getMessageId () : '', 'text' => $event->getText ()); return LogText::transaction (function () use (&$obj, &$log, $params) { return verifyCreateOrm ($obj = LogText::create (array_intersect_key ($params, LogText::table ()->columns))) && $log->setStatus (Log::STATUS_CONTENT); }); }; return 'TextMessage'; };
     if ($event instanceof ImageMessage) { $callback = function ($event, $log, &$obj) { $params = array ('log_id' => $log->id, 'reply_token' => $event->getReplyToken () ? $event->getReplyToken () : '', 'message_id' => $event->getType () == 'message' ? $event->getMessageId () : ''); return LogImage::transaction (function () use (&$obj, &$log, $params) { return verifyCreateOrm ($obj = LogImage::create (array_intersect_key ($params, LogImage::table ()->columns))) && $log->setStatus (Log::STATUS_CONTENT); }); }; return 'ImageMessage'; };

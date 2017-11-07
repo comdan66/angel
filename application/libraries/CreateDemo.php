@@ -1,9 +1,9 @@
-<?php defined ('BASEPATH') OR exit ('No direct script access allowed');
+<?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
 /**
  * @author      OA Wu <comdan66@gmail.com>
- * @copyright   Copyright (c) 2016 OA Wu Design
- * @link        http://www.ioa.tw/
+ * @copyright   Copyright (c) 2017 OA Wu Design
+ * @license     http://creativecommons.org/licenses/by-nc/2.0/tw/
  */
 
 class CreateDemo {
@@ -35,52 +35,41 @@ class CreateDemo {
 
     $pics = array_slice (self::$pics, 0, $l = rand ($min, $max));
     self::$pics = array_slice (self::$pics, $l);
-    
-      
     return $pics;
   }
 
   public static function rand_pics ($tags = array ('台灣之美')) {
-    try {
-      $url = 'https://api.flickr.com/services/rest/?';
-      $params = array (
-          'jsoncallback' => '?',
-          'method' => 'flickr.photos.search',
-          'api_key' => '09dc017022847889346d048182b9515f',
-          'tags' => implode (',', $tags),
-          'per_page' => '50',
-          'extras' => 'url_m',
-          'sort' => 'interestingness-desc',
-          'format' => 'json',
-          );
+    $url = 'https://api.flickr.com/services/rest/?';
+    $params = array (
+        'jsoncallback' => '?',
+        'method' => 'flickr.photos.search',
+        'api_key' => '09dc017022847889346d048182b9515f',
+        'tags' => implode (',', $tags),
+        'per_page' => '200',
+        'extras' => 'url_m',
+        'sort' => 'interestingness-desc',
+        'format' => 'json',
+        );
 
-      $options = array (
-        CURLOPT_URL => $url, CURLOPT_POST => false,
-        CURLOPT_POSTFIELDS => http_build_query ($params),
-        CURLOPT_TIMEOUT => 120, CURLOPT_HEADER => false, CURLOPT_MAXREDIRS => 10,
-        CURLOPT_AUTOREFERER => true, CURLOPT_CONNECTTIMEOUT => 30, CURLOPT_RETURNTRANSFER => true, CURLOPT_FOLLOWLOCATION => true,
-        CURLOPT_USERAGENT => "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1700.76 Safari/537.36",
-      );
-      $ch = curl_init ($url);
-      curl_setopt_array ($ch, $options);
-      $data = curl_exec ($ch);
-      curl_close ($ch);
+    $options = array (
+      CURLOPT_URL => $url, CURLOPT_POST => false,
+      CURLOPT_POSTFIELDS => http_build_query ($params),
+      CURLOPT_TIMEOUT => 120, CURLOPT_HEADER => false, CURLOPT_MAXREDIRS => 10,
+      CURLOPT_AUTOREFERER => true, CURLOPT_CONNECTTIMEOUT => 30, CURLOPT_RETURNTRANSFER => true, CURLOPT_FOLLOWLOCATION => true,
+      CURLOPT_USERAGENT => "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1700.76 Safari/537.36",
+    );
+    $ch = curl_init ($url);
+    curl_setopt_array ($ch, $options);
+    $data = curl_exec ($ch);
+    curl_close ($ch);
 
-      $data = str_replace ('jsonFlickrApi(', '', $data);
-      $data = substr ($data, 0, strlen ( $data ) - 1); //strip out last paren
-      $object = json_decode ($data);
-      
-      $return = isset ($object->photos->photo) ? array_values (array_filter (array_map (function ($p) {
-            return isset ($p->url_m) && $p->url_m && isset ($p->owner) && isset ($p->id) && $p->owner && $p->id && isset ($p->title) && $p->title ? array (
-              'title' => $p->title,
-              'url' => $p->url_m,
-              'page' => 'https://www.flickr.com/photos/' . $p->owner . '/' . $p->id) : null;
-          }, $object->photos->photo))) : array ();
+    $data = str_replace ('jsonFlickrApi(', '', $data);
+    $data = substr ($data, 0, strlen ( $data ) - 1); //strip out last paren
+    $object = json_decode ($data);
 
-      return $return;
-    } catch (Exception $e) {
-      return array ();
-    }
+    return array_filter (array_map (function ($p) {
+      return isset ($p->url_m) && $p->url_m && isset ($p->title) && $p->title ? array ('title' => $p->title, 'url' => $p->url_m) : null;
+    }, $object->photos->photo));
   }
 
   public static function text ($min = 5, $max = 15) {

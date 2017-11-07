@@ -2,7 +2,8 @@
 
 /**
  * @author      OA Wu <comdan66@gmail.com>
- * @copyright   Copyright (c) 2016 OA Wu Design
+ * @copyright   Copyright (c) 2017 OA Wu Design
+ * @license     http://creativecommons.org/licenses/by-nc/2.0/tw/
  */
 
 class Source extends OaModel {
@@ -29,7 +30,7 @@ class Source extends OaModel {
     self::TYPE_ROOM   => '聊天室',
     self::TYPE_OTHER  => '其他',
   );
-
+  
   public function __construct ($attributes = array (), $guard_attributes = true, $instantiating_via_find = false, $new_record = true) {
     parent::__construct ($attributes, $guard_attributes, $instantiating_via_find, $new_record);
   }

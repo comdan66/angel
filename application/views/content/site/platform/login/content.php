@@ -1,18 +1,23 @@
-<div class='login' id='login'>
-  <h1>👼 添屎管理後台 v1</h1>
-<?php 
-  if (User::current () && !User::current ()->is_login ()) { ?>
-    <div class='m'>您已經登入成功。<br/>請<a href='mailto:teresa@zeusdesign.com.tw?subject=[添屎後台] 關於登入問題&body=Hi 管理員,%0D%0A%0D%0A 關於後台登入，請您幫我開啟登入的權限吧..'>管理員</a>為您開啟權限吧！</div>
-<?php 
-  } else if ($_flash_info = Session::getData ('_flash_info', true)) { ?>
-    <div class='m'><?php echo $_flash_info;?></div>
-<?php 
-  } else if ($_flash_message = Session::getData ('_flash_message', true)) { ?>
-    <div class='e'><?php echo $_flash_message;?></div>
-<?php 
-  } else { ?>
-    <div class='r'>添屎管理後台系統是使用 Facebook 登入！<br/>如有任何問題歡迎洽詢工程人員或<a href='mailto:teresa@zeusdesign.com.tw?subject=[添屎後台] 關於登入問題&body=Hi 管理員,%0D%0A%0D%0A 關於後台登入，我有些問題..'>來信</a>告知。</div>
-<?php 
-  }?>
-  <a id='fb-login' href='<?php echo Fb::loginUrl ('platform', 'fb_sign_in', 'admin', 'keywords');?>'>facebook 登入</a>
+<div id='box'>
+  <header>
+    <div class='logo'><?php echo Cfg::setting ('company', 'char');?></div>
+    <div class='title'>
+      <h1><?php echo Cfg::setting ('company', 'name');?>管理系統</h1>
+      <p>Hello 歡迎使用<?php echo Cfg::setting ('company', 'name');?>管理系統！</p>
+    </div>
+  </header>
+  
+  <span><?php echo Session::getData ('_fd', true);?></span>
+
+  <a href='<?php echo Fb::loginUrl ('platform', 'fb_sign_in', 'admin');?>' class='facebook-login'>使用 Facebook 登入</a>
+
+  <div class='or'>or</div>
+
+  <form action='<?php echo base_url ('platform', 'ap_sign_in', 'admin');?>' method='post'>
+    <input type='text' name='account' placeholder='請輸入帳號' value='<?php echo isset ($posts['account']) && $posts['account'] ? $posts['account'] : '';?>' />
+    <input type='password' name='password' placeholder='請輸入密碼' value='<?php echo isset ($posts['password']) && $posts['password'] ? $posts['password'] : '';?>' />
+    <button type='submit'>使用帳密登入</button>
+  </form>
+
+  <footer>© <?php echo date ('Y');?> <?php echo Cfg::setting ('company', 'domain');?></footer>
 </div>

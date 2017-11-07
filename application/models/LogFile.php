@@ -1,14 +1,12 @@
-<?php defined ('BASEPATH') OR exit ('No direct script access allowed');
+<?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
 /**
  * @author      OA Wu <comdan66@gmail.com>
- * @copyright   Copyright (c) 2016 OA Wu Design
- * @link        http://www.ioa.tw/
+ * @copyright   Copyright (c) 2017 OA Wu Design
+ * @license     http://creativecommons.org/licenses/by-nc/2.0/tw/
  */
 
-use LINE\LINEBot;
-
-class LogFile extends OaLineModel {
+class LogFile extends OaModel {
 
   static $table_name = 'log_files';
 
@@ -23,9 +21,7 @@ class LogFile extends OaLineModel {
 
   public function __construct ($attributes = array (), $guard_attributes = true, $instantiating_via_find = false, $new_record = true) {
     parent::__construct ($attributes, $guard_attributes, $instantiating_via_find, $new_record);
-  }
-  public function file_url () {
-    if (!(isset ($this->message_id) && $this->message_id)) return '';
-    return LINEBot::DEFAULT_ENDPOINT_BASE . '/v2/bot/message/' . urlencode ($this->message_id) . '/content';
+
+    OrmFileUploader::bind ('file', 'LogFileFileFileUploader');
   }
 }

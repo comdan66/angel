@@ -1,14 +1,14 @@
-<?php defined ('BASEPATH') OR exit ('No direct script access allowed');
+<?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
 /**
  * @author      OA Wu <comdan66@gmail.com>
- * @copyright   Copyright (c) 2016 OA Wu Design
- * @link        http://www.ioa.tw/
+ * @copyright   Copyright (c) 2017 OA Wu Design
+ * @license     http://creativecommons.org/licenses/by-nc/2.0/tw/
  */
 
 if ( !function_exists ('size_unit')) {
   function size_unit ($size, $unit = null, $default = null) {
-    $sizes = array('B', 'kB', 'MB', 'GB', 'TB', 'PB', 'EB');
+    $sizes = array('B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB');
     $mod = 1024;
     $ii = count ($sizes) - 1;
 
@@ -26,61 +26,35 @@ if ( !function_exists ('size_unit')) {
     return sprintf ($default, $size, $sizes[$i]);
   }
 }
-
-if ( !function_exists ('catStr')) {
-  function catStr ($str, $len) {
-    return mb_strimwidth ($str, 0, ($len - 2) / 2, '…','UTF-8');
-  }
-}
-
-if ( !function_exists ('isHttp')) {
-  function isHttp ($str) {
-    return substr ($str, 0, 7) == "http://";
-  }
-}
-
-if ( !function_exists ('isTel')) {
-  function isTel ($str) {
-    return substr ($str, 0, 6) == "tel://";
-  }
-}
-
-if ( !function_exists ('isHttps')) {
-  function isHttps ($str) {
-    return substr ($str, 0, 8) == "https://";
-  }
-}
-
-if ( !function_exists ('password')) {
-  function password ($password) {
-    return md5 (md5 ($password));
-  }
-}
-if ( !function_exists ('isDatetime')) {
-  function isDatetime ($date) {
+if ( !function_exists ('is_datetime')) {
+  function is_datetime ($date) {
     return (DateTime::createFromFormat('Y-m-d H:i:s', $date) !== false);
   }
 }
-if ( !function_exists ('isDatetimeT')) {
-  function isDatetimeT ($date) {
-    return (DateTime::createFromFormat('Y-m-d\TH:i', $date) !== false) || (DateTime::createFromFormat('Y-m-d\tH:i', $date) !== false);
-  }
-}
 
-if ( !function_exists ('isDate')) {
-  function isDate ($date) {
+if ( !function_exists ('is_date')) {
+  function is_date ($date) {
     return (DateTime::createFromFormat('Y-m-d', $date) !== false);
   }
 }
-
-if ( !function_exists ('isTimeHI')) {
-  function isTimeHI ($date) {
-    return (DateTime::createFromFormat('H:i', $date) !== false);
+if ( !function_exists ('is_month')) {
+  function is_month ($date) {
+    return (DateTime::createFromFormat('Y-m', $date) !== false);
   }
 }
-
+if (!function_exists ('utf8_strrev')) {
+  function utf8_strrev ($str){
+    preg_match_all ('/./us', $str, $ar);
+    return implode ('', array_reverse ($ar[0]));
+  }
+}
+if (!function_exists ('mini_link')) {
+  function mini_link ($url, $maxLength = 0, $attributes = 'target="_blank"') {
+    return '<a href="' . $url . '" title="' . $url . '"' . ($attributes ? ' ' . $attributes : '') . '>' . ($maxLength > 0 && $maxLength < mb_strlen ($url) / 2 ? mb_strimwidth ($url, 0, $maxLength / 2, '','UTF-8') . '…'. utf8_strrev (mb_strimwidth (utf8_strrev ($url), 0, $maxLength / 2, '','UTF-8')) : $url) . '</a>';
+  }
+}
 if (!function_exists ('is_upload_image_format')) {
-  function is_upload_image_format ($file, $check_size = 0, $types = array ()) {
+  function is_upload_image_format ($file, $types = array (), $check_size = 10485760) { // 10 * 1024 * 1024
     if (!(isset ($file['name']) && isset ($file['type']) && isset ($file['tmp_name']) && isset ($file['error']) && isset ($file['size'])))
       return false;
 
@@ -127,43 +101,102 @@ if (!function_exists ('is_upload_file_format')) {
     return false;
   }
 }
+if (!function_exists ('listSort')) {
+  function listSort ($url, $key) {
+    $qs = array ();
+    if (OAInput::get () !== null)
+      foreach (OAInput::get () as $k => $val)
+        if ($k != '_s')
+          if (!is_array ($val))
+            array_push ($qs, $k . '=' . $val);
+          else
+            array_push ($qs, implode ('&', array_map (function ($t) use ($k) { return $k . '[]=' . $t;}, $val)));
+
+    $qs = implode ('&amp;', $qs);
+    $url = is_array ($url) ? implode ('/', $url) : $url;
+    if (!($sort = (OAInput::get ('_s') !== null) && (count ($s = array_filter (array_map (function ($t) { return trim ($t); }, explode (':', OAInput::get ('_s'))))) > 1) ? $s : '') || $sort[0] != $key)
+      return '<a href="' . base_url ($url, '?' . ($qs ? $qs . '&amp;' : '') . '_s=' . $key . ':asc') . '"></a>';
+    return '<a class=' . strtolower ($sort[1]) . ' href="' . base_url ($url, '?' . ($qs ? $qs . '&amp;' : '') . '_s=' . $key . ':' . (strtolower ($sort[1]) == 'asc' ? 'desc' : 'asc')) . '"></a>';
+  }
+}
+if (!function_exists ('conditions')) {
+  function conditions (&$searches, &$configs, &$offset, $modelName, $options = array (), $cndFunc = null, $limit = 15) {
+
+    $conditions = array ();
+    foreach ($searches as $key => &$search) {
+      preg_match_all ('/^(?P<var>\w+)(\s?\[\s?\]\s?)$/', $key, $matches);
+
+      if ($matches['var'] && $matches['var'][0]) {
+        $key = $matches['var'][0];
+      }
+      if (OAInput::get ($key) === null && ($search['value'] = null) === null)
+        continue;
+      else if (in_array ($search['el'], array ('input', 'select', 'textarea', 'dysltckb', 'checkbox')) && OAInput::get ($key) === '' && ($search['value'] = null) === null)
+        continue;
+      else {
+        $search['value'] = OAInput::get ($key);
+      }
+
+      if (isset ($search['vs'])) {
+        $val = $search['value'];
+        eval('$val = ' . $search['vs'] . ';');
+
+        if (is_callable ($search['sql']))
+          $search['sql'] = $search['sql']($val);
+
+        OaModel::addConditions ($conditions, $search['sql'], $val ? $val : array (0));
+      } else {
+        if (is_callable ($search['sql']))
+          $search['sql'] = $search['sql']($search['value']);
+
+        OaModel::addConditions ($conditions, $search['sql'], strpos (strtolower ($search['sql']), ' like ') !== false ? '%' . (is_array ($search['value']) ? implode (',', $search['value']) : $search['value']) . '%' : $search['value']);
+      }
+    }
+
+    if ($cndFunc && ($c = $cndFunc ($conditions)))
+      $conditions = $c;
+
+    if (isset ($options['joins']))
+      $total = $modelName::count (array ('conditions' => $conditions, 'joins' => $options['joins']));
+    else
+      $total = $modelName::count (array ('conditions' => $conditions));
+
+    $qs = array ();
+    if (OAInput::get () !== null)
+      foreach (OAInput::get () as $key => $val)
+        if (!is_array ($val))
+          array_push ($qs, $key . '=' . $val);
+        else
+          array_push ($qs, implode ('&', array_map (function ($t) use ($key) { return $key . '[]=' . $t;}, $val)));
+
+    $qs = implode ('&amp;', $qs);
+
+    $configs = array (
+        'per_page' => $limit, 
+        'total_rows' => $total, 
+        'uri_segment' => ($tmp = array_search ('%s', $configs)) !== false ? $tmp + 1 : count ($configs),
+        'base_url' => base_url (array_merge ($configs, array ($qs ? '?' . $qs : '')))
+      );
+    
+    $options = ($sort = (OAInput::get ('_s') !== null) && (count ($s = array_filter (array_map (function ($t) { return trim ($t); }, explode (':', OAInput::get ('_s'))))) > 1) ? $s[0] . ' ' . strtoupper ($s[1]) : '') ? array_merge ($options, array ('order' => $sort, 'offset' => $offset < $total ? $offset : 0, 'limit' => $limit, 'conditions' => $conditions)) : array_merge ($options, array ('offset' => $offset < $total ? $offset : 0, 'limit' => $limit, 'conditions' => $conditions));
+    $offset = $total;
+
+    return $modelName::find ('all', $options);
+  }
+}
+if (!function_exists ('password')) {
+  function password ($pwd = '') {
+    for ($i = 0; $i < strlen ($pwd); $i ++)
+      $pwd = md5 ($pwd);
+
+    return md5 ($pwd);
+  }
+}
 if (!function_exists ('token')) {
-  function token ($id) {
-    return md5 ($id . '_' . uniqid (rand () . '_'));
+  function token ($id = '') {
+    return md5 (($id ? $id . '_' : '') . uniqid (rand () . '_'));
   }
 }
-if (!function_exists ('time_unit')) {
-  function time_unit ($h) {
-    if ($h >= 1 && $h <= 5) return '凌晨';
-    if ($h >= 6 && $h <= 10) return '早上';
-    if ($h >= 11 && $h <= 13) return '中午';
-    if ($h >= 14 && $h <= 18) return '下午';
-    if ($h >= 19 && $h <= 22) return '晚上';
-
-    return '半夜';
-  }
-}
-if (!function_exists ('date_unit')) {
-  function date_unit ($date) {
-    if ($date == date ('Y-m-d', strtotime (date ('Y-m-d') . ' +1 day'))) return '明天';
-    if ($date == date ('Y-m-d', strtotime (date ('Y-m-d') . ' +2 day'))) return '後天';
-    if ($date == date ('Y-m-d')) return '今天';
-    if ($date == date ('Y-m-d', strtotime (date ('Y-m-d') . ' -1 day'))) return '昨天';
-    if ($date == date ('Y-m-d', strtotime (date ('Y-m-d') . ' -2 day'))) return '前天';
-    return date ('Y年 m月 d日', strtotime ($date));
-  }
-}
-if (!function_exists ('oa_url_encode')) {
-  function oa_url_encode ($str) {
-    return rawurlencode (preg_replace ('/[\/%]/', ' ', $str));
-  }
-}
-if (!function_exists ('remove_ckedit_tag')) {
-  function remove_ckedit_tag ($text) {
-    return preg_replace ("/\s+/", "", preg_replace ("/&#?[a-z0-9]+;/i", "", str_replace ('▼', '', str_replace ('▲', '', trim (strip_tags ($text))))));
-  }
-}
-
 if (!function_exists ('redirect_message')) {
   function redirect_message ($uri, $datas) {
     if (class_exists ('Session') && $datas)
@@ -173,34 +206,38 @@ if (!function_exists ('redirect_message')) {
     return redirect ($uri, 'refresh');
   }
 }
-if (!function_exists ('conditions')) {
-  function conditions (&$columns, &$configs, $inputs = null) {
-    $inputs = $inputs === null ? $_GET : $inputs;
-    $qs = $conditions = array ();
-
-    foreach ($columns as &$column)
-      if ((isset ($inputs[$column['key']]) && ($inputs[$column['key']] !== '') && (($column['value'] = $inputs[$column['key']]) || (is_numeric ($column['value']) ? ($column['value'] = (int)$column['value']) || true : true))) || ($column['value'] = ''))
-        if (array_push ($qs, array ($column['key'], $column['value'])))
-          if (isset ($column['values'])) {
-            $val = $inputs[$column['key']];
-            eval('$val = ' . $column['values'] . ';');
-            OaModel::addConditions ($conditions, $column['sql'], $val ? $val : array (0));
-          } else
-            OaModel::addConditions ($conditions, $column['sql'], strpos (strtolower ($column['sql']), ' like ') !== false ? '%' . $column['value'] . '%' : $inputs[$column['key']]);
-
-    $qs = implode ('&amp;', array_map (function ($q) { return $q[0] . '=' . $q[1]; }, $qs));
-
-    $configs = array (
-        'uri_segment' => ($tmp = array_search ('%s', $configs)) !== false ? $tmp + 1 : count ($configs),
-        'base_url' => base_url (array_merge ($configs, array ($qs ? '?' . $qs : '')))
-      );
-    return $conditions;
-  }
-}
 if (!function_exists ('res_url')) {
   function res_url () {
     $args = array_filter (func_get_args ());
-    return ENVIRONMENT == 'production' ? implode ('/', $args) : base_url ($args);
+    if (ENVIRONMENT !== 'production')
+      return base_url ($args);
+
+    if ($args && $args[0] == 'res') {
+      $CI =& get_instance ();
+      array_splice ($args, 1, 0, $CI->static_file_version);
+    }
+
+    return Cfg::system ('orm_uploader', 'uploader', 's3', 'url') . implode ('/', $args);
+  }
+}
+if (!function_exists ('conditions')) {
+  function conditions (&$columns, &$configs, $model_name, $inputs = null) {
+    $inputs = $inputs === null ? $_GET : $inputs;
+
+    $strings = array_keys (array_filter ($columns, function ($column) { return in_array (strtolower ($column), array ('string', 'str', 'varchar', 'text')); }));
+    $columns = array_filter (array_combine ($columns = array_keys ($columns),array_map (function ($q) use ($inputs) { return isset ($inputs[$q]) ? $inputs[$q] : null; }, $columns)), function ($t) { return is_numeric ($t) ? true : $t; });
+    $conditions = array_slice ($columns, 0);
+    array_walk ($conditions, function (&$v, $k) { $v = $k . '=' . $v; });
+    $q_string = implode ('&amp;', $conditions);
+
+    $conditions = array_slice ($columns, 0);
+    array_walk ($conditions, function (&$v, $k) use ($strings, $model_name) { $v = in_array ($k, $strings) ? ($k . ' LIKE ' . $model_name::escape ('%' . $v . '%')) : ($k . ' = ' . $model_name::escape ($v)); });
+
+    $configs = array (
+        'uri_segment' => count ($configs),
+        'base_url' => base_url (array_merge ($configs, array ($q_string ? '?' . $q_string : '')))
+      );
+    return $conditions;
   }
 }
 if (!function_exists ('column_array')) {
@@ -398,23 +435,9 @@ if (!function_exists ('url_parse')) {
     return ($url = parse_url ($url)) && isset ($url[$key]) ? $url[$key] : '';
   }
 }
-if (!function_exists ('utf8_strrev')) {
-  function utf8_strrev ($str){
-    preg_match_all ('/./us', $str, $ar);
-    return implode ('', array_reverse ($ar[0]));
-  }
-}
-if (!function_exists ('mini_link')) {
-  function mini_link ($url, $maxLength = 0, $attributes = 'target="_blank"') {
-    return '<a href="' . $url . '" title="' . $url . '"' . ($attributes ? ' ' . $attributes : '') . '>' . ($maxLength > 0 && $maxLength < mb_strlen ($url) / 2 ? mb_strimwidth ($url, 0, $maxLength / 2, '','UTF-8') . '…'. utf8_strrev (mb_strimwidth (utf8_strrev ($url), 0, $maxLength / 2, '','UTF-8')) : $url) . '</a>';
-  }
-}
-if ( !function_exists ('make_click_enable_link')) {
-  function make_click_enable_link ($text, $maxLength = 0, $linkText = '', $attributes = 'target="_blank"') {
-    return preg_replace_callback ('/(https?:\/\/|\s+)[~\S]+/', function ($matches) use ($maxLength, $linkText, $attributes) {
-    $text = $linkText ? $linkText : $matches[0];
-      $text = $maxLength > 0 ? mb_strimwidth ($text, 0, $maxLength, '…','UTF-8') : $text;
-      return '<a href="' . $matches[0] . '"' . ($attributes ? ' ' . $attributes : '') . '>' . $text . '</a>';
-    }, $text);
+
+if (!function_exists ('remove_ckedit_tag')) {
+  function remove_ckedit_tag ($text) {
+    return preg_replace ("/\s+/", "", preg_replace ("/&#?[a-z0-9]+;/i", "", str_replace ('▼', '', str_replace ('▲', '', trim (strip_tags ($text))))));
   }
 }

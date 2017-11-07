@@ -1,9 +1,9 @@
-<?php defined ('BASEPATH') OR exit ('No direct script access allowed');
+<?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
 /**
  * @author      OA Wu <comdan66@gmail.com>
- * @copyright   Copyright (c) 2016 OA Wu Design
- * @link        http://www.ioa.tw/
+ * @copyright   Copyright (c) 2017 OA Wu Design
+ * @license     http://creativecommons.org/licenses/by-nc/2.0/tw/
  */
 
 class Site_controller extends Oa_controller {
@@ -17,12 +17,16 @@ class Site_controller extends Oa_controller {
          ->set_content_path ('content', 'site')
          ->set_public_path ('public')
 
-         ->set_title ("小添屎")
+         ->set_title ("OA's CI")
 
          ->_add_meta ()
          ->_add_css ()
          ->_add_js ()
          ;
+
+    if (file_exists ($path = FCPATH . implode (DIRECTORY_SEPARATOR, array_merge ($this->get_views_path (), $this->get_public_path (), array ('icon_site.css')))) && is_readable ($path))
+      $this->add_css (base_url (implode ('/', array_merge ($this->get_views_path (), $this->get_public_path (), array ('icon_site.css')))));
+
   }
 
   private function _add_meta () {
@@ -34,6 +38,8 @@ class Site_controller extends Oa_controller {
   }
 
   private function _add_js () {
-    return $this->add_js (res_url ('res', 'js', 'site.js'));
+    return $this->add_js (res_url ('res', 'javascript', 'jquery_v1.10.2', 'jquery-1.10.2.min.js'))
+                ->add_js (res_url ('res', 'javascript', 'jquery-rails_d2015_03_09', 'jquery_ujs.js'))
+                ;
   }
 }

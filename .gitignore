@@ -12,27 +12,22 @@ application/logs/*
 !application/logs/.htaccess
 
 application/config/database.php
-application/config/setting/deploy.php
 application/config/setting/facebook.php
 application/config/setting/role.php
-application/config/setting/mail.php
 application/config/setting/line.php
-application/config/setting/google.php
-application/config/system/s3.php
-application/config/system/orm_uploader.php
 
+temp/*
 
-/temp/*
+upload/*
 
-/upload/*
+assets/*
+
 /vendor/*
-/assets/*
-/api/*
-
 /cmd
-/index.php
-/composer.lock
+/_ENV.php
 
 system/cmd/.sass-cache/*
 system/cmd/node_modules/*
 system/cmd/npm-debug.log
+
+composer.lock

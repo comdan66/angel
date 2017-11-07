@@ -21,7 +21,7 @@ body
 .cke_editable
 {
 	font-size: 14px;
-	line-height: 2.0;
+	line-height: 18px;
 }
 
 blockquote
@@ -171,4 +171,7 @@ pre{
 	white-space:-moz-pre-wrap;
 	white-space:-pre-wrap;
 	white-space:-o-pre-wrap;
+}
+p {
+	margin: 8px 0;
 }

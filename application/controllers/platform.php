@@ -1,9 +1,9 @@
-<?php defined ('BASEPATH') OR exit ('No direct script access allowed');
+<?php if (!defined ('BASEPATH')) exit ('No direct script access allowed');
 
 /**
  * @author      OA Wu <comdan66@gmail.com>
- * @copyright   Copyright (c) 2016 OA Wu Design
- * @link        http://www.ioa.tw/
+ * @copyright   Copyright (c) 2017 OA Wu Design
+ * @license     http://creativecommons.org/licenses/by-nc/2.0/tw/
  */
 
 class Platform extends Site_controller {
@@ -12,46 +12,68 @@ class Platform extends Site_controller {
     parent::__construct ();
     $this->load->library ('fb');
   }
-  public function mail () {
-    if (($id = OAInput::get ('id')) && is_numeric ($id) && ($mail = Mail::find ('one', array ('select' => 'id, count_open', 'conditions' => array ('id = ?', $id)))) && ($mail->count_open += 1))
-      Mail::transaction (function () use ($mail) { return $mail->save (); });
-      
-    if (User::current () && User::current ()->is_login ()) 
-      return redirect_message (func_get_args (), array ('_flash_info' => ''));
-    return redirect (forward_static_call_array (array ('Fb', 'loginUrl'), array_merge (array ('platform', 'fb_sign_in'), func_get_args ())));
-  }
   public function login () {
     if (User::current () && User::current ()->is_login ()) return redirect_message (array ('admin'), array ());
-    else $this->load_view ();
+    else $this->set_frame_path ('frame', 'pure')
+              ->set_title ('登入 - ' . Cfg::setting ('company', 'name') . '管理系統')
+              ->load_view (array (
+                  'posts' => Session::getData ('posts', true)
+                ));
   }
-  public function fb_sign_in () {
-    if (!(Fb::login () && ($me = Fb::me ()) && ((isset ($me['name']) && ($name = $me['name'])) && (isset ($me['email']) && ($email = $me['email'])) && (isset ($me['id']) && ($id = $me['id'])))))
-      return redirect_message (array (), array ('_flash_danger' => 'Facebook 登入錯誤，請通知程式設計人員!(1)'));
 
-    if (!($user = User::find ('one', array ('conditions' => array ('uid = ?', $id)))))
-      if (!User::transaction (function () use (&$user, $id, $name, $email) {
-        return verifyCreateOrm ($user = User::create (array_intersect_key (array ('uid' => $id, 'name' => $name, 'email' => $email, 'token' => token ($id)), User::table ()->columns)))
-         &&
-               verifyCreateOrm ($role = UserRole::create (array_intersect_key (array ('user_id' => $user->id, 'name' => 'member'), UserRole::table ()->columns))) &&
-               verifyCreateOrm ($role = UserRole::create (array_intersect_key (array ('user_id' => $user->id, 'name' => 'keyword'), UserRole::table ()->columns)))
-               ;
-      }))
-        return redirect_message (array (), array ('_flash_danger' => 'Facebook 登入錯誤，請通知程式設計人員!(2)'));
+  public function ap_sign_in () {
+    $posts = OAInput::post ();
 
-    $user->name = $name;
-    // $user->email = $email;
-    $user->login_count += 1;
+    if (!(($account = $posts['account']) && ($password = $posts['password']) && is_string ($account) && ($account = trim ($account)) && is_string ($password) && ($password = trim ($password)) && ($password = password ($password))))
+      return redirect_message (array ('login'), array ('_fd' => '帳密 登入錯誤，資訊錯誤!(1)', 'posts' => $posts));
+
+    if (!($user = User::find ('one', array ('conditions' => array ('account = ?', $account)))))
+      return redirect_message (array ('login'), array ('_fd' => '帳密 登入錯誤，請通知程式設計人員!(2)', 'posts' => $posts));
+    
+    if (!(isset ($user) && $user->password === $password))
+      return redirect_message (array ('login'), array ('_fd' => '帳密 登入錯誤，密碼或帳號有誤！', 'posts' => $posts));
+    
+
+    $user->cnt_login += 1;
     $user->logined_at = date ('Y-m-d H:i:s');
 
     if (!User::transaction (function () use ($user) { return $user->save (); }))
-      return redirect_message (array (), array ('_flash_danger' => 'Facebook 登入錯誤，請通知程式設計人員!(3)'));
+      return redirect_message (array ('login'), array ('_fd' => 'Facebook 登入錯誤，請通知程式設計人員!(3)', 'posts' => $posts));
 
-    Session::setData ('user_id', $user->id);
-    return redirect_message (func_get_args (), array ('_flash_info' => '使用 Facebook 登入成功!'));
+    Session::setData ('user_token', $user->token);
+    return redirect_message (func_get_args (), array ('_fi' => '使用 Facebook 登入成功!'));
+  }
+  
+  public function fb_sign_in () {
+    if (!(Fb::login () && ($me = Fb::me ()) && ((isset ($me['name']) && ($name = $me['name'])) && (isset ($me['email']) && ($email = $me['email'])) && (isset ($me['id']) && ($fid = $me['id'])))))
+      return redirect_message (array ('login'), array ('_fd' => 'Facebook 登入錯誤，請通知程式設計人員!(1)'));
+
+    if (!$user = User::find ('one', array ('conditions' => array ('fid = ?', $fid))))
+      if (!User::transaction (function () use (&$user, $fid, $name, $email) {
+        return verifyCreateOrm ($user = User::create (array_intersect_key (array (
+          'fid' => $fid,
+          'account' => '',
+          'password' => '',
+          'token' => token ($fid),
+          'name' => $name,
+          'email' => $email,
+          'cnt_login' => 0,
+          'logined_at' => date ('Y-m-d H:i:s'),
+        ), User::table ()->columns)));
+      })) return redirect_message (array ('login'), array ('_fd' => 'Facebook 登入錯誤，請通知程式設計人員!(2)'));
+
+    $user->cnt_login += 1;
+    $user->logined_at = date ('Y-m-d H:i:s');
+
+    if (!User::transaction (function () use ($user) { return $user->save (); }))
+      return redirect_message (array ('login'), array ('_fd' => 'Facebook 登入錯誤，請通知程式設計人員!(3)'));
+
+    Session::setData ('user_token', $user->token);
+    return redirect_message (func_get_args (), array ('_fi' => '使用 Facebook 登入成功!'));
   }
 
   public function logout () {
-    Session::setData ('user_id', 0);
-    return redirect_message ('login', array ('_flash_info' => '登出成功!'));
+    Session::setData ('user_token', '');
+    return redirect_message ('login', array ('_fi' => '登出成功!'));
   }
 }

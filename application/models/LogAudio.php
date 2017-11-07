@@ -1,12 +1,12 @@
-<?php defined ('BASEPATH') OR exit ('No direct script access allowed');
+<?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
 /**
  * @author      OA Wu <comdan66@gmail.com>
- * @copyright   Copyright (c) 2016 OA Wu Design
- * @link        http://www.ioa.tw/
+ * @copyright   Copyright (c) 2017 OA Wu Design
+ * @license     http://creativecommons.org/licenses/by-nc/2.0/tw/
  */
 
-class LogAudio extends OaLineModel {
+class LogAudio extends OaModel {
 
   static $table_name = 'log_audios';
 
@@ -21,5 +21,7 @@ class LogAudio extends OaLineModel {
 
   public function __construct ($attributes = array (), $guard_attributes = true, $instantiating_via_find = false, $new_record = true) {
     parent::__construct ($attributes, $guard_attributes, $instantiating_via_find, $new_record);
+
+    OrmFileUploader::bind ('file', 'LogAudioFileFileUploader');
   }
 }

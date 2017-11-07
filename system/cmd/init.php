@@ -2,7 +2,8 @@
 
 /**
  * @author      OA Wu <comdan66@gmail.com>
- * @copyright   Copyright (c) 2016 OA Wu Design
+ * @copyright   Copyright (c) 2017 OA Wu Design
+ * @license     http://creativecommons.org/licenses/by-nc/2.0/tw/
  */
 
   include_once 'base.php';
@@ -39,7 +40,8 @@
   $files = array (
       array ('name' => 'database.php',  'path' => $path_config, 'params' => array ('hostname' => $hostname, 'username' => $username, 'password' => $password, 'database' => $database)),
       array ('name' => 'query.log',     'path' => $path_logs,   'params' => array ()),
-      array ('name' => 'delay_job.log', 'path' => $path_logs,   'params' => array ())
+      array ('name' => 'delay_job.log', 'path' => $path_logs,   'params' => array ()),
+      array ('name' => '_ENV.php', 'path' => FCPATH,   'params' => array ())
     );
   $results = array_merge ($results, array_map (function ($file) use ($temp_path) {
       $date = load_view ($temp_path . $file['name'], $file['params']);
@@ -59,6 +61,9 @@
       array ('target' => 'system/cmd', 'link' => 'cmd')
     );
   $results = array_merge ($results, array_map (function ($link) {
+    if (file_exists (FCPATH . $link['link']))
+      @unlink (FCPATH . $link['link']);
+
     if (!symlink (FCPATH . $link['target'], FCPATH . $link['link']))
       console_error ("Link " . $link['link'] . color (' → ', 'c') . $link['target'] . " 失敗!");
 
@@ -70,5 +75,8 @@
   }, $links));
 
   $results = array_map (function ($result) { $count = 1; return color ('Create: ', 'g') . str_replace (FCPATH, '', $result, $count); }, $results);
+  if (file_exists (FCPATH . DIRECTORY_SEPARATOR . 'init'))
+    @unlink (FCPATH . DIRECTORY_SEPARATOR . 'init');
+  
   array_unshift ($results, '初始化成功!');
   call_user_func_array ('console_log', $results);

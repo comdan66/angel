@@ -2,7 +2,8 @@
 
 /**
  * @author      OA Wu <comdan66@gmail.com>
- * @copyright   Copyright (c) 2016 OA Wu Design
+ * @copyright   Copyright (c) 2017 OA Wu Design
+ * @license     http://creativecommons.org/licenses/by-nc/2.0/tw/
  */
 
 class OAInput {
@@ -37,7 +38,7 @@ class OAInput {
 
   public static function get ($index = null, $xss_clean = true) {
     if (!($gets = self::ci ()->input->get ()))
-      return array ();
+      return null;
 
     $gets = $xss_clean ? array_map (function ($get) { return self::ci ()->security->xss_clean ($get);}, $gets) : $gets;
 

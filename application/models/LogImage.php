@@ -6,8 +6,6 @@
  * @license     http://creativecommons.org/licenses/by-nc/2.0/tw/
  */
 
-use LINE\LINEBot;
-
 class LogImage extends OaModel {
 
   static $table_name = 'log_images';
@@ -26,26 +24,23 @@ class LogImage extends OaModel {
 
     OrmImageUploader::bind ('file', 'LogImageFileImageUploader');
   }
-  public function saveImage () {
-    if (!(isset ($this->message_id) && $this->message_id)) return null;
+  public function putFile2S3 () {
+    if (!(isset ($this->id) && isset ($this->file) && !((string)$this->file) && isset ($this->message_id) && $this->message_id)) return false;
     
     $this->CI->load->library ('OALineBot');
 
     if (!$oaLineBot = OALineBot::create ())
-      return null;
+      return false;
 
     $response = $oaLineBot->bot ()->getMessageContent ($this->message_id);
     if (!$response->isSucceeded ())
-      return null;
-echo '<meta http-equiv="Content-type" content="text/html; charset=utf-8" /><pre>';
-var_dump ( $response->getHeaders ());
-exit ();
+      return false;
+    
+    $path = FCPATH . 'temp' . DIRECTORY_SEPARATOR . uniqid (rand () . '_') . (($contentType = $response->getHeader ('Content-Type')) ? contentType2ext ($contentType) : '');
+    
+    if (!write_file ($path, $response->getRawBody ()))
+      return false;
 
-    header ('Content-Type: ' . $response->getHeader ('Content-Type'));
-    return $response->getRawBody ();
-
-
-    // $path = FCPATH . 'temp/input.json';
-    // write_file ($path, $log . "\n", FOPEN_READ_WRITE_CREATE);
+    return $this->file->put ($path);
   }
 }

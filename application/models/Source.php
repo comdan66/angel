@@ -55,6 +55,8 @@ class Source extends OaModel {
           $say = null;
 
       if ($say) $say->updateTitle ();
+    } else if (in_array ($source->type, array (Source::TYPE_USER))) {
+      $say = $source;
     }
 
     $source->updateTitle ();

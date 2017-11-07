@@ -24,4 +24,25 @@ class LogFile extends OaModel {
 
     OrmFileUploader::bind ('file', 'LogFileFileFileUploader');
   }
+  public function putFile2S3 () {
+    if (!(isset ($this->id) && isset ($this->file) && !((string)$this->file) && isset ($this->name) && isset ($this->message_id) && $this->message_id)) return false;
+    
+    $this->CI->load->library ('OALineBot');
+
+    if (!$oaLineBot = OALineBot::create ())
+      return false;
+
+    $response = $oaLineBot->bot ()->getMessageContent ($this->message_id);
+    if (!$response->isSucceeded ())
+      return false;
+
+    $ext = ($ext = pathinfo ($this->name, PATHINFO_EXTENSION)) ? '.' . $ext : '';
+    if (!$ext) $ext = ($contentType = $response->getHeader ('Content-Type')) ? contentType2ext ($contentType) : '';
+    $path = FCPATH . 'temp' . DIRECTORY_SEPARATOR . uniqid (rand () . '_') . $ext;
+    
+    if (!write_file ($path, $response->getRawBody ()))
+      return false;
+
+    return $this->file->put ($path);
+  }
 }

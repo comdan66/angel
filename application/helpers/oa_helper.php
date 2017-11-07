@@ -6,7 +6,60 @@
  * @license     http://creativecommons.org/licenses/by-nc/2.0/tw/
  */
 
-if ( !function_exists ('size_unit')) {
+if (!function_exists ('catStr')) {
+  function catStr ($str, $len) {
+    return mb_strimwidth ($str, 0, ($len - 2) / 2, '…','UTF-8');
+  }
+}
+if (!function_exists ('isHttp')) {
+  function isHttp ($str) {
+    return substr ($str, 0, 7) == "http://";
+  }
+}
+if (!function_exists ('isTel')) {
+  function isTel ($str) {
+    return substr ($str, 0, 6) == "tel://";
+  }
+}
+if (!function_exists ('isHttps')) {
+  function isHttps ($str) {
+    return substr ($str, 0, 8) == "https://";
+  }
+}
+if (!function_exists ('isDatetime')) {
+  function isDatetime ($date) {
+    return (DateTime::createFromFormat('Y-m-d H:i:s', $date) !== false);
+  }
+}
+if (!function_exists ('isDatetimeT')) {
+  function isDatetimeT ($date) {
+    return (DateTime::createFromFormat('Y-m-d\TH:i', $date) !== false) || (DateTime::createFromFormat('Y-m-d\tH:i', $date) !== false);
+  }
+}
+if (!function_exists ('isDate')) {
+  function isDate ($date) {
+    return (DateTime::createFromFormat('Y-m-d', $date) !== false);
+  }
+}
+if (!function_exists ('isTimeHI')) {
+  function isTimeHI ($date) {
+    return (DateTime::createFromFormat('H:i', $date) !== false);
+  }
+}
+if (!function_exists ('contentType2ext')) {
+  function contentType2ext ($contentType) {
+    $CI =& get_instance ();
+    $CI->config->load ('mimes');
+    $mimes = $CI->config->item ('mimes');
+    
+    foreach ($mimes as $ext => $mime)
+      if (is_string ($mime) ? $contentType == $mime : in_array ($contentType, $mime))
+        return '.' . $ext;
+    
+    return '';
+  }
+}
+if (!function_exists ('size_unit')) {
   function size_unit ($size, $unit = null, $default = null) {
     $sizes = array('B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB');
     $mod = 1024;
@@ -26,33 +79,6 @@ if ( !function_exists ('size_unit')) {
     return sprintf ($default, $size, $sizes[$i]);
   }
 }
-if ( !function_exists ('is_datetime')) {
-  function is_datetime ($date) {
-    return (DateTime::createFromFormat('Y-m-d H:i:s', $date) !== false);
-  }
-}
-
-if ( !function_exists ('is_date')) {
-  function is_date ($date) {
-    return (DateTime::createFromFormat('Y-m-d', $date) !== false);
-  }
-}
-if ( !function_exists ('is_month')) {
-  function is_month ($date) {
-    return (DateTime::createFromFormat('Y-m', $date) !== false);
-  }
-}
-if (!function_exists ('utf8_strrev')) {
-  function utf8_strrev ($str){
-    preg_match_all ('/./us', $str, $ar);
-    return implode ('', array_reverse ($ar[0]));
-  }
-}
-if (!function_exists ('mini_link')) {
-  function mini_link ($url, $maxLength = 0, $attributes = 'target="_blank"') {
-    return '<a href="' . $url . '" title="' . $url . '"' . ($attributes ? ' ' . $attributes : '') . '>' . ($maxLength > 0 && $maxLength < mb_strlen ($url) / 2 ? mb_strimwidth ($url, 0, $maxLength / 2, '','UTF-8') . '…'. utf8_strrev (mb_strimwidth (utf8_strrev ($url), 0, $maxLength / 2, '','UTF-8')) : $url) . '</a>';
-  }
-}
 if (!function_exists ('is_upload_image_format')) {
   function is_upload_image_format ($file, $types = array (), $check_size = 10485760) { // 10 * 1024 * 1024
     if (!(isset ($file['name']) && isset ($file['type']) && isset ($file['tmp_name']) && isset ($file['error']) && isset ($file['size'])))
@@ -64,6 +90,7 @@ if (!function_exists ('is_upload_image_format')) {
     $CI =& get_instance ();
     $CI->config->load ('mimes');
     $mimes = $CI->config->item ('mimes');
+    
     foreach ($types as $type)
       if (isset ($mimes[$type]))
         if (is_string ($mimes[$type])) {
@@ -76,7 +103,6 @@ if (!function_exists ('is_upload_image_format')) {
     return false;
   }
 }
-
 if (!function_exists ('is_upload_file_format')) {
   function is_upload_file_format ($file, $check_size = 0, $types = array ()) {
     if (!(isset ($file['name']) && isset ($file['type']) && isset ($file['tmp_name']) && isset ($file['error']) && isset ($file['size'])))
@@ -220,26 +246,6 @@ if (!function_exists ('res_url')) {
     return Cfg::system ('orm_uploader', 'uploader', 's3', 'url') . implode ('/', $args);
   }
 }
-if (!function_exists ('conditions')) {
-  function conditions (&$columns, &$configs, $model_name, $inputs = null) {
-    $inputs = $inputs === null ? $_GET : $inputs;
-
-    $strings = array_keys (array_filter ($columns, function ($column) { return in_array (strtolower ($column), array ('string', 'str', 'varchar', 'text')); }));
-    $columns = array_filter (array_combine ($columns = array_keys ($columns),array_map (function ($q) use ($inputs) { return isset ($inputs[$q]) ? $inputs[$q] : null; }, $columns)), function ($t) { return is_numeric ($t) ? true : $t; });
-    $conditions = array_slice ($columns, 0);
-    array_walk ($conditions, function (&$v, $k) { $v = $k . '=' . $v; });
-    $q_string = implode ('&amp;', $conditions);
-
-    $conditions = array_slice ($columns, 0);
-    array_walk ($conditions, function (&$v, $k) use ($strings, $model_name) { $v = in_array ($k, $strings) ? ($k . ' LIKE ' . $model_name::escape ('%' . $v . '%')) : ($k . ' = ' . $model_name::escape ($v)); });
-
-    $configs = array (
-        'uri_segment' => count ($configs),
-        'base_url' => base_url (array_merge ($configs, array ($q_string ? '?' . $q_string : '')))
-      );
-    return $conditions;
-  }
-}
 if (!function_exists ('column_array')) {
   function column_array ($objects, $key) {
     return array_map (function ($object) use ($key) {
@@ -247,7 +253,6 @@ if (!function_exists ('column_array')) {
     }, $objects);
   }
 }
-
 if (!function_exists ('error')) {
   function error () {
     $trace = array_filter (array_map (function ($t) { return isset ($t['file']) && isset ($t['line']) ? array ('file' => $t['file'], 'line' => $t['line']) : null; }, debug_backtrace (DEBUG_BACKTRACE_PROVIDE_OBJECT)));
@@ -265,7 +270,6 @@ if (!function_exists ('error')) {
     exit;
   }
 }
-
 if (!function_exists ('array_2d_to_1d')) {
   function array_2d_to_1d ($array) {
     $messages = array ();
@@ -275,7 +279,6 @@ if (!function_exists ('array_2d_to_1d')) {
     return $messages;
   }
 }
-
 if (!function_exists ('web_file_exists')) {
   function web_file_exists ($url, $cainfo = null) {
     $options = array (CURLOPT_URL => $url, CURLOPT_NOBODY => 1, CURLOPT_FAILONERROR => 1, CURLOPT_RETURNTRANSFER => 1);
@@ -288,7 +291,6 @@ if (!function_exists ('web_file_exists')) {
     return curl_exec ($ch) !== false;
   }
 }
-
 if (!function_exists ('download_web_file')) {
   function download_web_file ($url, $fileName = null, $is_use_reffer = false, $cainfo = null) {
     if (!web_file_exists ($url, $cainfo))
@@ -328,7 +330,6 @@ if (!function_exists ('download_web_file')) {
     return filesize ($fileName) ?  $fileName : null;
   }
 }
-
 if (!function_exists ('sort2dArray')) {
   function sort2dArray ($key, $list) {
     if ($list) {
@@ -339,25 +340,21 @@ if (!function_exists ('sort2dArray')) {
     return $list;
   }
 }
-
 if (!function_exists ('utilitySameLevelPath')) {
   function utilitySameLevelPath ($path) {
     return ($paths = implode ('/', array_filter (func_get_args ()))) ? preg_replace ("/(https?:\/)\/?/", "$1/", preg_replace ('/\/(\.?\/)+/', '/', $paths)) : '';
   }
 }
-
 if (!function_exists ('verifyCreateOrm')) {
   function verifyCreateOrm ($obj) {
     return $obj && is_object ($obj) && $obj->is_valid ();
   }
 }
-
 if (!function_exists ('_config_recursive')) {
   function _config_recursive ($levels, $config) {
     return $levels ? isset ($config[$index = array_shift ($levels)]) ? _config_recursive ($levels, $config[$index]) : null : $config;
   }
 }
-
 if (!function_exists ('config')) {
   function config ($arguments, $forder = 'setting', $is_cache = true) {
     $data = null;
@@ -376,8 +373,7 @@ if (!function_exists ('config')) {
     return $data;
   }
 }
-
-if ( !function_exists ('send_post')) {
+if (!function_exists ('send_post')) {
   function send_post ($url, $params = array (), $is_wait_log = false, $port = 80, $timeout = 30) {
     if (!(($url = parse_url ($url)) && isset ($url['scheme']) && isset ($url['host']) && isset ($url['path']) ))
       return false;
@@ -409,8 +405,7 @@ if ( !function_exists ('send_post')) {
     return true;
   }
 }
-
-if ( !function_exists ('delay_job')) {
+if (!function_exists ('delay_job')) {
   function delay_job ($class, $method, $params = array ()) {
     if (!($class && $method))
       return false;
@@ -422,20 +417,17 @@ if ( !function_exists ('delay_job')) {
     return send_post (base_url (array_merge (Cfg::system ('delay_job', 'controller_directory'), array ($class, $method))), $params, Cfg::system ('delay_job', 'is_wait_log'));
   }
 }
-
-if ( !function_exists ('make_click_able_links')) {
+if (!function_exists ('make_click_able_links')) {
   function make_click_able_links ($text, $is_new_page = true, $class = '', $link_text = '', $max_count_use_link_text = 0) {
     $text = " " .  ($text);
     return preg_replace ('/(((https?:\/\/)[~\S]+))/', '<a href="${1}"' . ($class ? ' class="' . $class . '"' : '') . ($is_new_page ? ' target="_blank"' : '') . '>' . ($link_text ? $link_text : '${1}') . '</a>', $text);
   }
 }
-
 if (!function_exists ('url_parse')) {
   function url_parse ($url, $key) {
     return ($url = parse_url ($url)) && isset ($url[$key]) ? $url[$key] : '';
   }
 }
-
 if (!function_exists ('remove_ckedit_tag')) {
   function remove_ckedit_tag ($text) {
     return preg_replace ("/\s+/", "", preg_replace ("/&#?[a-z0-9]+;/i", "", str_replace ('▼', '', str_replace ('▲', '', trim (strip_tags ($text))))));

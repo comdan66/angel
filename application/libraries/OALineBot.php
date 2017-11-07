@@ -61,7 +61,7 @@ class OALineBot {
     
     try {
       $body = file_get_contents ("php://input");
-      OALineBot::log ($body);
+      // OALineBot::log ($body);
       return $this->bot->parseEventRequest ($body, $_SERVER["HTTP_" . HTTPHeader::LINE_SIGNATURE]);
     } catch (Exception $e) {
       return array ();
@@ -101,9 +101,8 @@ class OALineBotPush {
     return $this->pushMessage (new StickerMessageBuilder ($package_id, $sticker_id));
   }
   public function image ($ori, $prev) {
-    if (!(($ori = trim ($ori)) && isHttps ($ori)&& ($prev = trim ($prev)) && isHttps ($prev) && strlen ($ori) <= 1000 && strlen ($prev) <= 1000))
+    if (!(($ori = trim ($ori)) && isHttps ($ori) && ($prev = trim ($prev)) && isHttps ($prev) && strlen ($ori) <= 1000 && strlen ($prev) <= 1000))
       return false;
-
     return $this->pushMessage (new ImageMessageBuilder ($ori, $prev));
   }
   public function video ($ori, $prev) {

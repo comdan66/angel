@@ -24,4 +24,23 @@ class LogAudio extends OaModel {
 
     OrmFileUploader::bind ('file', 'LogAudioFileFileUploader');
   }
+  public function putFile2S3 () {
+    if (!(isset ($this->id) && isset ($this->file) && !((string)$this->file) && isset ($this->message_id) && $this->message_id)) return false;
+    
+    $this->CI->load->library ('OALineBot');
+
+    if (!$oaLineBot = OALineBot::create ())
+      return false;
+
+    $response = $oaLineBot->bot ()->getMessageContent ($this->message_id);
+    if (!$response->isSucceeded ())
+      return false;
+
+    $path = FCPATH . 'temp' . DIRECTORY_SEPARATOR . uniqid (rand () . '_') . (($contentType = $response->getHeader ('Content-Type')) ? contentType2ext ($contentType) : '');
+
+    if (!write_file ($path, $response->getRawBody ()))
+      return false;
+
+    return $this->file->put ($path);
+  }
 }

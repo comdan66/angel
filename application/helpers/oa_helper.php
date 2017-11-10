@@ -6,6 +6,24 @@
  * @license     http://creativecommons.org/licenses/by-nc/2.0/tw/
  */
 
+if (!function_exists ('oa_number_format')) {
+  function oa_number_format ($number) {
+    $w = floor ($number / 10000);
+    $k = floor ($number % 10000 / 1000);
+    return ($w ? $w . '.' . $k . '萬 ' : ($k . 'k')) . '(' . number_format ($number, 2, '.', ',') . ')';
+  }
+}
+if (!function_exists ('staticmap')) {
+  function staticmap ($latitude, $longitude) {
+    return (isset ($latitude) && isset ($longitude)) ? 'https://maps.googleapis.com/maps/api/staticmap?center=' . $latitude . ',' . $longitude . '&zoom=17&size=550x250&markers=color:0x3eb6bd%7C' . $latitude . ',' . $longitude . '&language=zh-TW' : '';
+  }
+}
+if (!function_exists ('regex')) {
+  function regex ($text) {
+    preg_match_all ('/^(小(天使|添屎)\s*(?P<k>.*))/i', $text, $result);
+    return isset ($result['k'][0]) && $result['k'][0] && is_string ($result['k'][0]) && ($result['k'][0] = trim ($result['k'][0])) ? $result['k'][0] : '';
+  }
+}
 if (!function_exists ('catStr')) {
   function catStr ($str, $len) {
     return mb_strimwidth ($str, 0, ($len - 2) / 2, '…','UTF-8');
@@ -28,22 +46,22 @@ if (!function_exists ('isHttps')) {
 }
 if (!function_exists ('isDatetime')) {
   function isDatetime ($date) {
-    return (DateTime::createFromFormat('Y-m-d H:i:s', $date) !== false);
+    return (DateTime::createFromFormat ('Y-m-d H:i:s', $date) !== false);
   }
 }
 if (!function_exists ('isDatetimeT')) {
   function isDatetimeT ($date) {
-    return (DateTime::createFromFormat('Y-m-d\TH:i', $date) !== false) || (DateTime::createFromFormat('Y-m-d\tH:i', $date) !== false);
+    return (DateTime::createFromFormat ('Y-m-d\TH:i', $date) !== false) || (DateTime::createFromFormat ('Y-m-d\tH:i', $date) !== false);
   }
 }
 if (!function_exists ('isDate')) {
   function isDate ($date) {
-    return (DateTime::createFromFormat('Y-m-d', $date) !== false);
+    return (DateTime::createFromFormat ('Y-m-d', $date) !== false);
   }
 }
 if (!function_exists ('isTimeHI')) {
   function isTimeHI ($date) {
-    return (DateTime::createFromFormat('H:i', $date) !== false);
+    return (DateTime::createFromFormat ('H:i', $date) !== false);
   }
 }
 if (!function_exists ('contentType2ext')) {

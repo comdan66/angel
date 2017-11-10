@@ -70,19 +70,19 @@ class OALineBot {
 }
 
 class OALineBotPush {
-  private $bot, $source, $log;
+  private $bot, $source;
   private $actions = array ();
 
-  public function __construct ($bot, $source, $log) {
+  public function __construct ($bot, $source) {
     $this->bot = $bot;
     $this->source = $source;
-    $this->log = $log;
   }
-  public static function create ($bot, $source, $log) {
-    return new OALineBotPush ($bot, $source, $log);
+  public static function create ($bot, $source = null) {
+    return new OALineBotPush ($bot, $source);
   }
   
-  private function pushMessage ($builder) { $response = $this->bot->pushMessage ($this->source->sid, $builder); return $response->isSucceeded (); }
+  public function setSource ($source) { $this->source = $source; return $this; }
+  private function pushMessage ($builder) { if (!$this->source) return false; $response = $this->bot->pushMessage (is_object ($this->source) ? $this->source->sid : $this->source, $builder); return $response->isSucceeded (); }
   private function template ($alt) { return ($alt = trim ($alt)) && ($alt = catStr ($alt, 400)); }
   
   private static function templateAction ($label) { return ($label = trim ($label)) && ($label = catStr ($label, 20)); }
@@ -151,7 +151,7 @@ class OALineBotPush {
     return new ImagemapUriActionBuilder ($uri, new AreaBuilder ($x, $y, $width, $height));
   }
 
-  public function templateButton ($alt, $text, $actions, $title = '', $img = '') {
+  public function templateButton ($alt, $text, $actions, $img = '', $title = '') {
     $title = ($title = trim ($title)) && ($title = catStr ($title, 40)) ? $title : null;
     $img   = ($img = trim ($img)) && isHttps ($img) && (strlen ($img) <= 1000) ? $img : null;
 
@@ -166,10 +166,10 @@ class OALineBotPush {
 
     return $this->pushMessage (new TemplateMessageBuilder ($alt, new ConfirmTemplateBuilder ($text, array_slice ($actions, -2))));
   }
-  public function templateCarousel () {
-    $columns = func_get_args ();
-
-    if (!$this->template ($alt = array_shift ($columns)))
+  public function templateCarousel ($alt, $columns) {
+    // $columns = func_get_args ();
+    // if (!$this->template ($alt = array_shift ($columns)))
+    if (!$this->template ($alt))
       return false;
 
     if (!($columns && is_array ($columns) && ($columns = array_filter (array_map (function ($column) { $column['img'] = isset ($column['img']) && ($column['img'] = trim ($column['img'])) && isHttps ($column['img']) && (strlen ($column['img']) <= 1000) ? $column['img'] : null; $column['title'] = isset ($column['title']) && ($column['title'] = trim ($column['title'])) && ($column['title'] = catStr ($column['title'], 40)) ? $column['title'] : null; if (!(isset ($column['text']) && ($column['text'] = trim ($column['text'])) && ($column['text'] = catStr ($column['text'], $column['img'] ? 60 : 120)))) return null; if (!($column['actions'] = array_filter ($column['actions']))) return null; return array ($column['title'], $column['text'], $column['img'], array_slice ($column['actions'], -3)); }, $columns)))))
@@ -179,10 +179,10 @@ class OALineBotPush {
 
     return $this->pushMessage (new TemplateMessageBuilder ($alt, new CarouselTemplateBuilder (array_map (function ($column) { return new CarouselColumnTemplateBuilder ($column[0], $column[1], $column[2], $column[3]); }, array_slice ($columns, -10)))));
   }
-  public function templateImageCarousel () {
-    $columns = func_get_args ();
+  public function templateImageCarousel ($alt, $columns) {
+    // $columns = func_get_args ();
 
-    if (!$this->template ($alt = array_shift ($columns)))
+    if (!$this->template ($alt))
       return false;
 
     if (!($columns && is_array ($columns) && ($columns = array_filter (array_map (function ($column) { if (!(count ($column) == 2)) return null; $img = is_string ($column[0]) ? $column[0] : $column[1]; $action = is_string ($column[0]) ? $column[1] : $column[0]; if (!(is_string ($img) && ($img = trim ($img)) && isHttps ($img) && (strlen ($img) <= 1000))) return null; if (!($action && is_object ($action))) return null; return array ($img, $action); }, $columns)))))

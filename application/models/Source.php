@@ -40,6 +40,12 @@ class Source extends OaModel {
     if ($event->isRoomEvent ()) return Source::TYPE_ROOM;
     return Source::TYPE_OTHER;
   }
+  public function isManyUser () {
+    return isset ($this->type) && in_array ($this->type, array (Source::TYPE_GROUP, Source::TYPE_ROOM));
+  }
+  public function isUser () {
+    return isset ($this->type) && in_array ($this->type, array (Source::TYPE_USER));
+  }
   public static function getSource ($event, &$say) {
     if (!$sid = $event->getEventSourceId ()) return null;
 
@@ -47,7 +53,7 @@ class Source extends OaModel {
       if (!(($params = array ('sid' => $sid, 'title' => '', 'type' => Source::getType ($event))) && Source::transaction (function () use (&$source, $params) { return verifyCreateOrm ($source = Source::create (array_intersect_key ($params, Source::table ()->columns))); })))
         return null;
 
-    if (in_array ($source->type, array (Source::TYPE_GROUP, Source::TYPE_ROOM))) {
+    if ($source->isManyUser ()) {
       $userId = $event->getUserId ();
 
       if (!($say = Source::find ('one', array ('select' => 'id, sid, title, type', 'conditions' => array ('sid = ?', $userId)))))
@@ -55,7 +61,7 @@ class Source extends OaModel {
           $say = null;
 
       if ($say) $say->updateTitle ();
-    } else if (in_array ($source->type, array (Source::TYPE_USER))) {
+    } else if ($source->isUser ()) {
       $say = $source;
     }
 

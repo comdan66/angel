@@ -6,70 +6,55 @@
  * @link        http://www.ioa.tw/
  */
 
-use LINE\LINEBot\Event;
-
-require_once FCPATH . 'vendor/autoload.php';
-
 class Callback extends Api_controller {
 
   public function __construct () {
     parent::__construct ();
-    
   }
-  public function test () {
 
+  public function test () {
+    echo '<meta http-equiv="Content-type" content="text/html; charset=utf-8" /><pre>';
+    var_dump ();
+    exit ();;
   }
 
   public function v2 () {
     $this->load->library ('OALineBot');
 
-    if (!$oaLineBot = OALineBot::create ())
-      exit ();
-
-    foreach ($oaLineBot->events () as $event) {
+    foreach (OALineBot::events () as $event) {
       if (!$source = Source::findOrCreateSource ($event))
         continue;
-
+      
       $speaker = Source::findOrCreateSpeaker ($event);
-
-oaLineBot::log ('===>' . ($event instanceof Event\MessageEvent ? '1' : '0'));
-
-// LINE\LINEBot\Event\MessageEvent
-// LINE\LINEBot\Event\FollowEvent
-// LINE\LINEBot\Event\UnfollowEvent
-// LINE\LINEBot\Event\JoinEvent
-// LINE\LINEBot\Event\LeaveEvent
-// LINE\LINEBot\Event\PostbackEvent
-// LINE\LINEBot\Event\BeaconDetectionEvent
-// LINE\LINEBot\Event\MessageEvent\TextMessage
-// LINE\LINEBot\Event\MessageEvent\ImageMessage
-// LINE\LINEBot\Event\MessageEvent\VideoMessage
-// LINE\LINEBot\Event\MessageEvent\AudioMessage
-// LINE\LINEBot\Event\MessageEvent\FileMessage
-// LINE\LINEBot\Event\MessageEvent\LocationMessage
-// LINE\LINEBot\Event\MessageEvent\StickerMessage
-
-      // switch ($event->getType ()) {
-      //   case '':
-      //     # code...
-      //     break;
-        
-      //   default:
-      //     # code...
-      //     break;
-      // }
-
-      // if ($log = Log::create ($event, $source))
+      
+      // if ($source->id != 1)
       //   continue;
 
-      // if (!(($source = Source::getSource ($event, $say)) && ($log = Log::createAndInfo ($source, $event, $info))))
-      //   continue;
+      if (!$log = OALineBot::createLog ($source, $speaker, $event))
+        continue;
 
-      // $push = OALineBotPush::create ($oaLineBot->bot (), $source);
+      switch (get_class ($log)) {
+        case 'LogText':
+          if (!in_array ($log->text, array ('?', '？', '小添屎', '小天使')))
+            break;
 
-      // switch ($log->instanceof) {
+          OALineBotMsg::create ()->templateButton ('功能列表', '以下是目前的小添屎功能！', array (
+              OALineBotAction::templatePostback ('查詢目前比特幣', array ('class' => 'OASearch', 'method' => 'bitcoinNow')),
+              OALineBotAction::templatePostback ('比特幣成長圖表', array ('class' => 'OASearch', 'method' => 'bitcoinChart'))
+            ))->reply ($log);
+          break;
         
-      // }
+        case 'LogPostback':
+          $this->load->library ('OASearch');
+          if (!is_callable (array ($log->getData ('class'), $log->getData ('method'))))
+            break;
+
+          forward_static_call_array (array ($log->getData ('class'), $log->getData ('method')), array_merge (array ($source, $log), $log->getData ('params') ? $log->getData ('params') : array ()));
+          break;
+
+        default:
+          break;
+      }
     }
   }
 }

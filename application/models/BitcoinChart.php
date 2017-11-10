@@ -6,9 +6,9 @@
  * @license     http://creativecommons.org/licenses/by-nc/2.0/tw/
  */
 
-class LogPostback extends OaModel {
+class BitcoinChart extends OaModel {
 
-  static $table_name = 'log_postbacks';
+  static $table_name = 'bitcoin_charts';
 
   static $has_one = array (
   );
@@ -21,9 +21,7 @@ class LogPostback extends OaModel {
 
   public function __construct ($attributes = array (), $guard_attributes = true, $instantiating_via_find = false, $new_record = true) {
     parent::__construct ($attributes, $guard_attributes, $instantiating_via_find, $new_record);
-  }
-  public function getData ($k = null) {
-    if (!(isset ($this->data) && $this->data && is_array ($data = json_decode ($this->data, true)))) return null;
-    return $k === null ? $data : (isset ($data[$k]) ? $data[$k] : null);
+
+    OrmImageUploader::bind ('pic', 'BitcoinChartPicImageUploader');
   }
 }

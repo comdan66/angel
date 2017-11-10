@@ -80,7 +80,7 @@ class Source extends OaModel {
     return $source;
   }
   public static function findOrCreateSpeaker ($event) {
-    if (!$userId = $event->getUserId ()) return ;
+    if (!$userId = (Source::getType ($event) == Source::TYPE_USER ? $event->getEventSourceId () : $event->getUserId ())) return ;
     
     $params = array (
       'sid' => $userId,

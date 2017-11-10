@@ -6,14 +6,12 @@
  * @license     http://creativecommons.org/licenses/by-nc/2.0/tw/
  */
 
-class Migration_Add_log_follows extends CI_Migration {
+class Migration_Add_bitcoin_charts extends CI_Migration {
   public function up () {
     $this->db->query (
-      "CREATE TABLE `log_follows` (
+      "CREATE TABLE `bitcoin_charts` (
         `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-        `source_id` int(11) unsigned NOT NULL DEFAULT 0 COMMENT 'Source ID',
-        `reply_token` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '回覆 Token',
-        `timestamp` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '時間',
+        `pic` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '照片',
         `created_at` datetime NOT NULL DEFAULT '" . date ('Y-m-d H:i:s') . "' COMMENT '新增時間',
         PRIMARY KEY (`id`)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
@@ -21,7 +19,7 @@ class Migration_Add_log_follows extends CI_Migration {
   }
   public function down () {
     $this->db->query (
-      "DROP TABLE `log_follows`;"
+      "DROP TABLE `bitcoin_charts`;"
     );
   }
 }

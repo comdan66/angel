@@ -40,22 +40,61 @@ class Source extends OaModel {
     if ($event->isRoomEvent ()) return Source::TYPE_ROOM;
     return Source::TYPE_OTHER;
   }
-  public static function findOrCreate ($event) {
+  public function updateTitle () {
+    if (!(isset ($this->id) && isset ($this->sid) && isset ($this->title) && isset ($this->type) && ($this->type == Source::TYPE_USER) && !$this->title))
+      return false;
+
+    $this->CI->load->library ('OALineBot');
+
+
+    if (!(($oaLineBot = OALineBot::create ()) && ($response = $oaLineBot->bot ()->getProfile ($this->sid)) && $response->isSucceeded () && ($profile = $response->getJSONDecodedBody ()) && isset ($profile['displayName'])))
+      return false;
+    
+    $this->title = $profile['displayName'];
+    return $this->save ();
+  }
+
+  // public function isManyUser () {
+  //   return isset ($this->type) && in_array ($this->type, array (Source::TYPE_GROUP, Source::TYPE_ROOM));
+  // }
+  // public function isUser () {
+  //   return isset ($this->type) && in_array ($this->type, array (Source::TYPE_USER));
+  // }
+
+  public static function findOrCreateSource ($event) {
     if (!$sid = $event->getEventSourceId ())
       return null;
     
-    if ($source = Source::find ('one', array ('select' => 'id, sid, title, type', 'conditions' => array ('sid = ?', $sid))))
-      return $source;
-
     $params = array (
       'sid' => $sid,
       'title' => '',
       'type' => Source::getType ($event)
     );
-    if (Source::transaction (function () use (&$source, $params) { return verifyCreateOrm ($source = Source::create (array_intersect_key ($params, Source::table ()->columns))); }))
-      return $source;
+
+    if (!$source = Source::find ('one', array ('select' => 'id, sid, title, type', 'conditions' => array ('sid = ?', $params['sid']))))
+      if (!Source::transaction (function () use (&$source, $params) { return verifyCreateOrm ($source = Source::create (array_intersect_key ($params, Source::table ()->columns))); }))
+        return null;
     
-    return null;
+    $source->updateTitle ();
+
+    return $source;
+  }
+  public static function findOrCreateSpeaker ($event) {
+    if (!$userId = $event->getUserId ()) return ;
+    
+    $params = array (
+      'sid' => $userId,
+      'title' => '',
+      'type' => Source::TYPE_USER
+    );
+
+    if (!$speaker = Source::find ('one', array ('select' => 'id, sid, title, type', 'conditions' => array ('sid = ?', $params['sid']))))
+      if (!Source::transaction (function () use (&$speaker, $params) { return verifyCreateOrm ($speaker = Source::create (array_intersect_key ($params, Source::table ()->columns))); }))
+        return null;
+    
+    $speaker->updateTitle ();
+
+    return $speaker;
   }
 
 
@@ -73,12 +112,6 @@ class Source extends OaModel {
 
 
 
-  // public function isManyUser () {
-  //   return isset ($this->type) && in_array ($this->type, array (Source::TYPE_GROUP, Source::TYPE_ROOM));
-  // }
-  // public function isUser () {
-  //   return isset ($this->type) && in_array ($this->type, array (Source::TYPE_USER));
-  // }
   // public static function getSource ($event, &$say) {
   //   if (!$sid = $event->getEventSourceId ()) return null;
 
@@ -103,20 +136,4 @@ class Source extends OaModel {
   //   return $source;
   // }
 
-  // public function updateTitle () {
-  //   if (!(($this->type == Source::TYPE_USER) && isset ($this->id) && isset ($this->sid) && isset ($this->title) && !$this->title && isset ($this->type)))
-  //     return false;
-
-  //   $this->CI->load->library ('OALineBot');
-  //   if (!$oaLineBot = OALineBot::create ())
-  //     return false;
-
-  //   $response = $oaLineBot->bot ()->getProfile ($this->sid);
-  //   if (!$response->isSucceeded ())
-  //     return false;
-
-  //   $profile = $response->getJSONDecodedBody ();
-  //   $this->title = $profile['displayName'];
-  //   return $this->save ();
-  // }
 }

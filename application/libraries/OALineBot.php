@@ -35,6 +35,19 @@ use LINE\LINEBot\TemplateActionBuilder\MessageTemplateActionBuilder;
 use LINE\LINEBot\TemplateActionBuilder\PostbackTemplateActionBuilder;
 use LINE\LINEBot\TemplateActionBuilder\DatetimePickerTemplateActionBuilder;
 
+use LINE\LINEBot\Event\MessageEvent\TextMessage;
+use LINE\LINEBot\Event\MessageEvent\VideoMessage;
+use LINE\LINEBot\Event\MessageEvent\StickerMessage;
+use LINE\LINEBot\Event\MessageEvent\LocationMessage;
+use LINE\LINEBot\Event\MessageEvent\ImageMessage;
+use LINE\LINEBot\Event\MessageEvent\AudioMessage;
+use LINE\LINEBot\Event\MessageEvent\FileMessage;
+
+use LINE\LINEBot\Event\JoinEvent;
+use LINE\LINEBot\Event\LeaveEvent;
+use LINE\LINEBot\Event\FollowEvent;
+use LINE\LINEBot\Event\UnfollowEvent;
+use LINE\LINEBot\Event\PostbackEvent;
 
 class OALineBot {
   private $bot = null;
@@ -67,6 +80,44 @@ class OALineBot {
       OALineBot::log ($body = file_get_contents ("php://input"));
       return $this->bot->parseEventRequest ($body, $_SERVER["HTTP_" . HTTPHeader::LINE_SIGNATURE]);
     } catch (Exception $e) { return array (); }
+  }
+
+  public static function createLog ($event) {
+    switch (true) {
+      case $event instanceof TextMessage:
+        $params = array (
+          'log_id' => $log->id,
+          'reply_token' => $event->getReplyToken () ? $event->getReplyToken () : '',
+          'message_id' => $event->getType () == 'message' ? $event->getMessageId () : '',
+          'text' => $event->getText ());
+        return LogText::transaction (function () use (&$log, $params) {
+          return verifyCreateOrm ($obj = LogText::create (array_intersect_key ($params, LogText::table ()->columns))); });
+
+
+        break;
+      case $event instanceof VideoMessage:
+        break;
+      case $event instanceof StickerMessage:
+        break;
+      case $event instanceof LocationMessage:
+        break;
+      case $event instanceof ImageMessage:
+        break;
+      case $event instanceof AudioMessage:
+        break;
+      case $event instanceof FileMessage:
+        break;
+      case $event instanceof JoinEvent:
+        break;
+      case $event instanceof LeaveEvent:
+        break;
+      case $event instanceof FollowEvent:
+        break;
+      case $event instanceof UnfollowEvent:
+        break;
+      case $event instanceof PostbackEvent:
+        break;
+    }
   }
 }
 

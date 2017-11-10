@@ -25,14 +25,20 @@ class Callback extends Api_controller {
       exit ();
 
     foreach ($oaLineBot->events () as $event) {
-      if (!(($source = Source::getSource ($event, $say)) && ($log = Log::createAndInfo ($source, $event, $info))))
+      if (!$source = Source::findOrCreate ($event))
         continue;
 
-      $push = OALineBotPush::create ($oaLineBot->bot (), $source);
+      if ($log = Log::create ($event, $source))
+        continue;
 
-      switch ($log->instanceof) {
+      // if (!(($source = Source::getSource ($event, $say)) && ($log = Log::createAndInfo ($source, $event, $info))))
+      //   continue;
+
+      // $push = OALineBotPush::create ($oaLineBot->bot (), $source);
+
+      // switch ($log->instanceof) {
         
-      }
+      // }
     }
   }
 }

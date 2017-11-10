@@ -47,25 +47,26 @@ class OALineBot {
 
   public static function log ($log = '') {
     if (!$log) return;
-
     $path = FCPATH . 'temp/input.json';
     write_file ($path, $log . "\n", FOPEN_READ_WRITE_CREATE);
   }
 
   public static function create () {
-    return new OALineBot (new LINEBot (new CurlHTTPClient (Cfg::setting ('line', 'channel', 'token')), array ('channelSecret' => Cfg::setting ('line', 'channel', 'secret'))));
+    return new OALineBot (
+      new LINEBot (
+        new CurlHTTPClient (
+          Cfg::setting ('line', 'channel', 'token')),
+          array ('channelSecret' => Cfg::setting ('line', 'channel', 'secret'))));
   }
 
   public function events () {
-    if (!isset ($_SERVER["HTTP_" . HTTPHeader::LINE_SIGNATURE])) return array ();
+    if (!isset ($_SERVER["HTTP_" . HTTPHeader::LINE_SIGNATURE]))
+      return array ();
     
     try {
-      $body = file_get_contents ("php://input");
-      // OALineBot::log ($body);
+      OALineBot::log ($body = file_get_contents ("php://input"));
       return $this->bot->parseEventRequest ($body, $_SERVER["HTTP_" . HTTPHeader::LINE_SIGNATURE]);
-    } catch (Exception $e) {
-      return array ();
-    }
+    } catch (Exception $e) { return array (); }
   }
 }
 

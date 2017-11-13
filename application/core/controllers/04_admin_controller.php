@@ -8,11 +8,14 @@
 
 class Admin_controller extends Oa_controller {
 
-  public function __construct () {
+  public function __construct ($roles = array ()) {
     parent::__construct ();
 
     if (!(User::current () && User::current ()->is_login ()))
       return redirect_message (array ('login'), array ('_fd' => !User::current () ? '請重新登入喔！' : '請管理員幫您開啟權限！'));
+
+    if ($roles && !User::current ()->in_roles ($roles))
+      return redirect_message (array ('admin'), array ('_fd' => '您的權限不足，或者頁面不存在。'));
 
     $this
          ->set_componemt_path ('component', 'admin')

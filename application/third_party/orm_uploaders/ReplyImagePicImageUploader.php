@@ -6,7 +6,7 @@
  * @license     http://creativecommons.org/licenses/by-nc/2.0/tw/
  */
 
-class BitcoinChartPicImageUploader extends OrmImageUploader {
+class ReplyImagePicImageUploader extends OrmImageUploader {
 
   public function getVersions () {
     return array (

@@ -1909,6 +1909,9 @@ form.form-type1 {
     @include range-width(0, 500px) {
       padding: 0 8px;
     };
+    &.area {
+      padding: 0 !important;
+    }
 
     b {
       position: relative;
@@ -2068,35 +2071,37 @@ form.form-type1 {
         }
       }
     }
-    &:last-child {
+    &:not(.nl) {
 
-      display: flex;
-      flex-direction: row-reverse;
-      flex-wrap: nowrap;
+      &:last-child {
+        display: flex;
+        flex-direction: row-reverse;
+        flex-wrap: nowrap;
 
-      border-top: 1px solid rgba(225, 225, 225, 1);
-      padding-top: 20px;
-      margin-top: 32px;
+        border-top: 1px solid rgba(225, 225, 225, 1);
+        padding-top: 20px;
+        margin-top: 32px;
 
-       > * {
-        &:nth-child(1) {
-          @include button(rgba(66, 133, 244, 1.00));
-          margin-left: 8px;
-        }
-        &:nth-child(2) {
-          @include button(rgba(52, 168, 83, 1.00));
-          margin-left: 8px;
-        }
-        &:nth-child(3) {
-          @include button(rgba(240, 118, 6, 1.00));
-        }
-        padding: 0 8px;
-        
-        @include range-width(0, 500px) {
-          font-size: 13px;
-          padding: 0 !important;
-          width: 100px;
-          text-align: center;
+         > * {
+          &:nth-child(1) {
+            @include button(rgba(66, 133, 244, 1.00));
+            margin-left: 8px;
+          }
+          &:nth-child(2) {
+            @include button(rgba(52, 168, 83, 1.00));
+            margin-left: 8px;
+          }
+          &:nth-child(3) {
+            @include button(rgba(240, 118, 6, 1.00));
+          }
+          padding: 0 8px;
+          
+          @include range-width(0, 500px) {
+            font-size: 13px;
+            padding: 0 !important;
+            width: 100px;
+            text-align: center;
+          }
         }
       }
     }

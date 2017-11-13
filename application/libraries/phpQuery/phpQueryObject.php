@@ -1173,7 +1173,7 @@ class phpQueryObject
 	 * @link http://docs.jquery.com/Traversing/filter
 	 */
 	public function filter($selectors, $_skipHistory = false) {
-		if ($selectors instanceof Callback OR $selectors instanceof Closure)
+		if ($selectors instanceof Callback2 OR $selectors instanceof Closure)
 			return $this->filterCallback($selectors, $_skipHistory);
 		if (! $_skipHistory)
 			$this->elementsBackup = $this->elements;

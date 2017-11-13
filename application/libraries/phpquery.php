@@ -21,7 +21,7 @@ define('DOMNODE', 'DOMNode');
 require_once(dirname(__FILE__).'/phpQuery/DOMEvent.php');
 require_once(dirname(__FILE__).'/phpQuery/DOMDocumentWrapper.php');
 require_once(dirname(__FILE__).'/phpQuery/phpQueryEvents.php');
-require_once(dirname(__FILE__).'/phpQuery/Callback.php');
+require_once(dirname(__FILE__).'/phpQuery/Callback2.php');
 require_once(dirname(__FILE__).'/phpQuery/phpQueryObject.php');
 require_once(dirname(__FILE__).'/phpQuery/compat/mbstring.php');
 /**
@@ -1081,7 +1081,7 @@ class phpQuery {
 				$callback->callback = $params[0];
 			return true;
 		}
-		if ($callback instanceof Callback) {
+		if ($callback instanceof Callback2) {
 			$paramStructure = $callback->params;
 			$callback = $callback->callback;
 		}

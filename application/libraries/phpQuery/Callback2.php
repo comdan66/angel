@@ -26,7 +26,7 @@ interface ICallbackNamed {
  * @TODO??? return fake forwarding function created via create_function
  * @TODO honor paramStructure
  */
-class Callback
+class Callback2
 	implements ICallbackNamed {
 	public $callback = null;
 	public $params = null;
@@ -35,7 +35,7 @@ class Callback
 			$param3 = null) {
 		$params = func_get_args();
 		$params = array_slice($params, 1);
-		if ($callback instanceof Callback) {
+		if ($callback instanceof Callback2) {
 			// TODO implement recurention
 		} else {
 			$this->callback = $callback;
@@ -63,7 +63,7 @@ class Callback
  * 
  * @author Tobiasz Cudnik <tobiasz.cudnik/gmail.com>
  */
-class CallbackBody extends Callback {
+class CallbackBody extends Callback2 {
 	public function __construct($paramList, $code, $param1 = null, $param2 = null, 
 			$param3 = null) {
 		$params = func_get_args();
@@ -77,7 +77,7 @@ class CallbackBody extends Callback {
  * 
  * @author Tobiasz Cudnik <tobiasz.cudnik/gmail.com>
  */
-class CallbackReturnReference extends Callback
+class CallbackReturnReference extends Callback2
 	implements ICallbackNamed {
 	protected $reference;
 	public function __construct(&$reference, $name = null){
@@ -99,7 +99,7 @@ class CallbackReturnReference extends Callback
  * 
  * @author Tobiasz Cudnik <tobiasz.cudnik/gmail.com>
  */
-class CallbackReturnValue extends Callback
+class CallbackReturnValue extends Callback2
 	implements ICallbackNamed {
 	protected $value;
 	protected $name;
@@ -128,7 +128,7 @@ class CallbackReturnValue extends Callback
  *
  * @author Tobiasz Cudnik <tobiasz.cudnik/gmail.com>
  */
-class CallbackParameterToReference extends Callback {
+class CallbackParameterToReference extends Callback2 {
 	/**
 	 * @param $reference
 	 * @TODO implement $paramIndex; 

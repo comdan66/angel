@@ -53,6 +53,14 @@
           </div>
         </div>
 <?php } ?>
+<?php if (User::current ()->in_roles (array ('richmenu'))) { ?>
+        <div class='group'>
+          <span class='icon-insert-template'>Rich Menu</span>
+          <div>
+            <a class='icon-table2<?php echo ($url = base_url ('admin', 'richmenus')) && isset ($_url) && ($url == $_url) ? ' show' : '';?>' href='<?php echo $url;?>'>Rich Menu 列表</a>
+          </div>
+        </div>
+<?php } ?>
 
       <footer>© <?php echo date ('Y');?> <?php echo Cfg::setting ('company', 'domain');?></footer>
     </div><label class='icon-cross' for='menu_ckb'></label>

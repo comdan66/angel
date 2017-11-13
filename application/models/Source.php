@@ -11,6 +11,7 @@ class Source extends OaModel {
   static $table_name = 'sources';
 
   static $has_one = array (
+    array ('set', 'class_name' => 'SourceSet'),
   );
 
   static $has_many = array (

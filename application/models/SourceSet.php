@@ -6,9 +6,9 @@
  * @license     http://creativecommons.org/licenses/by-nc/2.0/tw/
  */
 
-class BitcoinChart extends OaModel {
+class SourceSet extends OaModel {
 
-  static $table_name = 'bitcoin_charts';
+  static $table_name = 'source_sets';
 
   static $has_one = array (
   );
@@ -21,7 +21,5 @@ class BitcoinChart extends OaModel {
 
   public function __construct ($attributes = array (), $guard_attributes = true, $instantiating_via_find = false, $new_record = true) {
     parent::__construct ($attributes, $guard_attributes, $instantiating_via_find, $new_record);
-
-    OrmImageUploader::bind ('pic', 'BitcoinChartPicImageUploader');
   }
 }

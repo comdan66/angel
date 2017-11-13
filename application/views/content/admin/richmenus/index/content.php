@@ -48,15 +48,13 @@
 </div>
 
 <div class='panel'>
-  <table class='table-list w1100'>
+  <table class='table-list'>
     <thead>
       <tr>
-        <th width='60' class='center'>上架</th>
+        <th width='100' class='center'>預設顯示</th>
         <th width='70' class='center'>封面</th>
-        <th width='130' class='left'>作者</th>
-        <th width='200' class='left'>標題<?php echo listSort ($uri_1, 'title');?></th>
-        <th class='left'>內容</th>
-        <th width='80' class='center'>PV<?php echo listSort ($uri_1, 'pv');?></th>
+        <th width='150' class='left'>顯示名稱</th>
+        <th class='left'>名稱</th>
         <th width='90'>編輯</th>
       </tr>
     </thead>
@@ -64,21 +62,21 @@
 <?php foreach ($objs as $obj) { ?>
         <tr>
           <td class='center'>
-            <label class='switch ajax' data-column='status' data-url='<?php echo base_url ($uri_1, 'status', $obj->id);?>'>
-              <input type='checkbox'<?php echo $obj->status == Article::STATUS_2 ? ' checked' : '';?> />
+            <label class='switch ajax' data-column='selected' data-url='<?php echo base_url ($uri_1, 'selected', $obj->id);?>'>
+              <input type='checkbox'<?php echo $obj->selected == Richmenu::SELECTED_2 ? ' checked' : '';?> />
               <span></span>
             </label>
           </td>
+
           <td class='center'>
             <div class='oaips'>
-              <div class='oaip _ic' data-src='<?php echo $obj->cover->url ();?>'><img src='<?php echo $obj->cover->url ('450x180c');?>' /></div>
+              <div class='oaip _ic' data-src='<?php echo $obj->cover->url ();?>'><img src='<?php echo $obj->cover->url ('w240');?>' /></div>
             </div>
           </td>
-          <td class='left'><?php echo $obj->user->name;?></td>
-          <td class='left'><?php echo $obj->mini_title (15);?></td>
-          <td class='left'><?php echo $obj->mini_content (40);?></td>
-          <td class='center'><?php echo $obj->pv;?></td>
+          <td class='left'><?php echo $obj->name;?></td>
+          <td class='left'><?php echo $obj->text;?></td>
           <td class='edit'>
+            <a class='icon-touch_app' href="<?php echo base_url ('admin', 'richmenu', $obj->id, 'actions');?>"></a>
             <a class='icon-pencil2' href="<?php echo base_url ($uri_1, $obj->id, 'edit');?>"></a>
             <a class='icon-bin' href="<?php echo base_url ($uri_1, $obj->id);?>" data-method='delete'></a>
           </td>

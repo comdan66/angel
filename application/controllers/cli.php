@@ -31,9 +31,9 @@ class Cli extends Oa_controller {
     }
   }
   public function bitcoins () {
-    $this->load->library ('OAMaicoin');
+    $this->load->library ('OAFintech');
     
-    if (!(($params = OAMaicoin::GetBitcoinPrice ()) && Bitcoin::transaction (function () use ($params) { return verifyCreateOrm (Bitcoin::create (array_intersect_key ($params, Bitcoin::table ()->columns))); })))
+    if (!(($params = OAFintech::GetBitcoinPrice ()) && Bitcoin::transaction (function () use ($params) { return verifyCreateOrm (Bitcoin::create (array_intersect_key ($params, Bitcoin::table ()->columns))); })))
       $this->errorToAdmin ('取得比特幣錯誤 >"<');      
   }
 }

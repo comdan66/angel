@@ -9,7 +9,10 @@
 require_once FCPATH . 'vendor/autoload.php';
 
 use LINE\LINEBot;
+use LINE\LINEBot\Response;
 use LINE\LINEBot\Constant\HTTPHeader;
+use LINE\LINEBot\Constant\Meta;
+use LINE\LINEBot\HTTPClient\Curl;
 use LINE\LINEBot\HTTPClient\CurlHTTPClient;
 
 use LINE\LINEBot\MessageBuilder\TextMessageBuilder;
@@ -52,12 +55,13 @@ use LINE\LINEBot\Event\FollowEvent;
 use LINE\LINEBot\Event\UnfollowEvent;
 use LINE\LINEBot\Event\PostbackEvent;
 
+
 class OALineBot {
   private $bot = null;
 
   public function __construct ($bot = null) { $this->bot = $bot; }
   public function bot () { return $this->bot; }
-
+  
   public static function log ($log = '') { if ($log && ($log = is_array ($log) ? json_encode ($log) : (is_object ($log) ? serialize ($log) : $log)) && ($path = FCPATH . 'temp/input.json')) write_file ($path, $log . "\n", FOPEN_READ_WRITE_CREATE); }
   public static function create () { return new OALineBot (new LINEBot (new CurlHTTPClient (Cfg::setting ('line', 'channel', 'token')), array ('channelSecret' => Cfg::setting ('line', 'channel', 'secret')))); }
   public static function events () { if (!isset ($_SERVER["HTTP_" . HTTPHeader::LINE_SIGNATURE])) return array (); try { OALineBot::log ($body = file_get_contents ("php://input")); return OALineBot::create ()->bot ()->parseEventRequest ($body, $_SERVER["HTTP_" . HTTPHeader::LINE_SIGNATURE]); } catch (Exception $e) { return array (); } }
@@ -118,4 +122,124 @@ class OALineBotMsg {
   public function templateImageCarousel ($alt, $columns) { $this->builder = $this->template ($alt) && $columns && is_array ($columns) && ($columns = array_filter (array_map (function ($column) { if (!(count ($column) == 2)) return null; $img = is_string ($column[0]) ? $column[0] : $column[1]; $action = is_string ($column[0]) ? $column[1] : $column[0]; return is_string ($img) && ($img = trim ($img)) && isHttps ($img) && (strlen ($img) <= 1000) && $action && is_object ($action) ? array ($img, $action) : null; }, $columns))) ? new TemplateMessageBuilder ($alt, new ImageCarouselTemplateBuilder (array_map (function ($column) { return new ImageCarouselColumnTemplateBuilder ($column[0], $column[1]); }, array_slice ($columns, -10)))) : null; return $this; }
 
   private function template ($alt) { return ($alt = trim ($alt)) && ($alt = catStr ($alt, 400)); }
+}
+
+class OALineBotRichmenu {
+  private static $http = null;
+  public static function HTTPClient () { return OALineBotRichmenu::$http === null ? (OALineBotRichmenu::$http = new OALineBotCurlHTTPClient (Cfg::setting ('line', 'channel', 'token'))) : OALineBotRichmenu::$http; }
+  public static function getRichmenuList () { return ($response = OALineBotRichmenu::HTTPClient ()->get (LINEBot::DEFAULT_ENDPOINT_BASE . '/v2/bot/richmenu/list')) && $response->isSucceeded () && ($response = $response->getJSONDecodedBody ()) && isset ($response['richmenus']) ? $response['richmenus'] : array (); }
+  public static function createRichmenu ($json) { return ($response = OALineBotRichmenu::HTTPClient ()->post (LINEBot::DEFAULT_ENDPOINT_BASE . '/v2/bot/richmenu', $json)) && $response->isSucceeded () && ($response = $response->getJSONDecodedBody ()) && isset ($response['richMenuId']) ? $response['richMenuId'] : array (); }
+  public static function uploadRichmenuImage ($richmenuId, $path) { return (isHttp ($path) || isHttps ($path) || (file_exists ($path) && is_readable ($path))) && ($file = file_get_contents ($path)) && ($response = OALineBotRichmenu::HTTPClient ()->post (LINEBot::DEFAULT_ENDPOINT_BASE . '/v2/bot/richmenu/' . $richmenuId . '/content', $file, array ('Content-Type: image/png', 'Content-Length: ' . strlen ($file)))) && $response->isSucceeded (); }
+  public static function linkRichmenu2User ($richmenuId, $userId) { return ($response = OALineBotRichmenu::HTTPClient ()->post (LINEBot::DEFAULT_ENDPOINT_BASE . '/v2/bot/user/' . $userId . '/richmenu/' . $richmenuId)) && $response->isSucceeded (); }
+  public static function unlinkRichmenuFromUser ($userId) { return ($response = OALineBotRichmenu::HTTPClient ()->delete (LINEBot::DEFAULT_ENDPOINT_BASE . '/v2/bot/user/' . $userId . '/richmenu')) && $response->isSucceeded (); }
+  public static function deleteRichmenu ($richmenuId) { return ($response = OALineBotRichmenu::HTTPClient ()->delete (LINEBot::DEFAULT_ENDPOINT_BASE . '/v2/bot/richmenu/' . $richmenuId)) && $response->isSucceeded (); }
+  public static function getRichmenuIdOfUser ($userId) { return ($response = OALineBotRichmenu::HTTPClient ()->get (LINEBot::DEFAULT_ENDPOINT_BASE . '/v2/bot/user/' . $userId . '/richmenu')) && $response->isSucceeded () && ($response = $response->getJSONDecodedBody ()) && isset ($response['richMenuId']) ? $response['richMenuId'] : ''; }
+  public static function downloadRichmenuImage ($richmenuId, $path) { return ($file = ($response = OALineBotRichmenu::HTTPClient ()->get (LINEBot::DEFAULT_ENDPOINT_BASE . '/v2/bot/richmenu/' . $richmenuId . '/content')) && $response->isSucceeded () && ($response = $response->getRawBody ()) ? $response : null) ? write_file ($path, $file) : false; }
+}
+
+class OALineBotCurlHTTPClient {
+    /** @var array */
+    private $authHeaders;
+    /** @var array */
+    private $userAgentHeader;
+
+    /**
+     * CurlHTTPClient constructor.
+     *
+     * @param string $channelToken Access token of your channel.
+     */
+    public function __construct($channelToken)
+    {
+        $this->authHeaders = [
+            "Authorization: Bearer $channelToken",
+        ];
+        $this->userAgentHeader = [
+            'User-Agent: LINE-BotSDK-PHP/' . Meta::VERSION,
+        ];
+    }
+
+    /**
+     * Sends GET request to LINE Messaging API.
+     *
+     * @param string $url Request URL.
+     * @return Response Response of API request.
+     */
+    public function get($url)
+    {
+        return $this->sendRequest('GET', $url, [], []);
+    }
+
+    /**
+     * Sends POST request to LINE Messaging API.
+     *
+     * @param string $url Request URL.
+     * @param array $data Request body.
+     * @return Response Response of API request.
+     */
+    public function post($url, $data = array (), array $headers = array ('Content-Type: application/json; charset=utf-8'))
+    {
+        return $this->sendRequest('POST', $url, $headers, $data);
+    }
+
+    /**
+     * @param string $method
+     * @param string $url
+     * @param array $additionalHeader
+     * @param array $reqBody
+     * @return Response
+     * @throws CurlExecutionException
+     */
+    private function sendRequest($method, $url, array $additionalHeader, $reqBody)
+    {
+        $curl = new Curl($url);
+
+        $headers = array_merge($this->authHeaders, $this->userAgentHeader, $additionalHeader);
+
+        $options = [
+            CURLOPT_CUSTOMREQUEST => $method,
+            CURLOPT_HTTPHEADER => $headers,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_BINARYTRANSFER => true,
+            CURLOPT_HEADER => true,
+        ];
+
+        if ($method === 'POST') {
+            if (empty($reqBody)) {
+                // Rel: https://github.com/line/line-bot-sdk-php/issues/35
+                $options[CURLOPT_HTTPHEADER][] = 'Content-Length: 0';
+            } else {
+                $options[CURLOPT_POSTFIELDS] = is_array ($reqBody) ? json_encode($reqBody) : $reqBody;
+            }
+        }
+
+        $curl->setoptArray($options);
+
+        $result = $curl->exec();
+
+        if ($curl->errno()) {
+            throw new CurlExecutionException($curl->error());
+        }
+
+        $info = $curl->getinfo();
+        $httpStatus = $info['http_code'];
+
+        $responseHeaderSize = $info['header_size'];
+
+        $responseHeaderStr = substr($result, 0, $responseHeaderSize);
+        $responseHeaders = [];
+        foreach (explode("\r\n", $responseHeaderStr) as $responseHeader) {
+            $kv = explode(':', $responseHeader, 2);
+            if (count($kv) === 2) {
+                $responseHeaders[$kv[0]] = trim($kv[1]);
+            }
+        }
+
+        $body = substr($result, $responseHeaderSize);
+
+        return new Response($httpStatus, $body, $responseHeaders);
+    }
+    public function delete($url, $data = array (), array $headers = array ('Content-Type: application/json; charset=utf-8'))
+    {
+        return $this->sendRequest('DELETE', $url, $headers, $data);
+    }
 }

@@ -41,12 +41,22 @@ class Source extends OaModel {
     if ($event->isRoomEvent ()) return Source::TYPE_ROOM;
     return Source::TYPE_OTHER;
   }
+  public function update2Richmenu () {
+    return 1;
+    if (!(isset ($this->set) && isset ($this->sid) && $this->set->richmenu_id && $this->set->richmenu)) return false;
+    $this->CI->load->library ('OALineBot');
+
+    return OALineBotRichmenu::linkRichmenu2User ($this->set->richmenu->rid, $this->sid);
+  }
+  public function createSet ($richmenu = null) {
+    $params = array ('source_id' => $this->id, 'richmenu_id' => $richmenu && isset ($richmenu->id) ? $richmenu->id : 0, 'bitcoin' => 0, 'jpy' => 0);
+    return verifyCreateOrm (SourceSet::create (array_intersect_key ($params, SourceSet::table ()->columns)));
+  }
   public function updateTitle () {
     if (!(isset ($this->id) && isset ($this->sid) && isset ($this->title) && isset ($this->type) && ($this->type == Source::TYPE_USER) && !$this->title))
       return false;
 
     $this->CI->load->library ('OALineBot');
-
 
     if (!(($oaLineBot = OALineBot::create ()) && ($response = $oaLineBot->bot ()->getProfile ($this->sid)) && $response->isSucceeded () && ($profile = $response->getJSONDecodedBody ()) && isset ($profile['displayName'])))
       return false;
@@ -54,13 +64,6 @@ class Source extends OaModel {
     $this->title = $profile['displayName'];
     return $this->save ();
   }
-
-  // public function isManyUser () {
-  //   return isset ($this->type) && in_array ($this->type, array (Source::TYPE_GROUP, Source::TYPE_ROOM));
-  // }
-  // public function isUser () {
-  //   return isset ($this->type) && in_array ($this->type, array (Source::TYPE_USER));
-  // }
 
   public static function findOrCreateSource ($event) {
     if (!$sid = $event->getEventSourceId ())

@@ -29,7 +29,7 @@ class Richmenu_actions extends Admin_controller {
 
     $this->title = '「' . $this->parent->name . '」的點擊事件';
 
-    if (in_array ($this->uri->rsegments (2, 0), array ('edit', 'update', 'destroy', 'show')))
+    if (in_array ($this->uri->rsegments (2, 0), array ('edit', 'update', 'destroy')))
       if (!(($id = $this->uri->rsegments (4, 0)) && ($this->obj = RichmenuAction::find_by_id ($id))))
         return redirect_message (array ($this->uri_1, $this->parent->id, $this->uri_2), array ('_fd' => '找不到該筆資料。'));
 
@@ -45,8 +45,7 @@ class Richmenu_actions extends Admin_controller {
   public function index ($id, $offset = 0) {
     $parent = $this->parent;
 
-    $searches = array (
-      );
+    $searches = array ();
 
     $configs = array_merge (explode ('/', $this->uri_1), array ($parent->id, $this->uri_2, '%s'));
     $objs = conditions ($searches, $configs, $offset, 'RichmenuAction', array ('order' => 'id DESC'), function ($conditions) use ($parent) {
@@ -84,8 +83,8 @@ class Richmenu_actions extends Admin_controller {
       if (!(isset ($posts['width']) && is_string ($posts['width']) && is_numeric ($posts['width'] = trim ($posts['width'])) && ($posts['width'] >= 0 && $posts['width'] <= 2500))) return '「寬度範圍」格式有誤！';
       if (!(isset ($posts['height']) && is_string ($posts['height']) && is_numeric ($posts['height'] = trim ($posts['height'])) && ($posts['height'] >= 0 && ($posts['height'] <= 1686 || $posts['height'] <= 843)))) return '「高度範圍」格式有誤！';
 
-      if ($posts['x'] + $posts['width'] > 2500) return '請確認 X 座標與寬度範圍是否超出 2500 單位！';
-      if (($posts['y'] + $posts['height'] > 1686) && ($posts['y'] + $posts['height'] > 843)) return '請確認 Y 座標與高度範圍是否都超出 1686、843 單位！';
+      // if ($posts['x'] + $posts['width'] > 2500) return '請確認 X 座標與寬度範圍是否超出 2500 單位！';
+      // if (($posts['y'] + $posts['height'] > 1686) && ($posts['y'] + $posts['height'] > 843)) return '請確認 Y 座標與高度範圍是否都超出 1686、843 單位！';
 
       if (!(isset ($posts['action_type']) && is_string ($posts['action_type']) && is_numeric ($posts['action_type'] = trim ($posts['action_type'])))) return '「事件類型」格式有誤！';
       
@@ -110,7 +109,7 @@ class Richmenu_actions extends Admin_controller {
       return '';
     };
 
-    if (($msg = $validation ($posts)) || (!RichmenuAction::transaction (function () use (&$obj, $posts) { return verifyCreateOrm ($obj = RichmenuAction::create (array_intersect_key ($posts, RichmenuAction::table ()->columns))) && $obj->richmenu->put (); }) && $msg = '新增失敗！'))
+    if (($msg = $validation ($posts)) || (!RichmenuAction::transaction (function () use (&$obj, $posts) { return verifyCreateOrm ($obj = RichmenuAction::create (array_intersect_key ($posts, RichmenuAction::table ()->columns))); }) && $msg = '新增失敗！'))
       return redirect_message (array ($this->uri_1, $parent->id, $this->uri_2, 'add'), array ('_fd' => $msg, 'posts' => $posts));
 
     return redirect_message (array ($this->uri_1, $parent->id,  $this->uri_2), array ('_fi' => '新增成功！'));
@@ -139,8 +138,8 @@ class Richmenu_actions extends Admin_controller {
       if (!(isset ($posts['width']) && is_string ($posts['width']) && is_numeric ($posts['width'] = trim ($posts['width'])) && ($posts['width'] >= 0 && $posts['width'] <= 2500))) return '「寬度範圍」格式有誤！';
       if (!(isset ($posts['height']) && is_string ($posts['height']) && is_numeric ($posts['height'] = trim ($posts['height'])) && ($posts['height'] >= 0 && ($posts['height'] <= 1686 || $posts['height'] <= 843)))) return '「高度範圍」格式有誤！';
 
-      if ($posts['x'] + $posts['width'] > 2500) return '請確認 X 座標與寬度範圍是否超出 2500 單位！';
-      if (($posts['y'] + $posts['height'] > 1686) && ($posts['y'] + $posts['height'] > 843)) return '請確認 Y 座標與高度範圍是否都超出 1686、843 單位！';
+      // if ($posts['x'] + $posts['width'] > 2500) return '請確認 X 座標與寬度範圍是否超出 2500 單位！';
+      // if (($posts['y'] + $posts['height'] > 1686) && ($posts['y'] + $posts['height'] > 843)) return '請確認 Y 座標與高度範圍是否都超出 1686、843 單位！';
 
       if (!(isset ($posts['action_type']) && is_string ($posts['action_type']) && is_numeric ($posts['action_type'] = trim ($posts['action_type'])) && in_array ($posts['action_type'], array_keys (RichmenuAction::$actionTypeNames)))) return '「事件類型」格式有誤！';
 
@@ -174,7 +173,7 @@ class Richmenu_actions extends Admin_controller {
         $obj->$column = $value;
 
     if (!RichmenuAction::transaction (function () use ($obj, $posts) {
-      return $obj->save () && $obj->richmenu->put ();
+      return $obj->save ();
     })) return redirect_message (array ($this->uri_1, $parent->id, $this->uri_2, $obj->id, 'edit'), array ('_fd' => '更新失敗！', 'posts' => $posts));
 
     return redirect_message (array ($this->uri_1, $parent->id,  $this->uri_2), array ('_fi' => '新增成功！'));

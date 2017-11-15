@@ -15,6 +15,7 @@ class Richmenu extends OaModel {
 
   static $has_many = array (
     array ('actions', 'class_name' => 'RichmenuAction'),
+    array ('sets', 'class_name' => 'SourceSet'),
   );
 
   static $belongs_to = array (
@@ -47,21 +48,31 @@ class Richmenu extends OaModel {
   public function put () {
     $this->CI->load->library ('OALineBot');
 
+    if (count (array_filter (array_map (function ($rid) { return !OALineBotRichmenu::deleteRichmenu ($rid); }, $richMenuIds = array_diff (column_array (OALineBotRichmenu::getRichmenuList (), 'richMenuId'), column_array (Richmenu::find ('all', array ('select' => 'rid', 'conditions' => array ('rid != ?', ''))), 'rid'))))))
+      return false;
+
     if ($this->rid && !OALineBotRichmenu::deleteRichmenu ($this->rid))
       return false;
 
-    if (!$rid = OALineBotRichmenu::createRichmenu ($this->format ()))
+    if (!(($this->rid = OALineBotRichmenu::createRichmenu ($this->format ())) && $this->save ()))
       return false;
 
-    $this->rid = $rid;
-    if (!$this->save ()) return false;
+    if (!(OALineBotRichmenu::uploadRichmenuImage ($this->rid, $this->cover->url ())))
+      return false;
 
-    return OALineBotRichmenu::uploadRichmenuImage ($this->rid, $this->cover->url ());
+    if (($rids = array_diff (column_array (Richmenu::find ('all', array ('select' => 'rid', 'conditions' => array ('rid != ?', ''))), 'rid'), column_array (OALineBotRichmenu::getRichmenuList (), 'richMenuId'))) && count (array_filter (array_map (function ($richmenu) { return !$richmenu->reset (); }, Richmenu::find ('all', array ('select' => 'id, rid', 'include' => array ('sets'), 'conditions' => array ('rid IN (?)', $rids)))))))
+      return false;
+
+    return true;
+  }
+  public function reset () {
+    foreach ($this->sets as $set)
+      if (!($set->richmenu_id = 0) && !$set->save ())
+        return false;
+
+    return isset ($this->rid) && !($this->rid = '') && $this->save ();
   }
   public function destroy () {
-    if ($this->rid && !OALineBotRichmenu::deleteRichmenu ($this->rid))
-          return false;
-
     if ($this->actions)
       foreach ($this->actions as $actions)
         if (!$actions->destroy ())

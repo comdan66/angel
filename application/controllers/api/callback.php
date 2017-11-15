@@ -13,6 +13,30 @@ class Callback extends Api_controller {
   }
 
   public function x () {
+    $this->load->library ('OALineBot');
+    echo '<meta http-equiv="Content-type" content="text/html; charset=utf-8" /><pre>';
+    var_dump (OALineBotRichmenu::linkRichmenu2User ('richmenu-f2cfacd29d66c70667170b8c13eda7a4', 'U4a37e32a1d11b3995d2bf299597e432f'));
+    exit ();
+    // echo '<meta http-equiv="Content-type" content="text/html; charset=utf-8" /><pre>';
+    // var_dump (Richmenu::find_by_id (1)->put ());
+    // exit ();;
+
+    // echo '<meta http-equiv="Content-type" content="text/html; charset=utf-8" /><pre>';
+    // var_dump (array_diff(array (), array ()));
+    // exit ();
+    // if (($richMenuIds = column_array (OALineBotRichmenu::getRichmenuList (), 'richMenuId')) && ($richMenuIds = array_diff ($richMenuIds, column_array (Richmenu::find ('all', array ('select' => 'rid')), 'rid'))))
+    //   echo '<meta http-equiv="Content-type" content="text/html; charset=utf-8" /><pre>';
+    //   var_dump ($richMenuIds);
+    //   exit ();
+    // var_dump ($richMenuIds1 = column_array (OALineBotRichmenu::getRichmenuList (), 'richMenuId'));
+    // var_dump ($richMenuIds2 = column_array (Richmenu::find ('all', array ('select' => 'rid')), 'rid'));
+    // var_dump ($richMenuIds = array_diff ($richMenuIds1, $richMenuIds2));
+    // exit ();
+
+
+    // // var_dump (($richMenuIds1 = column_array (OALineBotRichmenu::getRichmenuList (), 'richMenuId')) && ($richMenuIds2 = column_array (Richmenu::find ('all', array ('select' => 'rid')), 'rid')) && ($richMenuIds = array_diff ($richMenuIds1, $richMenuIds2)));
+    // exit ();
+
   }
   public function test () {
 
@@ -44,6 +68,21 @@ class Callback extends Api_controller {
           if (!in_array ($log->text, array ('?', '？', '小添屎', '小天使')))
             break;
 
+          OALineBotMsg::create ()->templateCarousel ('小添屎功能列表', array (
+              array ('text' => '比特幣功能', 'actions' => array (
+                  OALineBotAction::templatePostback ('我的比特幣', array ('class' => 'OAPostback', 'method' => 'myBitcoin'), '要看我的比特幣目前幣值！'),
+                  OALineBotAction::templatePostback ('比特幣目前概況', array ('class' => 'OAPostback', 'method' => 'searchBitcoinNow'), '我選查詢目前 比特幣'),
+                )),
+              array ('text' => '日幣功能', 'actions' => array (
+                  OALineBotAction::templatePostback ('我的日幣', array ('class' => 'OAPostback', 'method' => 'myJpy'), '要看我的日幣目前幣值！'),
+                  OALineBotAction::templatePostback ('日幣目前概況', array ('class' => 'OAPostback', 'method' => 'searchJpyNow'), '我選查詢目前 日幣目前概況'),
+                )),
+              array ('text' => '圖表', 'actions' => array (
+                  OALineBotAction::templatePostback ('比特幣 一日內圖表', array ('class' => 'OAPostback', 'method' => 'viewBitcoinChart', 'params' => array (24)), '我選比特幣 一日內圖表'),
+                  OALineBotAction::templatePostback ('比特幣 一週內圖表', array ('class' => 'OAPostback', 'method' => 'viewBitcoinChart', 'params' => array (24 * 7)), '我選比特幣 一週內圖表')
+                )),
+            ))->reply ($log);
+
           // OALineBotMsg::create ()->templateButton ('比特幣功能列表', '以下是目前的小添屎比特幣功能！', array (
           //     OALineBotAction::templatePostback ('查詢目前比特幣', array ('class' => 'OAPostback', 'method' => 'bitcoinNow'), '我選查詢目前比特幣'),
 
@@ -52,20 +91,20 @@ class Callback extends Api_controller {
           //     OALineBotAction::templatePostback ('比特幣 一週內圖表', array ('class' => 'OAPostback', 'method' => 'bitcoinChart', 'params' => array (24 * 7)), '我選比特幣 一週內圖表')
           //   ))->reply ($log);
 
-          OALineBotMsg::create ()->templateCarousel ('小添屎功能列表', array (
-              array ('text' => '我的幣值', 'actions' => array (
-                  OALineBotAction::templatePostback ('比特幣', array ('class' => 'OAPostback', 'method' => 'myBitcoin'), '要看我的比特幣目前幣值！'),
-                  OALineBotAction::templatePostback ('日幣', array ('class' => 'OAPostback', 'method' => 'myJpy'), '要看我的日幣目前幣值！')
-                )),
-              array ('text' => '錢錢匯率', 'actions' => array (
-                  OALineBotAction::templatePostback ('比特幣', array ('class' => 'OAPostback', 'method' => 'searchBitcoinNow'), '我選查詢目前 比特幣'),
-                  OALineBotAction::templatePostback ('日幣', array ('class' => 'OAPostback', 'method' => 'searchJpyNow'), '我選查詢目前 日幣'),
-                )),
-              array ('text' => '比特幣走勢', 'actions' => array (
-                  OALineBotAction::templatePostback ('比特幣 一日內圖表', array ('class' => 'OAPostback', 'method' => 'viewBitcoinChart', 'params' => array (24)), '我選比特幣 一日內圖表'),
-                  OALineBotAction::templatePostback ('比特幣 一週內圖表', array ('class' => 'OAPostback', 'method' => 'viewBitcoinChart', 'params' => array (24 * 7)), '我選比特幣 一週內圖表')
-                )),
-            ))->reply ($log);
+          // OALineBotMsg::create ()->templateCarousel ('小添屎功能列表', array (
+          //     array ('text' => '我的幣值', 'actions' => array (
+          //         OALineBotAction::templatePostback ('比特幣', array ('class' => 'OAPostback', 'method' => 'myBitcoin'), '要看我的比特幣目前幣值！'),
+          //         OALineBotAction::templatePostback ('日幣', array ('class' => 'OAPostback', 'method' => 'myJpy'), '要看我的日幣目前幣值！')
+          //       )),
+          //     array ('text' => '錢錢匯率', 'actions' => array (
+          //         OALineBotAction::templatePostback ('比特幣', array ('class' => 'OAPostback', 'method' => 'searchBitcoinNow'), '我選查詢目前 比特幣'),
+          //         OALineBotAction::templatePostback ('日幣', array ('class' => 'OAPostback', 'method' => 'searchJpyNow'), '我選查詢目前 日幣'),
+          //       )),
+          //     array ('text' => '比特幣走勢', 'actions' => array (
+          //         OALineBotAction::templatePostback ('比特幣 一日內圖表', array ('class' => 'OAPostback', 'method' => 'viewBitcoinChart', 'params' => array (24)), '我選比特幣 一日內圖表'),
+          //         OALineBotAction::templatePostback ('比特幣 一週內圖表', array ('class' => 'OAPostback', 'method' => 'viewBitcoinChart', 'params' => array (24 * 7)), '我選比特幣 一週內圖表')
+          //       )),
+          //   ))->reply ($log);
           break;
         
         case 'LogPostback':

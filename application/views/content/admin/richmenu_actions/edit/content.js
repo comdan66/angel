@@ -17,7 +17,7 @@ $(function () {
   function randerAction3 (val) {
     return $('<div />').addClass ('row').addClass ('nl').append (
       $('<b />').addClass ('need').text ('回傳資料')).append (
-      $('<input />').attr ('type', 'text').attr ('name', 'data').attr ('placeholder', '請輸入點擊回傳資料..').attr ('maxlength', 300).attr ('pattern', '.{1,300}').prop ('required', true).attr ('title', '輸入點擊回傳資料!').val (typeof val === 'undefined' ? '' : val));
+      $('<input />').attr ('type', 'text').attr ('name', 'data').attr ('placeholder', '請輸入點擊回傳資料..').attr ('maxlength', 300).attr ('pattern', '.{1,300}').prop ('required', true).attr ('title', '輸入點擊回傳資料!').val (typeof val === 'undefined' ? '' : (typeof val ? JSON.stringify (val) : val)));
   }
   function randerAction4 (options, val, data) {
     var arr = []; for (var key in options) arr.push ({'key': key, 'value': options[key]});

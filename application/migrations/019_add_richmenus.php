@@ -18,7 +18,8 @@ class Migration_Add_richmenus extends CI_Migration {
         `cover` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '封面',
         `width` smallint(4) unsigned NOT NULL DEFAULT 0 COMMENT '封面寬度',
         `height` smallint(4) unsigned NOT NULL DEFAULT 0 COMMENT '封面高度',
-        PRIMARY KEY (`id`)
+        PRIMARY KEY (`id`),
+        KEY `rid_index` (`rid`)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
     );
   }

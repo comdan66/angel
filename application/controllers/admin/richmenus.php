@@ -19,7 +19,7 @@ class Richmenus extends Admin_controller {
     $this->icon = 'icon-table2';
     $this->title = 'Rich Menu';
 
-    if (in_array ($this->uri->rsegments (2, 0), array ('edit', 'update', 'destroy', 'selected', 'show', 'put')))
+    if (in_array ($this->uri->rsegments (2, 0), array ('edit', 'update', 'destroy', 'selected', 'show', 'put', 'users', 'users_pick')))
       if (!(($id = $this->uri->rsegments (3, 0)) && ($this->obj = Richmenu::find ('one', array ('conditions' => array ('id = ?', $id))))))
         return redirect_message (array ($this->uri_1), array ('_fd' => '找不到該筆資料。'));
 
@@ -32,6 +32,7 @@ class Richmenus extends Admin_controller {
   public function index ($offset = 0) {
     $searches = array (
         'name'     => array ('el' => 'input', 'text' => '名稱', 'sql' => 'name LIKE ?'),
+        'text'     => array ('el' => 'input', 'text' => '顯示名稱', 'sql' => 'text LIKE ?'),
       );
 
     $configs = array_merge (explode ('/', $this->uri_1), array ('%s'));
@@ -62,7 +63,7 @@ class Richmenus extends Admin_controller {
     $validation = function (&$posts, &$cover) {
       if (!(isset ($posts['selected']) && is_string ($posts['selected']) && is_numeric ($posts['selected'] = trim ($posts['selected'])) && in_array ($posts['selected'], array_keys (Richmenu::$selectedNames)))) $posts['selected'] = Richmenu::SELECTED_1;
       if (!(isset ($posts['name']) && is_string ($posts['name']) && ($posts['name'] = catStr (trim ($posts['name']), 300)))) return '「' . $this->title . '名稱」格式錯誤！';
-      if (!(isset ($posts['text']) && is_string ($posts['text']) && ($posts['text'] = catStr (trim ($posts['text']), 12)))) return '「顯示名稱」格式錯誤！';
+      if (!(isset ($posts['text']) && is_string ($posts['text']) && ($posts['text'] = trim ($posts['text'])))) return '「顯示名稱」格式錯誤！';
 
       if (!(isset ($cover) && is_upload_image_format ($cover, array ('gif', 'jpeg', 'jpg', 'png')))) return '「' . $this->title . '封面」格式錯誤！';
 
@@ -74,7 +75,7 @@ class Richmenus extends Admin_controller {
       return '';
     };
 
-    if (($msg = $validation ($posts, $cover)) || (!Richmenu::transaction (function () use (&$obj, $posts, $cover) { return verifyCreateOrm ($obj = Richmenu::create (array_intersect_key ($posts, Richmenu::table ()->columns))) && $obj->cover->put ($cover) && $obj->put (); }) && ($msg = '資料庫處理錯誤！')))
+    if (($msg = $validation ($posts, $cover)) || (!Richmenu::transaction (function () use (&$obj, $posts, $cover) { return verifyCreateOrm ($obj = Richmenu::create (array_intersect_key ($posts, Richmenu::table ()->columns))) && $obj->cover->put ($cover); }) && ($msg = '資料庫處理錯誤！')))
       return redirect_message (array ($this->uri_1, 'add'), array ('_fd' => $msg, 'posts' => $posts));
 
     return redirect_message (array ($this->uri_1), array ('_fi' => '新增成功！'));
@@ -100,7 +101,7 @@ class Richmenus extends Admin_controller {
       if (isset ($posts['selected']) && !(is_string ($posts['selected']) && is_numeric ($posts['selected'] = trim ($posts['selected'])) && in_array ($posts['selected'], array_keys (Richmenu::$selectedNames)))) $posts['selected'] = Richmenu::SELECTED_1;
       
       if (isset ($posts['name']) && !(is_string ($posts['name']) && ($posts['name'] = catStr (trim ($posts['name']), 300)))) return '「' . $this->title . '名稱」格式錯誤！';
-      if (isset ($posts['text']) && !(is_string ($posts['text']) && ($posts['text'] = catStr (trim ($posts['text']), 12)))) return '「顯示名稱」格式錯誤！';
+      if (isset ($posts['text']) && !(is_string ($posts['text']) && ($posts['text'] = trim ($posts['text'])))) return '「顯示名稱」格式錯誤！';
 
       if (!((string)$obj->cover || isset ($cover))) return '「' . $this->title . '封面」格式錯誤！';
       if (isset ($cover) && !(is_upload_image_format ($cover, array ('gif', 'jpeg', 'jpg', 'png')))) return '「' . $this->title . '封面」格式錯誤！';
@@ -123,7 +124,7 @@ class Richmenus extends Admin_controller {
       foreach ($columns as $column => $value)
         $obj->$column = $value;
 
-    if (!Richmenu::transaction (function () use ($obj, $posts, $cover) { if (!$obj->save ()) return false; if ($cover && !$obj->cover->put ($cover)) return false; return $obj->put (); }))
+    if (!Richmenu::transaction (function () use ($obj, $posts, $cover) { if (!$obj->save ()) return false; if ($cover && !$obj->cover->put ($cover)) return false; return true; }))
       return redirect_message (array ($this->uri_1, $obj->id, 'edit'), array ('_fd' => '資料庫處理錯誤！', 'posts' => $posts));
 
     return redirect_message (array ($this->uri_1), array ('_fi' => '更新成功！'));
@@ -135,6 +136,13 @@ class Richmenus extends Admin_controller {
       return redirect_message (array ($this->uri_1), array ('_fd' => '資料庫處理錯誤！'));
 
     return redirect_message (array ($this->uri_1), array ('_fi' => '刪除成功！'));
+  }
+  
+  public function put () {
+    $obj = $this->obj;
+    if (!Richmenu::transaction (function () use ($obj) { return $obj->put (); }))
+      return redirect_message (array ($this->uri_1), array ('_fd' => '上傳失敗！'));
+    return redirect_message (array ($this->uri_1), array ('_fi' => '上傳成功！'));
   }
   public function selected () {
     $obj = $this->obj;
@@ -155,7 +163,7 @@ class Richmenus extends Admin_controller {
       foreach ($columns as $column => $value)
         $obj->$column = $value;
 
-    if (!Richmenu::transaction (function () use ($obj, $posts) { return $obj->save () && $obj->put (); }))
+    if (!Richmenu::transaction (function () use ($obj, $posts) { return $obj->save (); }))
       return $this->output_error_json ('資料庫處理錯誤！');
 
     return $this->output_json ($obj->selected == Richmenu::SELECTED_2);

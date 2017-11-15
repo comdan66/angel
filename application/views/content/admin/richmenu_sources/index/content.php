@@ -1,5 +1,9 @@
 <h1<?php echo isset ($icon) && $icon ? ' class="' . $icon . '"' : '';?>><?php echo $title;?>列表</h1>
 
+<div class='panel back'>
+  <a class='icon-keyboard_arrow_left' href='<?php echo $_url;?>'>上層表頁</a>
+</div>
+
 <div class='search'>
   <input type='checkbox' id='search_conditions' class='hckb'<?php echo $isSearch = array_filter (column_array ($searches, 'value'), function ($t) { return $t !== null; }) ? ' checked' : '';?> />
   
@@ -51,40 +55,24 @@
   <table class='table-list'>
     <thead>
       <tr>
-        <th width='100' class='center'>預設顯示</th>
-        <th width='70' class='center'>封面</th>
-        <th width='150' class='left'>顯示名稱</th>
-        <th class='left'>名稱</th>
-        <th width='120'>編輯</th>
+        <th width='60' class='center'>挑選</th>
+        <th width='150' class='left'>名稱</th>
+        <th class='left'>是否設定</th>
+        <th width='80' class='right'>移除設定</th>
       </tr>
     </thead>
     <tbody>
-<?php foreach ($objs as $obj) { ?>
+<?php foreach ($objs as $o) { ?>
         <tr>
           <td class='center'>
-            <label class='switch ajax' data-column='selected' data-url='<?php echo base_url ($uri_1, 'selected', $obj->id);?>'>
-              <input type='checkbox'<?php echo $obj->selected == Richmenu::SELECTED_2 ? ' checked' : '';?> />
+            <label class='checkbox'>
+              <input type='checkbox' data-id='<?php echo $o->id;?>' data-title='<?php echo $o->title;?>' />
               <span></span>
             </label>
           </td>
-
-          <td class='center'>
-            <div class='oaips'>
-              <div class='oaip _ic' data-src='<?php echo $obj->cover->url ();?>'><img src='<?php echo $obj->cover->url ('w240');?>' /></div>
-            </div>
-          </td>
-          <td class='left'><?php echo $obj->name;?></td>
-          <td class='left'><?php echo $obj->text;?></td>
-          <td class='edit'>
-      <?php if (!$obj->rid) { ?>
-              <a class='icon-ob' href="<?php echo base_url ('admin', 'richmenus', 'put', $obj->id);?>"></a>
-      <?php } else { ?>
-              <a class='icon-u' href="<?php echo base_url ('admin', 'richmenu', $obj->id, 'sources');?>"></a>
-      <?php } ?>
-            <a class='icon-touch_app' href="<?php echo base_url ('admin', 'richmenu', $obj->id, 'actions');?>"></a>
-            <a class='icon-pencil2' href="<?php echo base_url ($uri_1, $obj->id, 'edit');?>"></a>
-            <a class='icon-bin' href="<?php echo base_url ($uri_1, $obj->id);?>" data-method='delete'></a>
-          </td>
+          <td class='left'><?php echo $o->title;?></td>
+          <td class='left'><?php echo $o->set && $o->set->richmenu_id && isset ($richmenus[$o->set->richmenu_id]) ? $richmenus[$o->set->richmenu_id]->name : '';?></td>
+          <td class='right'><?php echo $o->set && $o->set->richmenu_id && isset ($richmenus[$o->set->richmenu_id]) ? '<a class="icon-minus" href="' . base_url ($uri_1, $obj->id, 'users') . '" data-alert="確定要移除？" data-method="delete"></a>' : '';?></td>
         </tr>
 <?php } ?>
     </tbody>
@@ -93,3 +81,16 @@
 </div>
 
 <div class='pagination'><?php echo $pagination;?></div>
+
+<input type='checkbox' id='_b' />
+
+<form id='choice-box' method='post' data-id='<?php echo $obj->id;?>'>
+  <header>
+    <a class='icon-bin'></a>
+    <div data-cnt='0'>選擇列表</div>
+    <label for='_b'></label>
+  </header>
+
+  <div></div>
+  <button type='submit'>設定<i class='icon-keyboard_arrow_right'></i></button>
+</form>

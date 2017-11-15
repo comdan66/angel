@@ -19,6 +19,9 @@ class RichmenuAction extends OaModel {
   static $belongs_to = array (
     array ('richmenu', 'class_name' => 'Richmenu'),
   );
+  
+  static $after_save = array ('reset');
+  static $after_destroy = array ('reset');
 
   const ACTION_TYPE_1 = 1;
   const ACTION_TYPE_2 = 2;
@@ -58,8 +61,11 @@ class RichmenuAction extends OaModel {
   public function __construct ($attributes = array (), $guard_attributes = true, $instantiating_via_find = false, $new_record = true) {
     parent::__construct ($attributes, $guard_attributes, $instantiating_via_find, $new_record);
   }
+  public function reset () {
+    return !$this->richmenu || $this->richmenu->reset ();
+  }
   public function destroy () {
-    return $this->delete () && $this->richmenu->put ();
+    return $this->delete ();
   }
   public function format () {
     $action = array ('type' => RichmenuAction::$actionTypes[$this->action_type]);

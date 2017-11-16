@@ -59,6 +59,7 @@ class Richmenus extends Admin_controller {
     $posts = OAInput::post ();
     $cover = OAInput::file ('cover');
     $posts['rid'] = '';
+    $posts['status'] = Richmenu::STATUS_1;
 
     $validation = function (&$posts, &$cover) {
       if (!(isset ($posts['selected']) && is_string ($posts['selected']) && is_numeric ($posts['selected'] = trim ($posts['selected'])) && in_array ($posts['selected'], array_keys (Richmenu::$selectedNames)))) $posts['selected'] = Richmenu::SELECTED_1;
@@ -114,6 +115,8 @@ class Richmenus extends Admin_controller {
         $posts['height'] = $img['height'];
       }
 
+      $posts['status'] = Richmenu::STATUS_1;
+
       return '';
     };
 
@@ -137,7 +140,7 @@ class Richmenus extends Admin_controller {
 
     return redirect_message (array ($this->uri_1), array ('_fi' => '刪除成功！'));
   }
-  
+
   public function put () {
     $obj = $this->obj;
     if (!Richmenu::transaction (function () use ($obj) { return $obj->put (); }))
@@ -151,6 +154,7 @@ class Richmenus extends Admin_controller {
       return $this->output_error_json ('非 POST 方法，錯誤的頁面請求。');
 
     $posts = OAInput::post ();
+    $posts['status'] = Richmenu::STATUS_1;
 
     $validation = function (&$posts) {
       return !(isset ($posts['selected']) && is_string ($posts['selected']) && is_numeric ($posts['selected'] = trim ($posts['selected'])) && ($posts['selected'] = $posts['selected'] ? Richmenu::SELECTED_2 : Richmenu::SELECTED_1) && in_array ($posts['selected'], array_keys (Richmenu::$selectedNames))) ? '「設定上下架」發生錯誤！' : '';

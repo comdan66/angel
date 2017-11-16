@@ -13,29 +13,6 @@ class Callback extends Api_controller {
   }
 
   public function x () {
-    $this->load->library ('OALineBot');
-    echo '<meta http-equiv="Content-type" content="text/html; charset=utf-8" /><pre>';
-    var_dump (OALineBotRichmenu::linkRichmenu2User ('richmenu-f2cfacd29d66c70667170b8c13eda7a4', 'U4a37e32a1d11b3995d2bf299597e432f'));
-    exit ();
-    // echo '<meta http-equiv="Content-type" content="text/html; charset=utf-8" /><pre>';
-    // var_dump (Richmenu::find_by_id (1)->put ());
-    // exit ();;
-
-    // echo '<meta http-equiv="Content-type" content="text/html; charset=utf-8" /><pre>';
-    // var_dump (array_diff(array (), array ()));
-    // exit ();
-    // if (($richMenuIds = column_array (OALineBotRichmenu::getRichmenuList (), 'richMenuId')) && ($richMenuIds = array_diff ($richMenuIds, column_array (Richmenu::find ('all', array ('select' => 'rid')), 'rid'))))
-    //   echo '<meta http-equiv="Content-type" content="text/html; charset=utf-8" /><pre>';
-    //   var_dump ($richMenuIds);
-    //   exit ();
-    // var_dump ($richMenuIds1 = column_array (OALineBotRichmenu::getRichmenuList (), 'richMenuId'));
-    // var_dump ($richMenuIds2 = column_array (Richmenu::find ('all', array ('select' => 'rid')), 'rid'));
-    // var_dump ($richMenuIds = array_diff ($richMenuIds1, $richMenuIds2));
-    // exit ();
-
-
-    // // var_dump (($richMenuIds1 = column_array (OALineBotRichmenu::getRichmenuList (), 'richMenuId')) && ($richMenuIds2 = column_array (Richmenu::find ('all', array ('select' => 'rid')), 'rid')) && ($richMenuIds = array_diff ($richMenuIds1, $richMenuIds2)));
-    // exit ();
 
   }
   public function test () {

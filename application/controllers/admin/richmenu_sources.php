@@ -30,7 +30,7 @@ class Richmenu_sources extends Admin_controller {
     $this->title = '選擇設定為「' . $this->parent->name . '」';
 
     if (in_array ($this->uri->rsegments (2, 0), array ('destroy')))
-      if (!(($id = $this->uri->rsegments (4, 0)) && ($this->obj = RichmenuAction::find_by_id ($id))))
+      if (!(($id = $this->uri->rsegments (4, 0)) && ($this->obj = Source::find_by_id ($id))))
         return redirect_message (array ($this->uri_1, $this->parent->id, $this->uri_2), array ('_fd' => '找不到該筆資料。'));
 
     $this->add_param ('uri_1', $this->uri_1)
@@ -57,10 +57,12 @@ class Richmenu_sources extends Admin_controller {
     });
 
     return $this->load_view (array (
+        'obj' => $this->obj,
         'objs' => $objs,
         'total' => $offset,
         'searches' => $searches,
         'pagination' => $this->_get_pagination ($configs),
+        'richmenus' => array_combine (column_array ($tmps = Richmenu::find ('all'), 'id'), $tmps),
       ));
   }
   public function create ($id) {
@@ -73,7 +75,7 @@ class Richmenu_sources extends Admin_controller {
     if (!(($posts = OAInput::post ('ids')) && ($objs = Source::find ('all', array ('include' => array ('set'), 'conditions' => array ('id IN (?)', $posts))))))
       return redirect_message (array ($this->uri_1, $parent->id, $this->uri_2), array ('_fd' => '找不到任何資料。'));
 
-    if (array_filter (array_map (function ($o) use ($obj) { return !((!$o->set ? $o->createSet ($obj->id) : (($o->set->richmenu_id = $obj->id) && $o->set->save ())) && $o->update2Richmenu ()); }, $objs)))
+    if (array_filter (array_map (function ($o) use ($parent) { return !$o->updateRichmenu ($parent); }, $objs)))
       return redirect_message (array ($this->uri_1, $parent->id, $this->uri_2), array ('_fd' => '設定失敗。'));
 
     return redirect_message (array ($this->uri_1, $parent->id, $this->uri_2), array ('_fi' => '設定成功！'));
@@ -82,9 +84,9 @@ class Richmenu_sources extends Admin_controller {
     $parent = $this->parent;
     $obj = $this->obj;
 
-    if (!RichmenuAction::transaction (function () use ($obj) { return $obj->destroy (); }))
-      return redirect_message (array ($this->uri_1, $parent->id, $this->uri_2), array ('_fd' => '刪除失敗！'));
+    if (!Source::transaction (function () use ($obj) { return $obj->removeRichmenu (); }))
+      return redirect_message (array ($this->uri_1, $parent->id, $this->uri_2), array ('_fd' => '移除 Richmenu 失敗！'));
 
-    return redirect_message (array ($this->uri_1, $parent->id,  $this->uri_2), array ('_fi' => '刪除成功！'));
+    return redirect_message (array ($this->uri_1, $parent->id,  $this->uri_2), array ('_fi' => '移除 Richmenu 成功！'));
   }
 }

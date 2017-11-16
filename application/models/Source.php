@@ -41,17 +41,29 @@ class Source extends OaModel {
     if ($event->isRoomEvent ()) return Source::TYPE_ROOM;
     return Source::TYPE_OTHER;
   }
-  public function update2Richmenu () {
-    return 1;
-    if (!(isset ($this->set) && isset ($this->sid) && $this->set->richmenu_id && $this->set->richmenu)) return false;
-    $this->CI->load->library ('OALineBot');
+  // public function removeRichmenu () {
+  //   if (!isset ($this->sid)) return false;
+  //   if (!$this->set) $this->createSet ();
+  //   $this->set->richmenu_id = 0;
+  //   if (!$this->set->save ()) return false;
+  //   $this->CI->load->library ('OALineBot');
+  //   return OALineBotRichmenu::unlinkRichmenuFromUser ($this->sid);
+  // }
+  // public function updateRichmenu ($richmenu) {
+  //   if (!(isset ($this->id) && isset ($this->sid) && isset ($richmenu->id) && isset ($richmenu->rid))) return false;
 
-    return OALineBotRichmenu::linkRichmenu2User ($this->set->richmenu->rid, $this->sid);
-  }
-  public function createSet ($richmenu = null) {
-    $params = array ('source_id' => $this->id, 'richmenu_id' => $richmenu && isset ($richmenu->id) ? $richmenu->id : 0, 'bitcoin' => 0, 'jpy' => 0);
-    return verifyCreateOrm (SourceSet::create (array_intersect_key ($params, SourceSet::table ()->columns)));
-  }
+  //   if (!$this->set) $this->createSet ();
+  //   $this->set->richmenu_id = $richmenu->id;
+
+  //   if (!$this->set->save ()) return false;
+
+  //   $this->CI->load->library ('OALineBot');
+  //   return OALineBotRichmenu::linkRichmenu2User ($richmenu->rid, $this->sid);
+  // }
+  // public function createSet ($richmenu = null) {
+  //   $params = array ('source_id' => $this->id, 'richmenu_id' => $richmenu && isset ($richmenu->id) ? $richmenu->id : 0, 'bitcoin' => 0, 'jpy' => 0);
+  //   return verifyCreateOrm (SourceSet::create (array_intersect_key ($params, SourceSet::table ()->columns)));
+  // }
   public function updateTitle () {
     if (!(isset ($this->id) && isset ($this->sid) && isset ($this->title) && isset ($this->type) && ($this->type == Source::TYPE_USER) && !$this->title))
       return false;
@@ -72,7 +84,8 @@ class Source extends OaModel {
     $params = array (
       'sid' => $sid,
       'title' => '',
-      'type' => Source::getType ($event)
+      'type' => Source::getType ($event),
+      'richmenu_id' => 0
     );
 
     if (!$source = Source::find ('one', array ('select' => 'id, sid, title, type', 'conditions' => array ('sid = ?', $params['sid']))))
@@ -89,7 +102,8 @@ class Source extends OaModel {
     $params = array (
       'sid' => $userId,
       'title' => '',
-      'type' => Source::TYPE_USER
+      'type' => Source::TYPE_USER,
+      'richmenu_id' => 0
     );
 
     if (!$speaker = Source::find ('one', array ('select' => 'id, sid, title, type', 'conditions' => array ('sid = ?', $params['sid']))))
@@ -100,44 +114,4 @@ class Source extends OaModel {
 
     return $speaker;
   }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  // public static function getSource ($event, &$say) {
-  //   if (!$sid = $event->getEventSourceId ()) return null;
-
-  //   if (!($source = Source::find ('one', array ('select' => 'id, sid, title, type', 'conditions' => array ('sid = ?', $sid)))))
-  //     if (!(($params = array ('sid' => $sid, 'title' => '', 'type' => Source::getType ($event))) && Source::transaction (function () use (&$source, $params) { return verifyCreateOrm ($source = Source::create (array_intersect_key ($params, Source::table ()->columns))); })))
-  //       return null;
-
-  //   if ($source->isManyUser ()) {
-  //     $userId = $event->getUserId ();
-
-  //     if (!($say = Source::find ('one', array ('select' => 'id, sid, title, type', 'conditions' => array ('sid = ?', $userId)))))
-  //       if (!(($params = array ('sid' => $userId, 'title' => '', 'type' => Source::TYPE_USER)) && Source::transaction (function () use (&$say, $params) { return verifyCreateOrm ($say = Source::create (array_intersect_key ($params, Source::table ()->columns))); })))
-  //         $say = null;
-
-  //     if ($say) $say->updateTitle ();
-  //   } else if ($source->isUser ()) {
-  //     $say = $source;
-  //   }
-
-  //   $source->updateTitle ();
-
-  //   return $source;
-  // }
-
 }

@@ -18,6 +18,7 @@ class SourceSet extends OaModel {
 
   static $belongs_to = array (
     array ('richmenu', 'class_name' => 'Richmenu'),
+    array ('source', 'class_name' => 'Source'),
   );
 
   public function __construct ($attributes = array (), $guard_attributes = true, $instantiating_via_find = false, $new_record = true) {

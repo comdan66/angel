@@ -55,7 +55,7 @@
         <th width='70' class='center'>封面</th>
         <th width='150' class='left'>顯示名稱</th>
         <th class='left'>名稱</th>
-        <th width='120'>編輯</th>
+        <th width='140'>編輯</th>
       </tr>
     </thead>
     <tbody>
@@ -76,11 +76,11 @@
           <td class='left'><?php echo $obj->name;?></td>
           <td class='left'><?php echo $obj->text;?></td>
           <td class='edit'>
-      <?php if (!$obj->rid) { ?>
-              <a class='icon-ob' href="<?php echo base_url ('admin', 'richmenus', 'put', $obj->id);?>"></a>
-      <?php } else { ?>
-              <a class='icon-u' href="<?php echo base_url ('admin', 'richmenu', $obj->id, 'sources');?>"></a>
+      <?php if ($obj->status = Richmenu::STATUS_1) { ?>
+              GG
       <?php } ?>
+            <a class='icon-ob' href="<?php echo base_url ('admin', 'richmenus', 'put', $obj->id);?>"></a>
+            <a class='icon-u' href="<?php echo base_url ('admin', 'richmenu', $obj->id, 'sources');?>"></a>
             <a class='icon-touch_app' href="<?php echo base_url ('admin', 'richmenu', $obj->id, 'actions');?>"></a>
             <a class='icon-pencil2' href="<?php echo base_url ($uri_1, $obj->id, 'edit');?>"></a>
             <a class='icon-bin' href="<?php echo base_url ($uri_1, $obj->id);?>" data-method='delete'></a>

@@ -72,7 +72,7 @@
           </td>
           <td class='left'><?php echo $o->title;?></td>
           <td class='left'><?php echo $o->set && $o->set->richmenu_id && isset ($richmenus[$o->set->richmenu_id]) ? $richmenus[$o->set->richmenu_id]->name : '';?></td>
-          <td class='right'><?php echo $o->set && $o->set->richmenu_id && isset ($richmenus[$o->set->richmenu_id]) ? '<a class="icon-minus" href="' . base_url ($uri_1, $obj->id, 'users') . '" data-alert="確定要移除？" data-method="delete"></a>' : '';?></td>
+          <td class='right'><?php echo $o->set && $o->set->richmenu_id && isset ($richmenus[$o->set->richmenu_id]) ? '<a class="icon-minus" href="' . base_url ($uri_1, $parent->id, $uri_2, $o->id) . '" data-alert="確定要 Richmenu 移除？" data-method="delete"></a>' : '';?></td>
         </tr>
 <?php } ?>
     </tbody>
@@ -84,7 +84,7 @@
 
 <input type='checkbox' id='_b' />
 
-<form id='choice-box' method='post' data-id='<?php echo $obj->id;?>'>
+<form id='choice-box' method='post' data-id='<?php echo $parent->id;?>'>
   <header>
     <a class='icon-bin'></a>
     <div data-cnt='0'>選擇列表</div>

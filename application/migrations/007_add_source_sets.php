@@ -12,7 +12,6 @@ class Migration_Add_source_sets extends CI_Migration {
       "CREATE TABLE `source_sets` (
         `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
         `source_id` int(11) unsigned NOT NULL DEFAULT 0 COMMENT 'Source ID',
-        `richmenu_id` int(11) unsigned NOT NULL DEFAULT 0 COMMENT 'Richmenu ID',
         `bitcoin` double NOT NULL DEFAULT '0' COMMENT '比特幣',
         `jpy` double NOT NULL DEFAULT '0' COMMENT '日幣',
         PRIMARY KEY (`id`)

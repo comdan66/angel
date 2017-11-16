@@ -57,7 +57,7 @@
       <tr>
         <th width='60' class='center'>挑選</th>
         <th width='150' class='left'>名稱</th>
-        <th class='left'>是否設定</th>
+        <th class='left'>Richmenu 名稱</th>
         <th width='80' class='right'>移除設定</th>
       </tr>
     </thead>

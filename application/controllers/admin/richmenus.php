@@ -59,8 +59,9 @@ class Richmenus extends Admin_controller {
     $posts = OAInput::post ();
     $cover = OAInput::file ('cover');
     $posts['rid'] = '';
-    $posts['status'] = Richmenu::STATUS_1;
-    $posts['is_d4'] = Richmenu::ISD4_NO;
+    // $posts['status'] = Richmenu::STATUS_1;
+    // $posts['is_d4'] = Richmenu::ISD4_NO;
+
 
     $validation = function (&$posts, &$cover) {
       if (!(isset ($posts['selected']) && is_string ($posts['selected']) && is_numeric ($posts['selected'] = trim ($posts['selected'])) && in_array ($posts['selected'], array_keys (Richmenu::$selectedNames)))) $posts['selected'] = Richmenu::SELECTED_1;
@@ -77,7 +78,7 @@ class Richmenus extends Admin_controller {
       return '';
     };
 
-    if (($msg = $validation ($posts, $cover)) || (!Richmenu::transaction (function () use (&$obj, $posts, $cover) { return verifyCreateOrm ($obj = Richmenu::create (array_intersect_key ($posts, Richmenu::table ()->columns))) && $obj->cover->put ($cover); }) && ($msg = '資料庫處理錯誤！')))
+    if (($msg = $validation ($posts, $cover)) || (!Richmenu::transaction (function () use (&$obj, $posts, $cover) { return verifyCreateOrm ($obj = Richmenu::create (array_intersect_key ($posts, Richmenu::table ()->columns))) && $obj->cover->put ($cover) && $obj->createRichmenu (); }) && ($msg = '資料庫處理錯誤！')))
       return redirect_message (array ($this->uri_1, 'add'), array ('_fd' => $msg, 'posts' => $posts));
 
     return redirect_message (array ($this->uri_1), array ('_fi' => '新增成功！'));
@@ -116,7 +117,7 @@ class Richmenus extends Admin_controller {
         $posts['height'] = $img['height'];
       }
 
-      $posts['status'] = Richmenu::STATUS_1;
+      // $posts['status'] = Richmenu::STATUS_1;
 
       return '';
     };
@@ -128,7 +129,7 @@ class Richmenus extends Admin_controller {
       foreach ($columns as $column => $value)
         $obj->$column = $value;
 
-    if (!Richmenu::transaction (function () use ($obj, $posts, $cover) { if (!$obj->save ()) return false; if ($cover && !$obj->cover->put ($cover)) return false; return true; }))
+    if (!Richmenu::transaction (function () use ($obj, $posts, $cover) { if ($cover && !$obj->cover->put ($cover)) return false; return $obj->save () && $obj->updateRichmenu (); }))
       return redirect_message (array ($this->uri_1, $obj->id, 'edit'), array ('_fd' => '資料庫處理錯誤！', 'posts' => $posts));
 
     return redirect_message (array ($this->uri_1), array ('_fi' => '更新成功！'));

@@ -13,6 +13,10 @@ class Callback extends Api_controller {
   }
 
   public function x () {
+    $this->load->library ('OALineBot');
+    array_map(function ($r) {
+      OALineBotRichmenu::deleteRichmenu($r['richMenuId']);
+    }, OALineBotRichmenu::getRichmenuList ());
 
   }
   public function test () {

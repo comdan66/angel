@@ -59,37 +59,29 @@ class Richmenu extends OaModel {
         'areas' => array_map (function ($action) { return $action->format (); }, $this->actions)
       );
   }
-  public static function mapping () {
-    return true;
-  }
-  public function put () {
+  public function createRichmenu () {
     $this->CI->load->library ('OALineBot');
-
-    $that = $this;
-
-    if (!(($that->status = Richmenu::STATUS_2) && ($that->rid = OALineBotRichmenu::createRichmenu ($that->format ())) && $that->save () && OALineBotRichmenu::uploadRichmenuImage ($that->rid, $that->cover->url ()) && (count (array_filter (array_map(function ($source) use ($that) { return !$source->linkRichmenu ($that); }, $that->sources))) == 0)))
-      return false;
-
-    return Richmenu::mapping ();
+    return ($this->rid = OALineBotRichmenu::createRichmenu ($this->format ())) && OALineBotRichmenu::uploadRichmenuImage ($this->rid, $this->cover->url ()) && $this->save ();
   }
+  public function updateRichmenu () {
+    $that = $this;
+    $that->CI->load->library ('OALineBot');
+    return (OALineBotRichmenu::deleteRichmenu ($that->rid)) && ($that->rid = OALineBotRichmenu::createRichmenu ($that->format ())) && OALineBotRichmenu::uploadRichmenuImage ($that->rid, $that->cover->url ()) && $that->save () && !array_filter (array_map(function ($source) use ($that) { return !$source->linkRichmenu ($that); }, $that->sources));
+  }
+  public function deleteRichmenu () {
+    $this->CI->load->library ('OALineBot');
+    return OALineBotRichmenu::deleteRichmenu ($this->rid) && !array_filter (array_map(function ($source) { return !$source->unlinkRichmenu (); }, $this->sources));
+  }
+
   public function destroy () {
     if (!(isset ($this->id) && isset ($this->rid)))
       return false;
-
-    $this->CI->load->library ('OALineBot');
-    
-    if (!OALineBotRichmenu::deleteRichmenu ($this->rid))
-      return false;
-
-    foreach ($this->sources as $source)
-      if (!$source->unlinkRichmenu ())
-        return false;
 
     if ($this->actions)
       foreach ($this->actions as $actions)
         if (!$actions->destroy ())
           return false;
 
-    return $this->delete ();
+    return $this->deleteRichmenu () && $this->delete ();
   }
 }

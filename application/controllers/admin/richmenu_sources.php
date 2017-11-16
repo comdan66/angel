@@ -27,9 +27,6 @@ class Richmenu_sources extends Admin_controller {
     if (!(($id = $this->uri->rsegments (3, 0)) && ($this->parent = Richmenu::find_by_id ($id))))
       return redirect_message (array ('admin', 'richmenus'), array ('_fd' => '找不到該筆資料。'));
     
-    if($this->parent->status != Richmenu::STATUS_2)
-      return redirect_message (array ('admin', 'richmenus'), array ('_fd' => 'Richmenu 尚未更新。'));
-
     $this->title = '選擇設定為「' . $this->parent->name . '」';
 
     if (in_array ($this->uri->rsegments (2, 0), array ('destroy')))

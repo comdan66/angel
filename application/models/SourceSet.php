@@ -17,7 +17,6 @@ class SourceSet extends OaModel {
   );
 
   static $belongs_to = array (
-    array ('richmenu', 'class_name' => 'Richmenu'),
     array ('source', 'class_name' => 'Source'),
   );
 

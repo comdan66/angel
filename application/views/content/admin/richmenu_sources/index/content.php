@@ -62,17 +62,17 @@
       </tr>
     </thead>
     <tbody>
-<?php foreach ($objs as $o) { ?>
+<?php foreach ($objs as $obj) { ?>
         <tr>
           <td class='center'>
             <label class='checkbox'>
-              <input type='checkbox' data-id='<?php echo $o->id;?>' data-title='<?php echo $o->title;?>' />
+              <input type='checkbox' data-id='<?php echo $obj->id;?>' data-title='<?php echo $obj->title;?>' />
               <span></span>
             </label>
           </td>
-          <td class='left'><?php echo $o->title;?></td>
-          <td class='left'><?php echo $o->set && $o->set->richmenu_id && isset ($richmenus[$o->set->richmenu_id]) ? $richmenus[$o->set->richmenu_id]->name : '';?></td>
-          <td class='right'><?php echo $o->set && $o->set->richmenu_id && isset ($richmenus[$o->set->richmenu_id]) ? '<a class="icon-minus" href="' . base_url ($uri_1, $parent->id, $uri_2, $o->id) . '" data-alert="確定要 Richmenu 移除？" data-method="delete"></a>' : '';?></td>
+          <td class='left'><?php echo $obj->title;?></td>
+          <td class='left'><?php echo $obj->richmenu ? $obj->richmenu->name : '';?></td>
+          <td class='right'><?php echo $obj->richmenu ? '<a class="icon-minus" href="' . base_url ($uri_1, $parent->id, $uri_2, $obj->id) . '" data-alert="確定要 Richmenu 移除？" data-method="delete"></a>' : '';?></td>
         </tr>
 <?php } ?>
     </tbody>

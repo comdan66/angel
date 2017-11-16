@@ -60,6 +60,7 @@ class Richmenus extends Admin_controller {
     $cover = OAInput::file ('cover');
     $posts['rid'] = '';
     $posts['status'] = Richmenu::STATUS_1;
+    $posts['is_d4'] = Richmenu::ISD4_NO;
 
     $validation = function (&$posts, &$cover) {
       if (!(isset ($posts['selected']) && is_string ($posts['selected']) && is_numeric ($posts['selected'] = trim ($posts['selected'])) && in_array ($posts['selected'], array_keys (Richmenu::$selectedNames)))) $posts['selected'] = Richmenu::SELECTED_1;
@@ -144,9 +145,10 @@ class Richmenus extends Admin_controller {
   public function put () {
     $obj = $this->obj;
     if (!Richmenu::transaction (function () use ($obj) { return $obj->put (); }))
-      return redirect_message (array ($this->uri_1), array ('_fd' => '上傳失敗！'));
-    return redirect_message (array ($this->uri_1), array ('_fi' => '上傳成功！'));
+      return redirect_message (array ($this->uri_1), array ('_fd' => '同步失敗！'));
+    return redirect_message (array ($this->uri_1), array ('_fi' => '同步成功！'));
   }
+
   public function selected () {
     $obj = $this->obj;
 

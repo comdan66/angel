@@ -25,7 +25,7 @@ class Richmenu_actions extends Admin_controller {
     $this->icon = 'icon-touch_app';
 
     if (!(($id = $this->uri->rsegments (3, 0)) && ($this->parent = Richmenu::find_by_id ($id))))
-      return redirect_message (array ('admin', 'work-tags'), array ('_fd' => '找不到該筆資料。'));
+      return redirect_message (array ('admin', 'richmenus'), array ('_fd' => '找不到該筆資料。'));
 
     $this->title = '「' . $this->parent->name . '」的點擊事件';
 
@@ -109,7 +109,7 @@ class Richmenu_actions extends Admin_controller {
       return '';
     };
 
-    if (($msg = $validation ($posts)) || (!RichmenuAction::transaction (function () use (&$obj, $posts) { return verifyCreateOrm ($obj = RichmenuAction::create (array_intersect_key ($posts, RichmenuAction::table ()->columns))); }) && $msg = '新增失敗！'))
+    if (($msg = $validation ($posts)) || (!RichmenuAction::transaction (function () use (&$obj, $posts, $parent) { return verifyCreateOrm ($obj = RichmenuAction::create (array_intersect_key ($posts, RichmenuAction::table ()->columns))) && ($parent->status = Richmenu::STATUS_1) && $parent->save (); }) && $msg = '新增失敗！'))
       return redirect_message (array ($this->uri_1, $parent->id, $this->uri_2, 'add'), array ('_fd' => $msg, 'posts' => $posts));
 
     return redirect_message (array ($this->uri_1, $parent->id,  $this->uri_2), array ('_fi' => '新增成功！'));
@@ -172,9 +172,8 @@ class Richmenu_actions extends Admin_controller {
       foreach ($columns as $column => $value)
         $obj->$column = $value;
 
-    if (!RichmenuAction::transaction (function () use ($obj, $posts) {
-      return $obj->save ();
-    })) return redirect_message (array ($this->uri_1, $parent->id, $this->uri_2, $obj->id, 'edit'), array ('_fd' => '更新失敗！', 'posts' => $posts));
+    if (!RichmenuAction::transaction (function () use ($obj, $posts, $parent) { return $obj->save () && ($parent->status = Richmenu::STATUS_1) && $parent->save (); }))
+      return redirect_message (array ($this->uri_1, $parent->id, $this->uri_2, $obj->id, 'edit'), array ('_fd' => '更新失敗！', 'posts' => $posts));
 
     return redirect_message (array ($this->uri_1, $parent->id,  $this->uri_2), array ('_fi' => '新增成功！'));
   }
@@ -183,7 +182,7 @@ class Richmenu_actions extends Admin_controller {
     $parent = $this->parent;
     $obj = $this->obj;
 
-    if (!RichmenuAction::transaction (function () use ($obj) { return $obj->destroy (); }))
+    if (!RichmenuAction::transaction (function () use ($obj, $parent) { return $obj->destroy () && ($parent->status = Richmenu::STATUS_1) && $parent->save (); }))
       return redirect_message (array ($this->uri_1, $parent->id, $this->uri_2), array ('_fd' => '刪除失敗！'));
 
     return redirect_message (array ($this->uri_1, $parent->id,  $this->uri_2), array ('_fi' => '刪除成功！'));

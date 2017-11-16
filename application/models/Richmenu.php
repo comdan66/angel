@@ -15,7 +15,7 @@ class Richmenu extends OaModel {
 
   static $has_many = array (
     array ('actions', 'class_name' => 'RichmenuAction'),
-    array ('sets', 'class_name' => 'SourceSet'),
+    array ('sources', 'class_name' => 'Source'),
   );
 
   static $belongs_to = array (
@@ -35,6 +35,13 @@ class Richmenu extends OaModel {
     self::STATUS_1 => '未更新',
     self::STATUS_2 => '已更新',
   );
+  const ISD4_NO = 1;
+  const ISD4_YES = 2;
+
+  static $isd4Names = array (
+    self::ISD4_NO => '非預設',
+    self::ISD4_YES => '預設',
+  );
   public function __construct ($attributes = array (), $guard_attributes = true, $instantiating_via_find = false, $new_record = true) {
     parent::__construct ($attributes, $guard_attributes, $instantiating_via_find, $new_record);
 
@@ -52,47 +59,31 @@ class Richmenu extends OaModel {
         'areas' => array_map (function ($action) { return $action->format (); }, $this->actions)
       );
   }
+  public static function mapping () {
+    return true;
+  }
   public function put () {
     $this->CI->load->library ('OALineBot');
 
-    if (count (array_filter (array_map (function ($rid) { return !OALineBotRichmenu::deleteRichmenu ($rid); }, $richMenuIds = array_diff (column_array (OALineBotRichmenu::getRichmenuList (), 'richMenuId'), column_array (Richmenu::find ('all', array ('select' => 'rid', 'conditions' => array ('rid != ?', ''))), 'rid'))))))
-      return false;
-
-    if ($this->rid && !OALineBotRichmenu::deleteRichmenu ($this->rid))
-      return false;
-
-    $this->status = Richmenu::STATUS_2;
-    if (!(($this->rid = OALineBotRichmenu::createRichmenu ($this->format ())) && $this->save ()))
-      return false;
-
-    if (!(OALineBotRichmenu::uploadRichmenuImage ($this->rid, $this->cover->url ())))
-      return false;
-
-    if (($rids = array_diff (column_array (Richmenu::find ('all', array ('select' => 'rid', 'conditions' => array ('rid != ?', ''))), 'rid'), column_array (OALineBotRichmenu::getRichmenuList (), 'richMenuId'))) && count (array_filter (array_map (function ($richmenu) { return !$richmenu->reset (); }, Richmenu::find ('all', array ('select' => 'id, rid', 'include' => array ('sets'), 'conditions' => array ('rid IN (?)', $rids)))))))
-      return false;
-
     $that = $this;
-    if (array_filter (array_map(function ($set) use ($that) {
-      return !($set->source ? $set->source->updateRichmenu ($that) : true);
-    }, SourceSet::find ('all', array ('select' => 'source_id', 'include' => array ('source'), 'conditions' => array ('richmenu_id = ?', $this->id))))))
+
+    if (!(($that->status = Richmenu::STATUS_2) && ($that->rid = OALineBotRichmenu::createRichmenu ($that->format ())) && $that->save () && OALineBotRichmenu::uploadRichmenuImage ($that->rid, $that->cover->url ()) && (count (array_filter (array_map(function ($source) use ($that) { return !$source->linkRichmenu ($that); }, $that->sources))) == 0)))
       return false;
 
-
-    return true;
-  }
-  public function reset () {
-    return ($this->status = Richmenu::STATUS_1) && $this->save ();
+    return Richmenu::mapping ();
   }
   public function destroy () {
+    if (!(isset ($this->id) && isset ($this->rid)))
+      return false;
+
     $this->CI->load->library ('OALineBot');
     
     if (!OALineBotRichmenu::deleteRichmenu ($this->rid))
       return false;
 
-    if ($sets = SourceSet::find ('all', array ('select' => 'source_id', 'include' => array ('source'), 'conditions' => array ('richmenu_id = ?', $this->id))))
-      foreach ($sets as $set)
-        if (!$set->source->removeRichmenu ())
-          return false;
+    foreach ($this->sources as $source)
+      if (!$source->unlinkRichmenu ())
+        return false;
 
     if ($this->actions)
       foreach ($this->actions as $actions)

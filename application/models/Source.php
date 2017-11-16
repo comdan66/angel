@@ -11,13 +11,13 @@ class Source extends OaModel {
   static $table_name = 'sources';
 
   static $has_one = array (
-    array ('set', 'class_name' => 'SourceSet'),
   );
 
   static $has_many = array (
   );
 
   static $belongs_to = array (
+    array ('richmenu', 'class_name' => 'Richmenu'),
   );
 
   const TYPE_USER    = 1;
@@ -35,35 +35,33 @@ class Source extends OaModel {
   public function __construct ($attributes = array (), $guard_attributes = true, $instantiating_via_find = false, $new_record = true) {
     parent::__construct ($attributes, $guard_attributes, $instantiating_via_find, $new_record);
   }
+
+  public function linkRichmenu ($richmenu) {
+    if (!(isset ($this->id) && isset ($this->richmenu_id) && isset ($richmenu->id) && isset ($this->sid) && isset ($richmenu->rid))) return false;
+
+    $this->richmenu_id = $richmenu->id;
+    if (!$this->save ()) return false;
+
+    $this->CI->load->library ('OALineBot');
+    return OALineBotRichmenu::linkRichmenu2User ($richmenu->rid, $this->sid);
+  }
+  public function unlinkRichmenu () {
+    if (!(isset ($this->id) && isset ($this->sid) && isset ($this->richmenu_id))) return false;
+
+    $this->richmenu_id = 0;
+    if (!$this->save ()) return false;
+
+    $this->CI->load->library ('OALineBot');
+    return OALineBotRichmenu::unlinkRichmenuFromUser ($this->sid);
+  }
+
   public static function getType ($event) {
     if ($event->isUserEvent ()) return Source::TYPE_USER;
     if ($event->isGroupEvent ()) return Source::TYPE_GROUP;
     if ($event->isRoomEvent ()) return Source::TYPE_ROOM;
     return Source::TYPE_OTHER;
   }
-  // public function removeRichmenu () {
-  //   if (!isset ($this->sid)) return false;
-  //   if (!$this->set) $this->createSet ();
-  //   $this->set->richmenu_id = 0;
-  //   if (!$this->set->save ()) return false;
-  //   $this->CI->load->library ('OALineBot');
-  //   return OALineBotRichmenu::unlinkRichmenuFromUser ($this->sid);
-  // }
-  // public function updateRichmenu ($richmenu) {
-  //   if (!(isset ($this->id) && isset ($this->sid) && isset ($richmenu->id) && isset ($richmenu->rid))) return false;
 
-  //   if (!$this->set) $this->createSet ();
-  //   $this->set->richmenu_id = $richmenu->id;
-
-  //   if (!$this->set->save ()) return false;
-
-  //   $this->CI->load->library ('OALineBot');
-  //   return OALineBotRichmenu::linkRichmenu2User ($richmenu->rid, $this->sid);
-  // }
-  // public function createSet ($richmenu = null) {
-  //   $params = array ('source_id' => $this->id, 'richmenu_id' => $richmenu && isset ($richmenu->id) ? $richmenu->id : 0, 'bitcoin' => 0, 'jpy' => 0);
-  //   return verifyCreateOrm (SourceSet::create (array_intersect_key ($params, SourceSet::table ()->columns)));
-  // }
   public function updateTitle () {
     if (!(isset ($this->id) && isset ($this->sid) && isset ($this->title) && isset ($this->type) && ($this->type == Source::TYPE_USER) && !$this->title))
       return false;

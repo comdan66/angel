@@ -25,7 +25,10 @@ class Richmenu_sources extends Admin_controller {
     $this->icon = 'icon-u';
 
     if (!(($id = $this->uri->rsegments (3, 0)) && ($this->parent = Richmenu::find_by_id ($id))))
-      return redirect_message (array ('admin', 'work-tags'), array ('_fd' => '找不到該筆資料。'));
+      return redirect_message (array ('admin', 'richmenus'), array ('_fd' => '找不到該筆資料。'));
+    
+    if($this->parent->status != Richmenu::STATUS_2)
+      return redirect_message (array ('admin', 'richmenus'), array ('_fd' => 'Richmenu 尚未更新。'));
 
     $this->title = '選擇設定為「' . $this->parent->name . '」';
 
@@ -51,18 +54,16 @@ class Richmenu_sources extends Admin_controller {
 
     $configs = array_merge (explode ('/', $this->uri_1), array ($parent->id, $this->uri_2, '%s'));
     
-    $objs = conditions ($searches, $configs, $offset, 'Source', array ('order' => 'id DESC', 'include' => array ('set')), function ($conditions) {
+    $objs = conditions ($searches, $configs, $offset, 'Source', array ('order' => 'id DESC', 'include' => array ('richmenu')), function ($conditions) {
       OaModel::addConditions ($conditions, 'type = ? AND title != ?', Source::TYPE_USER, '');
       return $conditions;
     });
 
     return $this->load_view (array (
-        'obj' => $this->obj,
         'objs' => $objs,
         'total' => $offset,
         'searches' => $searches,
         'pagination' => $this->_get_pagination ($configs),
-        'richmenus' => array_combine (column_array ($tmps = Richmenu::find ('all'), 'id'), $tmps),
       ));
   }
   public function create ($id) {
@@ -72,10 +73,10 @@ class Richmenu_sources extends Admin_controller {
     if (!$this->has_post ())
       return redirect_message (array ($this->uri_1, $parent->id, $this->uri_2), array ('_fd' => '非 POST 方法，錯誤的頁面請求。'));
 
-    if (!(($posts = OAInput::post ('ids')) && ($objs = Source::find ('all', array ('include' => array ('set'), 'conditions' => array ('id IN (?)', $posts))))))
+    if (!(($posts = OAInput::post ('ids')) && ($objs = Source::find ('all', array ('conditions' => array ('id IN (?) AND type = ? AND title != ?', $posts, Source::TYPE_USER, ''))))))
       return redirect_message (array ($this->uri_1, $parent->id, $this->uri_2), array ('_fd' => '找不到任何資料。'));
 
-    if (array_filter (array_map (function ($o) use ($parent) { return !$o->updateRichmenu ($parent); }, $objs)))
+    if (array_filter (array_map (function ($o) use ($parent) { return !$o->linkRichmenu ($parent); }, $objs)))
       return redirect_message (array ($this->uri_1, $parent->id, $this->uri_2), array ('_fd' => '設定失敗。'));
 
     return redirect_message (array ($this->uri_1, $parent->id, $this->uri_2), array ('_fi' => '設定成功！'));
@@ -84,7 +85,7 @@ class Richmenu_sources extends Admin_controller {
     $parent = $this->parent;
     $obj = $this->obj;
 
-    if (!Source::transaction (function () use ($obj) { return $obj->removeRichmenu (); }))
+    if (!Source::transaction (function () use ($obj) { return $obj->unlinkRichmenu (); }))
       return redirect_message (array ($this->uri_1, $parent->id, $this->uri_2), array ('_fd' => '移除 Richmenu 失敗！'));
 
     return redirect_message (array ($this->uri_1, $parent->id,  $this->uri_2), array ('_fi' => '移除 Richmenu 成功！'));

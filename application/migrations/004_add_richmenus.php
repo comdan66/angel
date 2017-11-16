@@ -19,6 +19,7 @@ class Migration_Add_richmenus extends CI_Migration {
         `width` smallint(4) unsigned NOT NULL DEFAULT 0 COMMENT '封面寬度',
         `height` smallint(4) unsigned NOT NULL DEFAULT 0 COMMENT '封面高度',
         `status` tinyint(1) unsigned NOT NULL DEFAULT 1 COMMENT '是否更新，1 否，2 是',
+        `is_d4` tinyint(1) unsigned NOT NULL DEFAULT 1 COMMENT '是否為預設，1 否，2 是',
         PRIMARY KEY (`id`),
         KEY `rid_index` (`rid`)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"

@@ -13,20 +13,6 @@ class Callback extends Api_controller {
   }
 
   public function x () {
-    $this->load->library ('OALineBot');
-    array_map(function ($r) {
-      OALineBotRichmenu::deleteRichmenu($r['richMenuId']);
-    }, OALineBotRichmenu::getRichmenuList ());
-
-  }
-  public function test () {
-
-    $this->load->library ('OAFintech');
-
-    echo '<meta http-equiv="Content-type" content="text/html; charset=utf-8" /><pre>';
-    var_dump ($price = OAFintech::getRterJpyInfo ());
-    var_dump (round (1 / $price['buy']['rate'], 4));
-    exit ();;
   }
 
   public function v2 () {
@@ -45,6 +31,18 @@ class Callback extends Api_controller {
         continue;
 
       switch (get_class ($log)) {
+        case 'LogJoin':
+            OALineBotMsg::create ()->text ('嗨，你好！有想問我的事情可以打「？」或直接輸入「小添屎」我就會出現囉！')->reply ($log);
+            OALineBotMsg::create ()->image ('https://pic.ioa.tw/angel/tip/callme.png', 'https://pic.ioa.tw/angel/tip/callme.png')->push ($source);
+            break;
+
+        case 'LogFollow':
+            $source->linkRichmenu (Richmenu::find_by_id (3));
+            OALineBotMsg::create ()->text ('嗨，你好！有想問我的事情可以打「？」或直接輸入「小添屎」我就會出現囉！')->reply ($log);
+            OALineBotMsg::create ()->image ('https://pic.ioa.tw/angel/tip/callme.png', 'https://pic.ioa.tw/angel/tip/callme.png')->push ($source);
+            
+            break;
+
         case 'LogText':
           if (!in_array ($log->text, array ('?', '？', '小添屎', '小天使')))
             break;
@@ -61,6 +59,10 @@ class Callback extends Api_controller {
               array ('text' => '圖表', 'actions' => array (
                   OALineBotAction::templatePostback ('比特幣 一日內圖表', array ('class' => 'OAPostback', 'method' => 'viewBitcoinChart', 'params' => array (24)), '我選比特幣 一日內圖表'),
                   OALineBotAction::templatePostback ('比特幣 一週內圖表', array ('class' => 'OAPostback', 'method' => 'viewBitcoinChart', 'params' => array (24 * 7)), '我選比特幣 一週內圖表')
+                )),
+              array ('text' => '美食', 'actions' => array (
+                  OALineBotAction::templatePostback ('巷弄推薦美食', array ('class' => 'OAPostback', 'method' => 'alleyFood'), '我想知道巷弄推薦美食'),
+                  OALineBotAction::templatePostback ('巷弄隨機美食', array ('class' => 'OAPostback', 'method' => 'alleyFood'), '要想知道巷弄隨機美食'),
                 )),
             ))->reply ($log);
 

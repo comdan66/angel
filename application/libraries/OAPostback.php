@@ -31,6 +31,13 @@ class OAPostback {
           )
       )->reply ($log);
   }
+  public static function featureFood ($source, $log) {
+    OALineBotMsg::create ()->templateButton ('美食功能', '美食功能列表', array (
+            OALineBotAction::templatePostback ('巷弄推薦美食', array ('class' => 'OAPostback', 'method' => 'alleyFood'), '我想知道巷弄推薦美食'),
+            OALineBotAction::templatePostback ('巷弄隨機美食', array ('class' => 'OAPostback', 'method' => 'alleyFood'), '要想知道巷弄隨機美食'),
+          )
+      )->reply ($log);
+  }
   public static function featureGirl ($source, $log) {
       return OALineBotMsg::create ()->text ("目前功能還沒有完成喔！")->reply ($log);
   }
@@ -97,6 +104,22 @@ class OAPostback {
       OALineBotMsg::create ()->text ("目前最佳日幣匯率如下：\n" . str_repeat ("=", 18) . "\n" . $price['buy']['title'] . "買入為最佳(" . $price['buy']['rate'] . ")，每 1 元新台幣可換 " . round (1 / $price['buy']['rate'], 4) . " 元日幣" . ($price['buy']['memo'] ? "，手續費：" . $price['buy']['memo'] : '') . "\n" . str_repeat ("-", 24) . "\n" . $price['sell']['title'] . "賣出為最佳(" . $price['sell']['rate'] . ")，每 1 元日幣換 " . $price['sell']['rate'] . " 元新台幣" . ($price['buy']['memo'] ? "，手續費：" . $price['buy']['memo'] : '') . "\n" . str_repeat ("-", 24) . "\n" . $price['created_at'])->reply ($log);
     else
       OALineBotMsg::create ()->text ("目前查不到資訊耶.. 😢")->reply ($log);
+  }
+  public static function alleyFood ($source, $log) {
+    self::CI ()->load->library ('AlleyGet');
+
+    if (!$objs = AlleyGet::recommend ()) return ;
+    OALineBotMsg::create ()->templateCarousel ('巷弄美食推薦', array_map (function ($obj) {
+      return array (
+            'title' => $obj['title'],
+            'text' => $obj['desc'],
+            'img' => $obj['img'],
+            'actions' => array (
+              OALineBotAction::templateUri ('打開巷弄', $obj['link']),
+              OALineBotAction::templateUri ('查看網站', $obj['url']),
+              // OALineBotAction::templatePostbackAction ('店家位置', json_encode (array ('type' => 'search', 'method' => 'alleyAddress', 'a' => $obj['position']['lat'], 'n' => $obj['position']['lng']))),
+            ));
+    }, $objs))->reply ($log);
   }
 }
 

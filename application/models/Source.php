@@ -11,6 +11,7 @@ class Source extends OaModel {
   static $table_name = 'sources';
 
   static $has_one = array (
+    array ('set', 'class_name' => 'SourceSet'),
   );
 
   static $has_many = array (
@@ -86,7 +87,7 @@ class Source extends OaModel {
       'richmenu_id' => 0
     );
 
-    if (!$source = Source::find ('one', array ('select' => 'id, sid, title, type', 'conditions' => array ('sid = ?', $params['sid']))))
+    if (!$source = Source::find ('one', array ('select' => 'id, sid, title, type, richmenu_id', 'conditions' => array ('sid = ?', $params['sid']))))
       if (!Source::transaction (function () use (&$source, $params) { return verifyCreateOrm ($source = Source::create (array_intersect_key ($params, Source::table ()->columns))); }))
         return null;
     
@@ -104,7 +105,7 @@ class Source extends OaModel {
       'richmenu_id' => 0
     );
 
-    if (!$speaker = Source::find ('one', array ('select' => 'id, sid, title, type', 'conditions' => array ('sid = ?', $params['sid']))))
+    if (!$speaker = Source::find ('one', array ('select' => 'id, sid, title, type, richmenu_id', 'conditions' => array ('sid = ?', $params['sid']))))
       if (!Source::transaction (function () use (&$speaker, $params) { return verifyCreateOrm ($speaker = Source::create (array_intersect_key ($params, Source::table ()->columns))); }))
         return null;
     

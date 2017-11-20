@@ -117,8 +117,6 @@ class Richmenus extends Admin_controller {
         $posts['height'] = $img['height'];
       }
 
-      // $posts['status'] = Richmenu::STATUS_1;
-
       return '';
     };
 
@@ -170,7 +168,7 @@ class Richmenus extends Admin_controller {
       foreach ($columns as $column => $value)
         $obj->$column = $value;
 
-    if (!Richmenu::transaction (function () use ($obj, $posts) { return $obj->save (); }))
+    if (!Richmenu::transaction (function () use ($obj, $posts) { return $obj->save () && $obj->updateRichmenu (); }))
       return $this->output_error_json ('資料庫處理錯誤！');
 
     return $this->output_json ($obj->selected == Richmenu::SELECTED_2);

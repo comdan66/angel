@@ -66,11 +66,11 @@ class Richmenu extends OaModel {
   public function updateRichmenu () {
     $that = $this;
     $that->CI->load->library ('OALineBot');
-    return (OALineBotRichmenu::deleteRichmenu ($that->rid)) && ($that->rid = OALineBotRichmenu::createRichmenu ($that->format ())) && OALineBotRichmenu::uploadRichmenuImage ($that->rid, $that->cover->url ()) && $that->save () && !array_filter (array_map(function ($source) use ($that) { return !$source->linkRichmenu ($that); }, $that->sources));
+    return (!$that->rid || (OALineBotRichmenu::deleteRichmenu ($that->rid))) && ($that->rid = OALineBotRichmenu::createRichmenu ($that->format ())) && OALineBotRichmenu::uploadRichmenuImage ($that->rid, $that->cover->url ()) && $that->save () && !array_filter (array_map(function ($source) use ($that) { return !$source->linkRichmenu ($that); }, $that->sources));
   }
   public function deleteRichmenu () {
     $this->CI->load->library ('OALineBot');
-    return OALineBotRichmenu::deleteRichmenu ($this->rid) && !array_filter (array_map(function ($source) { return !$source->unlinkRichmenu (); }, $this->sources));
+    return (!$this->rid || (OALineBotRichmenu::deleteRichmenu ($this->rid))) && !array_filter (array_map(function ($source) { return !$source->unlinkRichmenu (); }, $this->sources));
   }
 
   public function destroy () {

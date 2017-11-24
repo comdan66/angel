@@ -12,9 +12,6 @@ class Callback extends Api_controller {
     parent::__construct ();
   }
 
-  public function x () {
-  }
-
   public function v2 () {
     $this->load->library ('OALineBot');
 
@@ -24,9 +21,6 @@ class Callback extends Api_controller {
       
       $speaker = Source::findOrCreateSpeaker ($event);
       
-      // if ($source->id != 1)
-      //   continue;
-
       if (!$log = OALineBot::createLog ($source, $speaker, $event))
         continue;
 
@@ -34,6 +28,13 @@ class Callback extends Api_controller {
         case 'LogJoin':
             OALineBotMsg::create ()->text ('嗨，你好！有想問我的事情可以打「？」或直接輸入「小添屎」我就會出現囉！')->reply ($log);
             OALineBotMsg::create ()->image ('https://pic.ioa.tw/angel/tip/callme.png', 'https://pic.ioa.tw/angel/tip/callme.png')->push ($source);
+            break;
+
+        case 'LogLocation':
+            OALineBotMsg::create ()->templateConfirm ('確認位置', '請問您要找「' . $log->address . '」附近的店家嗎？', array (
+                OALineBotAction::templatePostback ('不是', array ('class' => 'OAPostbackAlley', 'method' => '_')),
+                OALineBotAction::templatePostback ('是的', array ('class' => 'OAPostbackAlley', 'method' => 'location', 'params' => array ($log->latitude, $log->longitude))),
+              ))->reply ($log);
             break;
 
         case 'LogFollow':
@@ -66,37 +67,18 @@ class Callback extends Api_controller {
                 )),
             ))->reply ($log);
 
-          // OALineBotMsg::create ()->templateButton ('比特幣功能列表', '以下是目前的小添屎比特幣功能！', array (
-          //     OALineBotAction::templatePostback ('查詢目前比特幣', array ('class' => 'OAPostback', 'method' => 'bitcoinNow'), '我選查詢目前比特幣'),
-
-          //     OALineBotAction::templatePostback ('比特幣 半天內圖表', array ('class' => 'OAPostback', 'method' => 'bitcoinChart', 'params' => array (12)), '我選比特幣 半天內圖表'),
-          //     OALineBotAction::templatePostback ('比特幣 一日內圖表', array ('class' => 'OAPostback', 'method' => 'bitcoinChart', 'params' => array (24)), '我選比特幣 一日內圖表'),
-          //     OALineBotAction::templatePostback ('比特幣 一週內圖表', array ('class' => 'OAPostback', 'method' => 'bitcoinChart', 'params' => array (24 * 7)), '我選比特幣 一週內圖表')
-          //   ))->reply ($log);
-
-          // OALineBotMsg::create ()->templateCarousel ('小添屎功能列表', array (
-          //     array ('text' => '我的幣值', 'actions' => array (
-          //         OALineBotAction::templatePostback ('比特幣', array ('class' => 'OAPostback', 'method' => 'myBitcoin'), '要看我的比特幣目前幣值！'),
-          //         OALineBotAction::templatePostback ('日幣', array ('class' => 'OAPostback', 'method' => 'myJpy'), '要看我的日幣目前幣值！')
-          //       )),
-          //     array ('text' => '錢錢匯率', 'actions' => array (
-          //         OALineBotAction::templatePostback ('比特幣', array ('class' => 'OAPostback', 'method' => 'searchBitcoinNow'), '我選查詢目前 比特幣'),
-          //         OALineBotAction::templatePostback ('日幣', array ('class' => 'OAPostback', 'method' => 'searchJpyNow'), '我選查詢目前 日幣'),
-          //       )),
-          //     array ('text' => '比特幣走勢', 'actions' => array (
-          //         OALineBotAction::templatePostback ('比特幣 一日內圖表', array ('class' => 'OAPostback', 'method' => 'viewBitcoinChart', 'params' => array (24)), '我選比特幣 一日內圖表'),
-          //         OALineBotAction::templatePostback ('比特幣 一週內圖表', array ('class' => 'OAPostback', 'method' => 'viewBitcoinChart', 'params' => array (24 * 7)), '我選比特幣 一週內圖表')
-          //       )),
-          //   ))->reply ($log);
           break;
         
         case 'LogPostback':
           $this->load->library ('OAPostback');
+          $this->load->library ('OAPostbackAlley');
+
           if (!is_callable (array ($log->getData ('class'), $log->getData ('method'))))
             break;
           
           $params = $log->getData ('params') ? $log->getData ('params') : array ();
-          if (in_array ($log->getData ('method'), array ('myBitcoin', 'myJpy')))
+          
+          if (in_array ($log->getData ('class'), array ('OAPostback')) && in_array ($log->getData ('method'), array ('myBitcoin', 'myJpy')))
             array_push ($params, $speaker);
 
           forward_static_call_array (array ($log->getData ('class'), $log->getData ('method')), array_merge (array ($source, $log), $params));

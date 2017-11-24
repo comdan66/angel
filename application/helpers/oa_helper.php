@@ -13,9 +13,18 @@ if (!function_exists ('oa_number_format')) {
     return ($w ? $w . '.' . $k . '萬 ' : ($k . 'k')) . '(' . number_format ($number, 2, '.', ',') . ')';
   }
 }
+if (!function_exists ('getAddress')) {
+  function getAddress ($lat, $lng) {
+    $url = 'http://maps.googleapis.com/maps/api/geocode/json?latlng=' . $lat . ',' . $lng . '&sensor=false&language=zh-TW';
+    if (!(($data = @file_get_contents ($url)) && ($data = json_decode ($data, true)) && isset ($data['status']) && ($data['status'] == 'OK') && isset ($data["results"][0]["formatted_address"]) && $data["results"][0]["formatted_address"])) return '';
+    return $data["results"][0]["formatted_address"];
+  }
+}
 if (!function_exists ('staticmap')) {
-  function staticmap ($latitude, $longitude) {
-    return (isset ($latitude) && isset ($longitude)) ? 'https://maps.googleapis.com/maps/api/staticmap?center=' . $latitude . ',' . $longitude . '&zoom=17&size=550x250&markers=color:0x3eb6bd%7C' . $latitude . ',' . $longitude . '&language=zh-TW' : '';
+  function staticmap ($lat, $lng, $size = '550x250') {
+    return (isset ($lat) && isset ($lng)) ? 
+    'https://maps.googleapis.com/maps/api/staticmap?center=' . $lat . ',' . $lng . '&zoom=17&size=' . $size . '&markers=color:0x3eb6bd%7C' . $lat . ',' . $lng . '&language=zh-TW'
+     : '';
   }
 }
 if (!function_exists ('regex')) {

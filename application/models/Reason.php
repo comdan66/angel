@@ -6,19 +6,19 @@
  * @license     http://creativecommons.org/licenses/by-nc/2.0/tw/
  */
 
-class LogText extends OaModel {
+class Reason extends OaModel {
 
-  static $table_name = 'log_texts';
+  static $table_name = 'reasons';
 
   static $has_one = array (
   );
 
   static $has_many = array (
+    array ('reasons', 'class_name' => 'Reason'),
   );
 
   static $belongs_to = array (
-    array ('speaker', 'class_name' => 'Source', 'foreign_key' => 'speaker_id'),
-    array ('source', 'class_name' => 'Source', 'foreign_key' => 'source_id'),
+    array ('parent', 'class_name' => 'Reason'),
   );
 
   public function __construct ($attributes = array (), $guard_attributes = true, $instantiating_via_find = false, $new_record = true) {

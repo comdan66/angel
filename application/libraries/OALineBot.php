@@ -33,8 +33,7 @@ use LINE\LINEBot\MessageBuilder\TemplateBuilder\ButtonTemplateBuilder;
 use LINE\LINEBot\MessageBuilder\TemplateBuilder\ConfirmTemplateBuilder;
 use LINE\LINEBot\MessageBuilder\TemplateBuilder\CarouselTemplateBuilder;
 use LINE\LINEBot\MessageBuilder\TemplateBuilder\CarouselColumnTemplateBuilder;
-use LINE\LINEBot\MessageBuilder\TemplateBuilder\ImageCarouselTemplateBuilder;
-use LINE\LINEBot\MessageBuilder\TemplateBuilder\ImageCarouselColumnTemplateBuilder;
+use LINE\LINEBot\MessageBuilder\TemplateBuilder\ImageCarouselTemplateBuilder; use LINE\LINEBot\MessageBuilder\TemplateBuilder\ImageCarouselColumnTemplateBuilder;
 
 use LINE\LINEBot\TemplateActionBuilder\UriTemplateActionBuilder;
 use LINE\LINEBot\TemplateActionBuilder\MessageTemplateActionBuilder;
@@ -105,23 +104,27 @@ class OALineBotMsg {
   public function __construct () { }
 
   public static function create () { return new OALineBotMsg (); }
-  public function push ($source) { return $source && $this->builder ? OALineBot::create ()->bot ()->pushMessage (is_object ($source) && ($source instanceof Source) ? $source->sid : $source, $this->builder)->isSucceeded () : false; }
+  private function template ($alt) { return ($alt = trim ($alt)) && ($alt = catStr ($alt, 400)); }
+
+  public function push ($source) { return ($source = is_string ($source) ? $source : (isset ($source->speaker_id) && $source->speaker && $source->speaker->sid ? $source->speaker->sid : (isset ($source->source_id) && $source->source && $source->source->sid ? $source->source->sid : (isset ($source->sid) ? $source->sid : null)))) && $this->builder ? OALineBot::create ()->bot ()->pushMessage ($source, $this->builder)->isSucceeded () : false; }
   public function reply ($reply_token) { return $reply_token && $this->builder ? OALineBot::create ()->bot ()->replyMessage (is_object ($reply_token) && isset ($reply_token->reply_token) ? $reply_token->reply_token : $reply_token, $this->builder) : false; }
   
   public function text ($text) { $this->builder = ($text = trim ($text)) && ($text = catStr ($text, 2000)) ? new TextMessageBuilder ($text) : null; return $this; }
-  public function image ($ori, $prev) { $this->builder = ($ori = trim ($ori)) && isHttps ($ori) && ($prev = trim ($prev)) && isHttps ($prev) && (strlen ($ori) <= 1000) && (strlen ($prev) <= 1000) ? new ImageMessageBuilder ($ori, $prev) : null; return $this; }
+  public function image ($ori, $prev = null) { $prev = $prev ? $prev : $ori; $this->builder = ($ori = trim ($ori)) && isHttps ($ori) && ($prev = trim ($prev)) && isHttps ($prev) && (strlen ($ori) <= 1000) && (strlen ($prev) <= 1000) ? new ImageMessageBuilder ($ori, $prev) : null; return $this; }
   public function video ($ori, $prev) { $this->builder = ($ori = trim ($ori)) && ($prev = trim ($prev)) && isHttps ($ori) && isHttps ($prev) && (strlen ($ori) <= 1000) && (strlen ($prev) <= 1000) ? new VideoMessageBuilder ($ori, $prev) : null; return $this; }
   public function sticker ($package_id, $sticker_id) { $this->builder = ($package_id = trim ($package_id)) && ($sticker_id = trim ($sticker_id)) ? new StickerMessageBuilder ($package_id, $sticker_id) : null; return $this; }
   public function location ($title, $address, $latitude, $longitude) { $this->builder = ($title = trim ($title)) && ($title = catStr ($title, 100)) && ($address = trim ($address)) && ($address = catStr ($address, 100)) && is_numeric ($latitude = trim ($latitude)) && is_numeric ($longitude = trim ($longitude)) ? new LocationMessageBuilder ($title, $address, $latitude, $longitude) : null; return $this; }
   public function audio ($ori, $duration) { $this->builder = ($ori = trim ($ori)) && isHttps ($ori) && ($duration = trim ($duration)) && (strlen ($ori) <= 1000) && is_numeric ($duration) ? new AudioMessageBuilder ($ori, (int)$duration) : null; return $this; }
   public function imagemap ($alt, $img, $width, $height, $actions) { $this->builder = ($alt = trim ($alt)) && ($alt = catStr ($alt, 400)) && ($img = trim ($img)) && isHttps ($img) && (strlen ($img) <= 1000) && ($width = trim ($width)) && is_numeric ($width) && ($height = trim ($height)) && is_numeric ($height) && ($actions = array_filter ($actions)) ? new ImagemapMessageBuilder ($img, $alt, new BaseSizeBuilder ($width, $height), array_slice ($actions, -50)) : null; return $this; }
 
+  // 4
   public function templateButton ($alt, $text, $actions, $img = '', $title = '') { $title = ($title = trim ($title)) && ($title = catStr ($title, 40)) ? $title : null; $img = ($img = trim ($img)) && isHttps ($img) && (strlen ($img) <= 1000) ? $img : null; $this->builder = $this->template ($alt) && ($text = trim ($text)) && ($text = catStr ($text, $img ? 60 : 160)) && ($actions = array_filter ($actions)) ? new TemplateMessageBuilder ($alt, new ButtonTemplateBuilder ($title, $text, $img, array_slice ($actions, -4))) : null; return $this; }
+  // 2
   public function templateConfirm ($alt, $text, $actions) { $this->builder = $this->template ($alt) && ($text = trim ($text)) && ($text = catStr ($text, 240)) && (count ($actions = array_filter ($actions)) > 1) ? new TemplateMessageBuilder ($alt, new ConfirmTemplateBuilder ($text, array_slice ($actions, -2))) : null; return $this; }
+  // 10 3
   public function templateCarousel ($alt, $columns) { $this->builder = $this->template ($alt) && $columns && is_array ($columns) && ($columns = array_filter (array_map (function ($column) { $column['img'] = isset ($column['img']) && ($column['img'] = trim ($column['img'])) && isHttps ($column['img']) && (strlen ($column['img']) <= 1000) ? $column['img'] : null; $column['title'] = isset ($column['title']) && ($column['title'] = trim ($column['title'])) && ($column['title'] = catStr ($column['title'], 40)) ? $column['title'] : null; return isset ($column['text']) && ($column['text'] = trim ($column['text'])) && ($column['text'] = catStr ($column['text'], $column['img'] ? 60 : 120)) && ($column['actions'] = array_filter ($column['actions'])) ? array ($column['title'], $column['text'], $column['img'], array_slice ($column['actions'], -3)) : null; }, $columns))) && (count (array_unique (array_map ('count', array_map (function ($column) { return end ($column); }, $columns)))) === 1) && (count (array_unique (array_map ('count', array_map ('array_filter', $columns)))) === 1) ? new TemplateMessageBuilder ($alt, new CarouselTemplateBuilder (array_map (function ($column) { return new CarouselColumnTemplateBuilder ($column[0], $column[1], $column[2], $column[3]); }, array_slice ($columns, -10)))) : null; return $this; }
+  // 10 1
   public function templateImageCarousel ($alt, $columns) { $this->builder = $this->template ($alt) && $columns && is_array ($columns) && ($columns = array_filter (array_map (function ($column) { if (!(count ($column) == 2)) return null; $img = is_string ($column[0]) ? $column[0] : $column[1]; $action = is_string ($column[0]) ? $column[1] : $column[0]; return is_string ($img) && ($img = trim ($img)) && isHttps ($img) && (strlen ($img) <= 1000) && $action && is_object ($action) ? array ($img, $action) : null; }, $columns))) ? new TemplateMessageBuilder ($alt, new ImageCarouselTemplateBuilder (array_map (function ($column) { return new ImageCarouselColumnTemplateBuilder ($column[0], $column[1]); }, array_slice ($columns, -10)))) : null; return $this; }
-
-  private function template ($alt) { return ($alt = trim ($alt)) && ($alt = catStr ($alt, 400)); }
 }
 
 class OALineBotRichmenu {

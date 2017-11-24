@@ -17,6 +17,8 @@ class LogSticker extends OaModel {
   );
 
   static $belongs_to = array (
+    array ('speaker', 'class_name' => 'Source', 'foreign_key' => 'speaker_id'),
+    array ('source', 'class_name' => 'Source', 'foreign_key' => 'source_id'),
   );
 
   public function __construct ($attributes = array (), $guard_attributes = true, $instantiating_via_find = false, $new_record = true) {
